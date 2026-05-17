@@ -103,6 +103,7 @@ model User {
   createdTasks       Task[]          @relation("TaskCreator")
   taskAssignments    TaskAssignment[]
   createdTemplates   TaskTemplate[]
+  createdTaskGroups  TaskGroup[]
   submittedReports   Report[]        @relation("ReportSubmitter")
   reviewedReports    Report[]        @relation("ReportReviewer")
   createdSurveys     Survey[]
@@ -205,9 +206,41 @@ model TaskTemplate {
   deletedAt        DateTime?
 
   // Relations
-  tasks Task[]
+  tasks       Task[]
+  groupItems  TaskGroupTemplate[]
 
   @@map("task_templates")
+}
+
+model TaskGroup {
+  id          String    @id @default(uuid())
+  name        String
+  code        String    @unique
+  description String?
+  isActive    Boolean   @default(true)
+  createdById String
+  createdBy   User      @relation(fields: [createdById], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  templates TaskGroupTemplate[]
+
+  @@map("task_groups")
+}
+
+model TaskGroupTemplate {
+  id         String       @id @default(uuid())
+  groupId    String
+  group      TaskGroup    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  templateId String
+  template   TaskTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  sortOrder  Int          @default(0)
+  createdAt  DateTime     @default(now())
+
+  @@unique([groupId, templateId])
+  @@index([templateId])
+  @@map("task_group_templates")
 }
 
 model Task {

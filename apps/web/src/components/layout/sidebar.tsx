@@ -60,6 +60,7 @@ const managementMenu: MenuItem[] = [
     icon: ClipboardList,
     children: [
       { key: 'all-tasks', label: 'All Tasks', href: '/tasks' },
+      { key: 'task-templates', label: 'Templates & Groups', href: '/task-templates' },
       { key: 'my-tasks', label: 'My Tasks', href: '/tasks/my' },
     ],
   },

@@ -292,6 +292,115 @@ export interface UpdateOutletInput {
   isActive?: boolean;
 }
 
+// ==================== Task Template & Group ====================
+
+export interface TaskTemplateDto {
+  id: string;
+  name: string;
+  description: string | null;
+  type: string;
+  checklist: string[];
+  photoRequired: boolean;
+  estimatedDuration: number | null;
+  isActive: boolean;
+  createdById: string;
+  createdBy: { id: string; name: string; email: string };
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  _count?: {
+    tasks: number;
+    groupItems: number;
+  };
+}
+
+export interface TaskTemplateOptionDto {
+  id: string;
+  name: string;
+  type: string;
+  estimatedDuration: number | null;
+}
+
+export interface TaskTemplateQueryParams extends PaginationQuery {
+  search?: string;
+  type?: string;
+  isActive?: string;
+}
+
+export interface CreateTaskTemplateInput {
+  name: string;
+  description?: string;
+  type: string;
+  checklist: string[];
+  photoRequired?: boolean;
+  estimatedDuration?: number;
+}
+
+export interface UpdateTaskTemplateInput {
+  name?: string;
+  description?: string;
+  type?: string;
+  checklist?: string[];
+  photoRequired?: boolean;
+  estimatedDuration?: number;
+  isActive?: boolean;
+}
+
+export interface TaskGroupTemplateItemDto {
+  id: string;
+  sortOrder: number;
+  template: {
+    id: string;
+    name: string;
+    type: string;
+    checklist: string[];
+    photoRequired: boolean;
+    estimatedDuration: number | null;
+    isActive: boolean;
+  };
+}
+
+export interface TaskGroupDto {
+  id: string;
+  name: string;
+  code: string;
+  description: string | null;
+  isActive: boolean;
+  createdById: string;
+  createdBy: { id: string; name: string; email: string };
+  templates: TaskGroupTemplateItemDto[];
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}
+
+export interface TaskGroupQueryParams extends PaginationQuery {
+  search?: string;
+  isActive?: string;
+}
+
+export interface CreateTaskGroupInput {
+  name: string;
+  code: string;
+  description?: string;
+  templateIds: string[];
+}
+
+export interface UpdateTaskGroupInput {
+  name?: string;
+  code?: string;
+  description?: string;
+  templateIds?: string[];
+  isActive?: boolean;
+}
+
+export interface AssignTaskGroupInput {
+  assigneeId: string;
+  branchId: string;
+  scheduledAt: string;
+  titlePrefix?: string;
+}
+
 // ==================== Dashboard ====================
 
 export interface DashboardSummaryDto {

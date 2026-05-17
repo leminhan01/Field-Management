@@ -9,6 +9,8 @@ import { OutletsModule } from './modules/outlets/outlets.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { PositionsModule } from './modules/positions/positions.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { TaskTemplatesModule } from './modules/task-templates/task-templates.module';
+import { TaskGroupsModule } from './modules/task-groups/task-groups.module';
 
 @Module({
   imports: [
@@ -25,6 +27,8 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
     UploadModule,
     PositionsModule,
     DashboardModule,
+    TaskTemplatesModule,
+    TaskGroupsModule,
   ],
   controllers: [],
   providers: [],
