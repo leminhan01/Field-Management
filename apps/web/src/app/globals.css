@@ -1,0 +1,134 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== shadcn/ui HSL Variables — Mockup-inspired palette ===== */
+@layer base {
+  :root {
+    --background: 240 50% 99%;
+    --foreground: 230 15% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 230 15% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 230 15% 12%;
+
+    --primary: 217 100% 40%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 231 20% 95%;
+    --secondary-foreground: 230 15% 12%;
+
+    --muted: 231 20% 95%;
+    --muted-foreground: 225 10% 40%;
+
+    --accent: 231 20% 95%;
+    --accent-foreground: 230 15% 12%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 160 84% 39%;
+    --success-light: 153 88% 95%;
+
+    --warning: 38 92% 50%;
+    --warning-light: 48 96% 95%;
+
+    --info: 217 100% 40%;
+    --info-light: 214 95% 93%;
+
+    --border: 231 15% 88%;
+    --input: 231 15% 88%;
+    --ring: 217 100% 40%;
+
+    --radius: 0.5rem;
+
+    /* Layout tokens */
+    --sidebar-width: 256px;
+    --header-height: 64px;
+    --brand: #0052cc;
+    --brand-light: #e8edfb;
+    --brand-dark: #003d9b;
+  }
+}
+
+/* ===== Base Styles ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  outline: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  outline: none;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c3c6d6;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* ===== Animations ===== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.93); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-fadeIn { animation: fadeIn 0.3s ease; }
+.animate-fadeUp { animation: fadeUp 0.3s ease; }
+.animate-slideIn { animation: slideIn 0.2s ease; }
+.animate-popIn { animation: popIn 0.15s ease; }

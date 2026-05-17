@@ -1,0 +1,62 @@
+// Enums
+
+export enum Role {
+  SUPER_ADMIN = 'SUPER_ADMIN',
+  ADMIN = 'ADMIN',
+  MANAGER = 'MANAGER',
+  TEAM_LEADER = 'TEAM_LEADER',
+  STAFF = 'STAFF',
+}
+
+export enum BranchType {
+  RESTAURANT = 'RESTAURANT',
+  SUPERMARKET = 'SUPERMARKET',
+  CONVENIENCE_STORE = 'CONVENIENCE_STORE',
+  PHARMACY = 'PHARMACY',
+  OTHER = 'OTHER',
+}
+
+export enum TaskType {
+  REGULAR = 'REGULAR',
+  DEVICE_CHECK = 'DEVICE_CHECK',
+  SURVEY = 'SURVEY',
+  PROMOTION = 'PROMOTION',
+}
+
+export enum TaskStatus {
+  DRAFT = 'DRAFT',
+  ASSIGNED = 'ASSIGNED',
+  IN_PROGRESS = 'IN_PROGRESS',
+  COMPLETED = 'COMPLETED',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
+export enum AssignmentStatus {
+  PENDING = 'PENDING',
+  IN_PROGRESS = 'IN_PROGRESS',
+  COMPLETED = 'COMPLETED',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
+export enum DeviceType {
+  CAMERA = 'CAMERA',
+  DISPLAY_SCREEN = 'DISPLAY_SCREEN',
+  STANDEE = 'STANDEE',
+  SHELF = 'SHELF',
+  FRIDGE = 'FRIDGE',
+  OTHER = 'OTHER',
+}
+
+export enum DeviceStatus {
+  ACTIVE = 'ACTIVE',
+  MAINTENANCE = 'MAINTENANCE',
+  BROKEN = 'BROKEN',
+}
+
+export enum SurveyStatus {
+  DRAFT = 'DRAFT',
+  ACTIVE = 'ACTIVE',
+  CLOSED = 'CLOSED',
+}

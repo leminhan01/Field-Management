@@ -1,0 +1,285 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== Enums ====================
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  MANAGER
+  TEAM_LEADER
+  STAFF
+}
+
+enum BranchType {
+  RESTAURANT
+  SUPERMARKET
+  CONVENIENCE_STORE
+  PHARMACY
+  OTHER
+}
+
+enum TaskType {
+  REGULAR
+  DEVICE_CHECK
+  SURVEY
+  PROMOTION
+}
+
+enum TaskStatus {
+  DRAFT
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  APPROVED
+  REJECTED
+}
+
+enum AssignmentStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  APPROVED
+  REJECTED
+}
+
+enum DeviceType {
+  CAMERA
+  DISPLAY_SCREEN
+  STANDEE
+  SHELF
+  FRIDGE
+  OTHER
+}
+
+enum DeviceStatus {
+  ACTIVE
+  MAINTENANCE
+  BROKEN
+}
+
+enum SurveyStatus {
+  DRAFT
+  ACTIVE
+  CLOSED
+}
+
+// ==================== Models ====================
+
+model User {
+  id             String          @id @default(uuid())
+  email          String          @unique
+  password       String
+  name           String
+  phone          String?
+  avatar         String?
+  role           Role            @default(STAFF)
+  branchId       String?
+  branch         Branch?         @relation(fields: [branchId], references: [id])
+  isActive       Boolean         @default(true)
+  refreshTokens  String[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  deletedAt      DateTime?
+
+  // Relations
+  managedBranch      Branch?         @relation("BranchManager")
+  createdTasks       Task[]          @relation("TaskCreator")
+  taskAssignments    TaskAssignment[]
+  createdTemplates   TaskTemplate[]
+  submittedReports   Report[]        @relation("ReportSubmitter")
+  reviewedReports    Report[]        @relation("ReportReviewer")
+  createdSurveys     Survey[]
+  surveyResponses    SurveyResponse[]
+
+  @@map("users")
+}
+
+model Region {
+  id        String   @id @default(uuid())
+  name      String
+  code      String   @unique
+  parentId  String?
+  parent    Region?  @relation("RegionTree", fields: [parentId], references: [id])
+  children  Region[] @relation("RegionTree")
+  branches  Branch[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("regions")
+}
+
+model Branch {
+  id          String     @id @default(uuid())
+  name        String
+  code        String     @unique
+  address     String?
+  type        BranchType
+  regionId    String?
+  region      Region?    @relation(fields: [regionId], references: [id])
+  managerId   String?    @unique
+  manager     User?      @relation("BranchManager", fields: [managerId], references: [id])
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
+
+  // Relations
+  employees      User[]
+  tasks          Task[]
+  devices        Device[]
+  taskAssignments TaskAssignment[]
+  surveyResponses SurveyResponse[]
+
+  @@map("branches")
+}
+
+model TaskTemplate {
+  id               String    @id @default(uuid())
+  name             String
+  description      String?
+  type             TaskType
+  checklist        Json
+  photoRequired    Boolean   @default(false)
+  estimatedDuration Int?
+  isActive         Boolean   @default(true)
+  createdById      String
+  createdBy        User      @relation(fields: [createdById], references: [id])
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  // Relations
+  tasks Task[]
+
+  @@map("task_templates")
+}
+
+model Task {
+  id            String       @id @default(uuid())
+  title         String
+  description   String?
+  type          TaskType
+  status        TaskStatus   @default(DRAFT)
+  templateId    String?
+  template      TaskTemplate? @relation(fields: [templateId], references: [id])
+  branchId      String
+  branch        Branch       @relation(fields: [branchId], references: [id])
+  deviceId      String?
+  device        Device?      @relation(fields: [deviceId], references: [id])
+  scheduledDate DateTime?
+  startTime     DateTime?
+  endTime       DateTime?
+  createdById   String
+  createdBy     User         @relation("TaskCreator", fields: [createdById], references: [id])
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  deletedAt     DateTime?
+
+  // Relations
+  assignments TaskAssignment[]
+  reports     Report[]
+
+  @@map("tasks")
+}
+
+model TaskAssignment {
+  id           String           @id @default(uuid())
+  taskId       String
+  task         Task             @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  assigneeId   String
+  assignee     User             @relation(fields: [assigneeId], references: [id])
+  branchId     String
+  branch       Branch           @relation(fields: [branchId], references: [id])
+  status       AssignmentStatus @default(PENDING)
+  scheduledAt  DateTime
+  startedAt    DateTime?
+  completedAt  DateTime?
+  notes        String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  // Relations
+  reports Report[]
+
+  @@map("task_assignments")
+}
+
+model Device {
+  id          String       @id @default(uuid())
+  name        String
+  serial      String?      @unique
+  type        DeviceType
+  status      DeviceStatus @default(ACTIVE)
+  branchId    String
+  branch      Branch       @relation(fields: [branchId], references: [id])
+  notes       String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  deletedAt   DateTime?
+
+  // Relations
+  tasks Task[]
+
+  @@map("devices")
+}
+
+model Report {
+  id             String          @id @default(uuid())
+  taskId         String
+  task           Task            @relation(fields: [taskId], references: [id])
+  assignmentId   String
+  assignment     TaskAssignment  @relation(fields: [assignmentId], references: [id])
+  submittedById  String
+  submittedBy    User            @relation("ReportSubmitter", fields: [submittedById], references: [id])
+  checklistData  Json
+  photos         String[]
+  notes          String?
+  rating         Int?
+  reviewedById   String?
+  reviewedBy     User?           @relation("ReportReviewer", fields: [reviewedById], references: [id])
+  reviewedAt     DateTime?
+  reviewNotes    String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@map("reports")
+}
+
+model Survey {
+  id          String       @id @default(uuid())
+  title       String
+  description String?
+  questions   Json
+  status      SurveyStatus @default(DRAFT)
+  createdById String
+  createdBy   User         @relation(fields: [createdById], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relations
+  responses SurveyResponse[]
+
+  @@map("surveys")
+}
+
+model SurveyResponse {
+  id          String   @id @default(uuid())
+  surveyId    String
+  survey      Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  branchId    String
+  branch      Branch   @relation(fields: [branchId], references: [id])
+  answers     Json
+  submittedAt DateTime @default(now())
+
+  @@unique([surveyId, userId, branchId])
+  @@map("survey_responses")
+}

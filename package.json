@@ -1,0 +1,31 @@
+{
+  "name": "fieldapp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FieldApp - He thong quan ly cong viec agency BB/BG",
+  "scripts": {
+    "dev": "turbo dev",
+    "dev:web": "turbo dev --filter=@fieldapp/web",
+    "dev:api": "turbo dev --filter=@fieldapp/api",
+    "build": "turbo build",
+    "build:web": "turbo build --filter=@fieldapp/web",
+    "build:api": "turbo build --filter=@fieldapp/api",
+    "lint": "turbo lint",
+    "lint:fix": "turbo lint:fix",
+    "type-check": "turbo type-check",
+    "db:push": "pnpm --filter @fieldapp/api db:push",
+    "db:migrate": "pnpm --filter @fieldapp/api db:migrate",
+    "db:seed": "pnpm --filter @fieldapp/api db:seed",
+    "db:studio": "pnpm --filter @fieldapp/api db:studio",
+    "test": "turbo test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.27.0",
+  "devDependencies": {
+    "turbo": "^2.5.0",
+    "prettier": "^3.5.0",
+    "eslint": "^9.0.0"
+  }
+}
