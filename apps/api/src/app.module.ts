@@ -3,6 +3,8 @@ import { ConfigModule } from '@nestjs/config';
 import configuration from './config/configuration';
 import { PrismaModule } from './common/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { EmployeesModule } from './modules/employees/employees.module';
+import { BranchesModule } from './modules/branches/branches.module';
 
 @Module({
   imports: [
@@ -13,6 +15,8 @@ import { AuthModule } from './modules/auth/auth.module';
     }),
     PrismaModule,
     AuthModule,
+    EmployeesModule,
+    BranchesModule,
   ],
   controllers: [],
   providers: [],

@@ -50,3 +50,8 @@ export const PAGINATION_DEFAULTS = {
   LIMIT: 10,
   MAX_LIMIT: 100,
 } as const;
+
+export const EMPLOYEE_STATUS_LABELS: Record<string, string> = {
+  active: 'Hoạt động',
+  inactive: 'Ngừng hoạt động',
+} as const;

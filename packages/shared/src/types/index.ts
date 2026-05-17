@@ -60,3 +60,100 @@ export enum SurveyStatus {
   ACTIVE = 'ACTIVE',
   CLOSED = 'CLOSED',
 }
+
+// ==================== Pagination & API ====================
+
+export interface PaginationQuery {
+  page?: number;
+  limit?: number;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+// ==================== Employee ====================
+
+export interface EmployeeDto {
+  id: string;
+  email: string;
+  name: string;
+  phone: string | null;
+  avatar: string | null;
+  role: string;
+  isActive: boolean;
+  branchId: string | null;
+  branch: { id: string; name: string; code: string } | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}
+
+export interface EmployeeQueryParams extends PaginationQuery {
+  search?: string;
+  role?: string;
+  branchId?: string;
+  isActive?: string;
+}
+
+export interface CreateEmployeeInput {
+  email: string;
+  name: string;
+  password: string;
+  phone?: string;
+  role?: string;
+  branchId?: string;
+}
+
+export interface UpdateEmployeeInput {
+  email?: string;
+  name?: string;
+  phone?: string;
+  role?: string;
+  branchId?: string;
+  isActive?: boolean;
+}
+
+export interface ImportResult {
+  total: number;
+  imported: number;
+  skipped: number;
+  errors: Array<{ row: number; message: string }>;
+}
+
+// ==================== Utility Functions ====================
+
+export function getPaginationParams(query: PaginationQuery) {
+  const page = query.page || 1;
+  const limit = query.limit || 10;
+  return { skip: (page - 1) * limit, take: limit, page, limit };
+}
+
+export function createPaginatedResponse<T>(
+  data: T[],
+  total: number,
+  page: number,
+  limit: number,
+): PaginatedResponse<T> {
+  return {
+    data,
+    meta: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+}

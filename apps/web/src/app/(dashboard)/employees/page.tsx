@@ -1,110 +1,226 @@
 'use client';
 
-import { useState } from 'react';
-import { Mail, Phone, Download, Upload, Filter } from 'lucide-react';
+import { useState, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { Download, Upload, Filter, Loader2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import { PageWrapper } from '@/components/shared/page-wrapper';
 import { PageToolbar } from '@/components/shared/page-toolbar';
-import { DataTable, type Column } from '@/components/shared/data-table';
-import { StatusBadge, RoleBadge } from '@/components/shared/status-badge';
-import { ActionMenu, type ActionItem } from '@/components/shared/action-menu';
+import { DataTable } from '@/components/shared/data-table';
 import { Pagination } from '@/components/shared/pagination';
-
-interface Employee {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  role: string;
-  branch: string;
-  status: string;
-  joinDate: string;
-  avatar?: string;
-  [key: string]: unknown;
-}
-
-const mockEmployees: Employee[] = [
-  { id: 1, name: 'Nguyen Van An', email: 'an.nguyen@field.com', phone: '0901 234 567', role: 'Team Leader', branch: 'Lotte Mart Q7', status: 'Active', joinDate: '15/01/2025' },
-  { id: 2, name: 'Tran Thi Bich', email: 'bich.tran@field.com', phone: '0902 345 678', role: 'Staff', branch: 'Coopmart Tan Dinh', status: 'Active', joinDate: '03/03/2025' },
-  { id: 3, name: 'Le Minh Chau', email: 'chau.le@field.com', phone: '0903 456 789', role: 'Staff', branch: 'AEON Binh Tan', status: 'Active', joinDate: '20/06/2025' },
-  { id: 4, name: 'Pham Thi Dung', email: 'dung.pham@field.com', phone: '0904 567 890', role: 'Manager', branch: 'WinMart Q1', status: 'Active', joinDate: '10/02/2025' },
-  { id: 5, name: 'Hoang Van Em', email: 'em.hoang@field.com', phone: '0905 678 901', role: 'Staff', branch: 'GO! Big C', status: 'Inactive', joinDate: '01/09/2024' },
-  { id: 6, name: 'Vo Thi Phuong', email: 'phuong.vo@field.com', phone: '0906 789 012', role: 'Staff', branch: 'Restaurant A', status: 'Active', joinDate: '12/04/2025' },
-  { id: 7, name: 'Dang Minh Quang', email: 'quang.dang@field.com', phone: '0907 890 123', role: 'Team Leader', branch: 'Restaurant B', status: 'Active', joinDate: '22/08/2024' },
-  { id: 8, name: 'Bui Thi Hoa', email: 'hoa.bui@field.com', phone: '0908 901 234', role: 'Staff', branch: 'Restaurant C', status: 'On Leave', joinDate: '05/11/2024' },
-];
-
-const statusDotColors: Record<string, string> = {
-  Active: 'bg-emerald-400', Inactive: 'bg-gray-400', 'On Leave': 'bg-amber-400',
-};
-
-const PAGE_SIZE = 8;
+import { getEmployeeColumns } from '@/components/employees/employee-columns';
+import { EmployeeFilter } from '@/components/employees/employee-filter';
+import { EmployeeForm } from '@/components/employees/employee-form';
+import { EmployeeImportDialog } from '@/components/employees/employee-import-dialog';
+import { useEmployees } from '@/hooks/use-employees';
+import { useEmployeeMutations } from '@/hooks/use-employee-mutations';
+import { exportEmployees } from '@/lib/employees';
+import type { EmployeeDto, EmployeeQueryParams } from '@fieldapp/shared';
 
 export default function EmployeesPage() {
+  const router = useRouter();
+
+  // Filter & pagination state
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [roleFilter, setRoleFilter] = useState('');
+  const [branchFilter, setBranchFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [showFilter, setShowFilter] = useState(false);
 
-  const filtered = mockEmployees.filter((e) => {
-    const q = search.toLowerCase();
-    return e.name.toLowerCase().includes(q) || e.email.toLowerCase().includes(q) || e.branch.toLowerCase().includes(q) || e.role.toLowerCase().includes(q);
-  });
+  // Dialog state
+  const [showForm, setShowForm] = useState(false);
+  const [editingEmployee, setEditingEmployee] = useState<EmployeeDto | null>(null);
+  const [showImport, setShowImport] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<EmployeeDto | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
-  const pageData = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  // Build query params
+  const params: EmployeeQueryParams = useMemo(() => ({
+    page,
+    limit: 10,
+    search: search || undefined,
+    role: roleFilter || undefined,
+    branchId: branchFilter || undefined,
+    isActive: statusFilter || undefined,
+  }), [page, search, roleFilter, branchFilter, statusFilter]);
 
-  const actions: ActionItem[] = [
-    { label: 'Edit', onClick: () => {} },
-    { label: 'View Detail', onClick: () => {} },
-    { label: 'Delete', onClick: () => {}, variant: 'destructive' },
-  ];
+  const { data, meta, loading, refetch } = useEmployees(params);
+  const { create, update, remove, importFile } = useEmployeeMutations();
 
-  const columns: Column<Employee>[] = [
-    { key: 'name', header: 'Employee', render: (e) => (
-      <div className="flex items-center gap-3">
-        <Avatar className="w-8 h-8" style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}>
-          <AvatarFallback className="bg-transparent text-white text-[12px] font-bold">
-            {e.name.split(' ').map(n => n[0]).join('').slice(-2)}
-          </AvatarFallback>
-        </Avatar>
-        <span className="font-semibold">{e.name}</span>
-      </div>
-    )},
-    { key: 'contact', header: 'Contact', render: (e) => (
-      <div className="space-y-0.5">
-        <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground"><Mail className="w-3 h-3" />{e.email}</div>
-        <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground"><Phone className="w-3 h-3" />{e.phone}</div>
-      </div>
-    )},
-    { key: 'role', header: 'Role', render: (e) => <RoleBadge role={e.role} /> },
-    { key: 'branch', header: 'Branch', render: (e) => <span className="text-muted-foreground">{e.branch}</span> },
-    { key: 'status', header: 'Status', render: (e) => (
-      <span className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground">
-        <span className={`w-2 h-2 rounded-full ${statusDotColors[e.status] || 'bg-gray-400'}`} />
-        {e.status}
-      </span>
-    )},
-    { key: 'joinDate', header: 'Join Date', render: (e) => <span className="font-mono text-muted-foreground">{e.joinDate}</span> },
-    { key: 'actions', header: '', className: 'w-10', render: () => <ActionMenu actions={actions} /> },
-  ];
+  const columns = useMemo(() => getEmployeeColumns({
+    onEdit: (e) => { setEditingEmployee(e); setShowForm(true); },
+    onView: (e) => router.push(`/employees/${e.id}`),
+    onDelete: (e) => setDeleteTarget(e),
+  }), [router]);
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearch(value);
+    setPage(1);
+  }, []);
+
+  const handleClearFilters = useCallback(() => {
+    setRoleFilter('');
+    setBranchFilter('');
+    setStatusFilter('');
+    setPage(1);
+  }, []);
+
+  const handleFormSubmit = useCallback(async (formData: Record<string, unknown>) => {
+    if (editingEmployee) {
+      await update(editingEmployee.id, formData as any);
+    } else {
+      await create(formData as any);
+    }
+    refetch();
+  }, [editingEmployee, create, update, refetch]);
+
+  const handleDelete = useCallback(async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await remove(deleteTarget.id);
+      refetch();
+      setDeleteTarget(null);
+    } finally {
+      setDeleting(false);
+    }
+  }, [deleteTarget, remove, refetch]);
+
+  const handleImportSuccess = useCallback(() => {
+    refetch();
+  }, [refetch]);
 
   return (
     <PageWrapper>
       <PageToolbar
-        searchPlaceholder="Search employees..."
+        title="Quản lý nhân viên"
+        description={`${meta.total} nhân viên`}
+        searchPlaceholder="Tìm kiếm nhân viên..."
         searchValue={search}
-        onSearchChange={(v) => { setSearch(v); setPage(1); }}
-        primaryAction={{ label: 'Add Employee', onClick: () => {} }}
+        onSearchChange={handleSearchChange}
+        primaryAction={{
+          label: 'Thêm nhân viên',
+          onClick: () => { setEditingEmployee(null); setShowForm(true); },
+        }}
         secondaryActions={
           <>
-            <Button variant="outline" size="sm" className="h-8 gap-1.5 text-[13px]"><Upload className="w-3.5 h-3.5" />Import</Button>
-            <Button variant="outline" size="sm" className="h-8 gap-1.5 text-[13px]"><Download className="w-3.5 h-3.5" />Export</Button>
-            <Button variant="outline" size="sm" className="h-8 gap-1.5 text-[13px]"><Filter className="w-3.5 h-3.5" />Filter</Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 gap-1.5 text-[13px]"
+              onClick={() => setShowImport(true)}
+            >
+              <Upload className="w-3.5 h-3.5" />Import
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 gap-1.5 text-[13px]"
+              onClick={() => exportEmployees(params)}
+            >
+              <Download className="w-3.5 h-3.5" />Export
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className={`h-8 gap-1.5 text-[13px] ${showFilter ? 'bg-[#0052cc]/10 text-[#0052cc] border-[#0052cc]' : ''}`}
+              onClick={() => setShowFilter(!showFilter)}
+            >
+              <Filter className="w-3.5 h-3.5" />Bộ lọc
+            </Button>
           </>
         }
       />
-      <DataTable columns={columns} data={pageData} selectable getRowId={(r) => String(r.id)} />
-      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+
+      {showFilter && (
+        <EmployeeFilter
+          role={roleFilter}
+          branchId={branchFilter}
+          isActive={statusFilter}
+          onRoleChange={(v) => { setRoleFilter(v); setPage(1); }}
+          onBranchChange={(v) => { setBranchFilter(v); setPage(1); }}
+          onStatusChange={(v) => { setStatusFilter(v); setPage(1); }}
+          onClear={handleClearFilters}
+        />
+      )}
+
+      {loading && !data.length ? (
+        <div className="flex items-center justify-center h-48">
+          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : (
+        <>
+          <DataTable
+            columns={columns}
+            data={data as any[]}
+            selectable
+            selectedIds={selectedIds}
+            onSelectChange={setSelectedIds}
+            getRowId={(row) => (row as EmployeeDto).id}
+          />
+          <div className="mt-4">
+            <Pagination
+              page={page}
+              totalPages={meta.totalPages}
+              onPageChange={setPage}
+            />
+          </div>
+        </>
+      )}
+
+      {/* Create/Edit Dialog */}
+      <EmployeeForm
+        open={showForm}
+        mode={editingEmployee ? 'edit' : 'create'}
+        employee={editingEmployee}
+        onClose={() => { setShowForm(false); setEditingEmployee(null); }}
+        onSubmit={handleFormSubmit}
+      />
+
+      {/* Import Dialog */}
+      <EmployeeImportDialog
+        open={showImport}
+        onClose={() => setShowImport(false)}
+        onImport={importFile}
+        onSuccess={handleImportSuccess}
+      />
+
+      {/* Delete Confirm Dialog */}
+      <Dialog open={!!deleteTarget} onOpenChange={(v) => !v && setDeleteTarget(null)}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Xác nhận xóa</DialogTitle>
+            <DialogDescription>
+              Bạn có chắc chắn muốn xóa nhân viên <strong>{deleteTarget?.name}</strong>?
+              Hành động này không thể hoàn tác.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" size="sm" onClick={() => setDeleteTarget(null)}>
+              Hủy
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleDelete}
+              disabled={deleting}
+            >
+              {deleting && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
+              <Trash2 className="w-4 h-4 mr-1" />
+              Xóa
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </PageWrapper>
   );
 }
