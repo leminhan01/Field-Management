@@ -7,11 +7,11 @@ export const ROLE_LABELS: Record<string, string> = {
 } as const;
 
 export const BRANCH_TYPE_LABELS: Record<string, string> = {
-  RESTAURANT: 'Nhà hàng',
-  SUPERMARKET: 'Siêu thị',
-  CONVENIENCE_STORE: 'Cửa hàng tiện lợi',
-  PHARMACY: 'Nhà thuốc',
-  OTHER: 'Khác',
+  RESTAURANT: 'Trụ sở chính',
+  SUPERMARKET: 'Chi nhánh miền Bắc',
+  CONVENIENCE_STORE: 'Chi nhánh miền Trung',
+  PHARMACY: 'Chi nhánh miền Nam',
+  OTHER: 'Văn phòng đại diện',
 } as const;
 
 export const TASK_STATUS_LABELS: Record<string, string> = {

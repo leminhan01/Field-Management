@@ -133,6 +133,61 @@ export interface ImportResult {
   errors: Array<{ row: number; message: string }>;
 }
 
+// ==================== Branch ====================
+
+export interface BranchDto {
+  id: string;
+  name: string;
+  code: string;
+  address: string | null;
+  type: string;
+  regionId: string | null;
+  region: { id: string; name: string; code: string } | null;
+  managerId: string | null;
+  manager: { id: string; name: string; email: string } | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  _count: {
+    employees: number;
+    devices: number;
+    tasks: number;
+  };
+}
+
+export interface BranchOptionDto {
+  id: string;
+  name: string;
+  code: string;
+}
+
+export interface BranchQueryParams extends PaginationQuery {
+  search?: string;
+  type?: string;
+  regionId?: string;
+  isActive?: string;
+}
+
+export interface CreateBranchInput {
+  name: string;
+  code: string;
+  address?: string;
+  type: string;
+  regionId?: string;
+  managerId?: string;
+}
+
+export interface UpdateBranchInput {
+  name?: string;
+  code?: string;
+  address?: string;
+  type?: string;
+  regionId?: string;
+  managerId?: string;
+  isActive?: boolean;
+}
+
 // ==================== Utility Functions ====================
 
 export function getPaginationParams(query: PaginationQuery) {

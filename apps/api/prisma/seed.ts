@@ -19,14 +19,14 @@ async function main() {
     create: { name: 'Ho Chi Minh', code: 'HCM' },
   });
 
-  // Create branches
+  // Create company branches
   const branch1 = await prisma.branch.upsert({
-    where: { code: 'REST-A01' },
+    where: { code: 'CN-MB' },
     update: {},
     create: {
-      name: 'Restaurant A - Ha Noi',
-      code: 'REST-A01',
-      type: 'RESTAURANT',
+      name: 'Công ty A - Chi nhánh miền Bắc',
+      code: 'CN-MB',
+      type: 'SUPERMARKET',
       address: '123 Nguyen Trai, Ha Noi',
       regionId: region1.id,
       isActive: true,
@@ -34,12 +34,12 @@ async function main() {
   });
 
   const branch2 = await prisma.branch.upsert({
-    where: { code: 'REST-B01' },
+    where: { code: 'CN-MN' },
     update: {},
     create: {
-      name: 'Restaurant B - HCM',
-      code: 'REST-B01',
-      type: 'RESTAURANT',
+      name: 'Công ty A - Chi nhánh miền Nam',
+      code: 'CN-MN',
+      type: 'PHARMACY',
       address: '456 Le Loi, Ho Chi Minh',
       regionId: region2.id,
       isActive: true,
@@ -47,12 +47,12 @@ async function main() {
   });
 
   const branch3 = await prisma.branch.upsert({
-    where: { code: 'SUP-A01' },
+    where: { code: 'HO-HN' },
     update: {},
     create: {
-      name: 'Supermarket A - Ha Noi',
-      code: 'SUP-A01',
-      type: 'SUPERMARKET',
+      name: 'Công ty A - Trụ sở chính',
+      code: 'HO-HN',
+      type: 'RESTAURANT',
       address: '789 Tran Hung Dao, Ha Noi',
       regionId: region1.id,
       isActive: true,
