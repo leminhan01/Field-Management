@@ -8,6 +8,7 @@ import { BranchesModule } from './modules/branches/branches.module';
 import { OutletsModule } from './modules/outlets/outlets.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { PositionsModule } from './modules/positions/positions.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { PositionsModule } from './modules/positions/positions.module';
     OutletsModule,
     UploadModule,
     PositionsModule,
+    DashboardModule,
   ],
   controllers: [],
   providers: [],

@@ -1,0 +1,227 @@
+import { Injectable } from '@nestjs/common';
+import { AssignmentStatus, DeviceStatus, Prisma, TaskStatus } from '@prisma/client';
+import { PrismaService } from '../../common/prisma.service';
+import type {
+  DashboardAlertDto,
+  DashboardModuleDto,
+  DashboardOverviewDto,
+  DashboardRecentTaskDto,
+  DashboardStatusDto,
+} from '@fieldapp/shared';
+
+const RECENT_TASK_SELECT = {
+  id: true,
+  title: true,
+  type: true,
+  status: true,
+  scheduledDate: true,
+  createdAt: true,
+  branch: { select: { name: true } },
+  assignments: {
+    take: 1,
+    orderBy: { createdAt: 'desc' },
+    select: { assignee: { select: { name: true } } },
+  },
+} satisfies Prisma.TaskSelect;
+
+@Injectable()
+export class DashboardService {
+  constructor(private prisma: PrismaService) {}
+
+  async getOverview(): Promise<DashboardOverviewDto> {
+    const weekStart = this.getStartOfWeek(new Date());
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 7);
+
+    const [
+      totalEmployees,
+      activeEmployees,
+      totalBranches,
+      activeBranches,
+      totalOutlets,
+      activeOutlets,
+      totalTasks,
+      tasksThisWeek,
+      taskStatusGroups,
+      recentTasks,
+      totalDevices,
+      activeDevices,
+      issueDevices,
+      totalSurveys,
+      activeSurveys,
+      pendingReports,
+      unassignedTasks,
+    ] = await Promise.all([
+      this.prisma.user.count({ where: { deletedAt: null } }),
+      this.prisma.user.count({ where: { deletedAt: null, isActive: true } }),
+      this.prisma.branch.count({ where: { deletedAt: null } }),
+      this.prisma.branch.count({ where: { deletedAt: null, isActive: true } }),
+      this.prisma.outlet.count({ where: { deletedAt: null } }),
+      this.prisma.outlet.count({ where: { deletedAt: null, isActive: true } }),
+      this.prisma.task.count({ where: { deletedAt: null } }),
+      this.prisma.task.count({
+        where: {
+          deletedAt: null,
+          OR: [
+            { scheduledDate: { gte: weekStart, lt: weekEnd } },
+            { scheduledDate: null, createdAt: { gte: weekStart, lt: weekEnd } },
+          ],
+        },
+      }),
+      this.prisma.task.groupBy({
+        by: ['status'],
+        where: { deletedAt: null },
+        _count: { _all: true },
+      }),
+      this.prisma.task.findMany({
+        where: { deletedAt: null },
+        select: RECENT_TASK_SELECT,
+        orderBy: [{ scheduledDate: 'desc' }, { createdAt: 'desc' }],
+        take: 5,
+      }),
+      this.prisma.device.count({ where: { deletedAt: null } }),
+      this.prisma.device.count({ where: { deletedAt: null, status: DeviceStatus.ACTIVE } }),
+      this.prisma.device.count({
+        where: {
+          deletedAt: null,
+          status: { in: [DeviceStatus.MAINTENANCE, DeviceStatus.BROKEN] },
+        },
+      }),
+      this.prisma.survey.count(),
+      this.prisma.survey.count({ where: { status: 'ACTIVE' } }),
+      this.prisma.report.count({ where: { reviewedAt: null } }),
+      this.prisma.task.count({
+        where: {
+          deletedAt: null,
+          status: { in: [TaskStatus.DRAFT, TaskStatus.ASSIGNED] },
+          assignments: { none: {} },
+        },
+      }),
+    ]);
+
+    return {
+      summary: {
+        employees: {
+          total: totalEmployees,
+          active: activeEmployees,
+          inactive: totalEmployees - activeEmployees,
+        },
+        branches: {
+          total: totalBranches,
+          active: activeBranches,
+        },
+        outlets: {
+          total: totalOutlets,
+          active: activeOutlets,
+        },
+        tasks: {
+          total: totalTasks,
+          thisWeek: tasksThisWeek,
+        },
+        devices: {
+          total: totalDevices,
+          active: activeDevices,
+          issue: issueDevices,
+        },
+        surveys: {
+          total: totalSurveys,
+          active: activeSurveys,
+        },
+      },
+      taskStatuses: this.buildTaskStatuses(taskStatusGroups, totalTasks),
+      recentTasks: recentTasks.map(this.mapRecentTask),
+      alerts: this.buildAlerts(pendingReports, issueDevices, unassignedTasks),
+      modules: this.buildModules({
+        employees: totalEmployees,
+        branches: totalBranches,
+        outlets: totalOutlets,
+        devices: totalDevices,
+        surveys: totalSurveys,
+      }),
+    };
+  }
+
+  private getStartOfWeek(date: Date) {
+    const result = new Date(date);
+    result.setHours(0, 0, 0, 0);
+    const day = result.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    result.setDate(result.getDate() + diff);
+    return result;
+  }
+
+  private buildTaskStatuses(
+    groups: Array<{ status: TaskStatus; _count: { _all: number } }>,
+    total: number,
+  ): DashboardStatusDto[] {
+    const countMap = new Map(groups.map((item) => [item.status, item._count._all]));
+
+    return Object.values(TaskStatus).map((status) => {
+      const count = countMap.get(status) || 0;
+      return {
+        status,
+        count,
+        percent: total > 0 ? Math.round((count / total) * 100) : 0,
+      };
+    });
+  }
+
+  private mapRecentTask(task: Prisma.TaskGetPayload<{ select: typeof RECENT_TASK_SELECT }>): DashboardRecentTaskDto {
+    return {
+      id: task.id,
+      title: task.title,
+      type: task.type,
+      branch: task.branch.name,
+      assignee: task.assignments[0]?.assignee.name || null,
+      status: task.status,
+      dueDate: (task.scheduledDate || task.createdAt).toISOString(),
+    };
+  }
+
+  private buildAlerts(
+    pendingReports: number,
+    issueDevices: number,
+    unassignedTasks: number,
+  ): DashboardAlertDto[] {
+    return [
+      {
+        key: 'pending-reports',
+        title: `${pendingReports} báo cáo chờ duyệt`,
+        description: 'Cần kiểm tra ảnh, ghi chú và kết quả thực hiện trước khi phê duyệt.',
+        count: pendingReports,
+        severity: pendingReports > 0 ? 'warning' : 'success',
+      },
+      {
+        key: 'device-issues',
+        title: `${issueDevices} thiết bị cần xử lý`,
+        description: 'Thiết bị trạng thái Maintenance hoặc Broken đang cần theo dõi.',
+        count: issueDevices,
+        severity: issueDevices > 0 ? 'danger' : 'success',
+      },
+      {
+        key: 'unassigned-tasks',
+        title: `${unassignedTasks} công việc chưa gán nhân sự`,
+        description: 'Các công việc chưa có assignment cần gán Team Leader hoặc Staff phụ trách.',
+        count: unassignedTasks,
+        severity: unassignedTasks > 0 ? 'warning' : 'success',
+      },
+    ];
+  }
+
+  private buildModules(counts: {
+    employees: number;
+    branches: number;
+    outlets: number;
+    devices: number;
+    surveys: number;
+  }): DashboardModuleDto[] {
+    return [
+      { key: 'employees', label: 'Nhân viên', href: '/employees', count: `${counts.employees} hồ sơ` },
+      { key: 'branches', label: 'Chi nhánh', href: '/branches', count: `${counts.branches} chi nhánh` },
+      { key: 'outlets', label: 'Cửa hàng', href: '/outlets', count: `${counts.outlets} điểm bán` },
+      { key: 'devices', label: 'Thiết bị', href: '/devices', count: `${counts.devices} tài sản` },
+      { key: 'surveys', label: 'Khảo sát', href: '/surveys', count: `${counts.surveys} form` },
+      { key: 'settings', label: 'Cài đặt', href: '/settings', count: 'Region, role, trạng thái' },
+    ];
+  }
+}

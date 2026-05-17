@@ -292,6 +292,76 @@ export interface UpdateOutletInput {
   isActive?: boolean;
 }
 
+// ==================== Dashboard ====================
+
+export interface DashboardSummaryDto {
+  employees: {
+    total: number;
+    active: number;
+    inactive: number;
+  };
+  branches: {
+    total: number;
+    active: number;
+  };
+  outlets: {
+    total: number;
+    active: number;
+  };
+  tasks: {
+    total: number;
+    thisWeek: number;
+  };
+  devices: {
+    total: number;
+    active: number;
+    issue: number;
+  };
+  surveys: {
+    total: number;
+    active: number;
+  };
+}
+
+export interface DashboardStatusDto {
+  status: string;
+  count: number;
+  percent: number;
+}
+
+export interface DashboardRecentTaskDto {
+  id: string;
+  title: string;
+  type: string;
+  branch: string;
+  assignee: string | null;
+  status: string;
+  dueDate: string | null;
+}
+
+export interface DashboardAlertDto {
+  key: string;
+  title: string;
+  description: string;
+  count: number;
+  severity: 'info' | 'success' | 'warning' | 'danger';
+}
+
+export interface DashboardModuleDto {
+  key: string;
+  label: string;
+  href: string;
+  count: string;
+}
+
+export interface DashboardOverviewDto {
+  summary: DashboardSummaryDto;
+  taskStatuses: DashboardStatusDto[];
+  recentTasks: DashboardRecentTaskDto[];
+  alerts: DashboardAlertDto[];
+  modules: DashboardModuleDto[];
+}
+
 // ==================== Utility Functions ====================
 
 export function getPaginationParams(query: PaginationQuery) {
