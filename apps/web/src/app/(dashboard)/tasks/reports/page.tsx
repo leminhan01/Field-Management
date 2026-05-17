@@ -28,7 +28,7 @@ const mockReports: Report[] = [
   { id: 3, taskName: 'Kiem tra camera', assignee: 'Le Minh Chau', branch: 'AEON Binh Tan', submittedAt: '13/05/2026 18:00', photos: 2, status: 'Approved', notes: 'Camera binh thuong' },
   { id: 4, taskName: 'Bao cao BG thang 5', assignee: 'Pham Thi Dung', branch: 'WinMart Q1', submittedAt: '12/05/2026 16:45', photos: 3, status: 'Rejected', notes: 'Thieu hinh anh' },
   { id: 5, taskName: 'Setup standee', assignee: 'Hoang Van Em', branch: 'GO! Big C', submittedAt: '11/05/2026 11:20', photos: 5, status: 'Approved', notes: 'Hoan thanh dung han' },
-  { id: 6, taskName: 'Kiem tra trung bay BB', assignee: 'Vo Thi Phuong', branch: 'Restaurant A', submittedAt: '10/05/2026 09:30', photos: 3, status: 'Pending', notes: 'Bao cao cho duyet' },
+  { id: 6, taskName: 'Kiem tra trung bay BB', assignee: 'Vo Thi Phuong', branch: 'Outlet A', submittedAt: '10/05/2026 09:30', photos: 3, status: 'Pending', notes: 'Bao cao cho duyet' },
 ];
 
 const PAGE_SIZE = 8;

@@ -29,7 +29,7 @@ const mockTasks: RegularTask[] = [
   { id: 3, title: 'Bao cao trung bay thang 5', type: 'BB', branch: 'AEON Binh Tan', assignee: 'Le Minh Chau', scheduledDate: '15/05/2026', startTime: '14:00', endTime: '16:00', status: 'Draft' },
   { id: 4, title: 'Quang ba san pham moi', type: 'Promotion', branch: 'WinMart Q1', assignee: 'Pham Thi Dung', scheduledDate: '15/05/2026', startTime: '10:00', endTime: '17:00', status: 'Completed' },
   { id: 5, title: 'Cham soc khach hang VIP', type: 'BG', branch: 'GO! Big C', assignee: 'Hoang Van Em', scheduledDate: '16/05/2026', startTime: '08:00', endTime: '11:00', status: 'Assigned' },
-  { id: 6, title: 'Kiem tra POS trung bay', type: 'BB', branch: 'Restaurant A', assignee: 'Vo Thi Phuong', scheduledDate: '16/05/2026', startTime: '13:00', endTime: '15:00', status: 'Draft' },
+  { id: 6, title: 'Kiem tra POS trung bay', type: 'BB', branch: 'Outlet A', assignee: 'Vo Thi Phuong', scheduledDate: '16/05/2026', startTime: '13:00', endTime: '15:00', status: 'Draft' },
 ];
 
 const taskTypeColors: Record<string, string> = {

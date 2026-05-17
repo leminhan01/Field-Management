@@ -11,7 +11,6 @@ import {
   BarChart3,
   CalendarRange,
   Settings,
-  MapPin,
   Store,
   MonitorSpeaker,
   ChevronDown,
@@ -87,7 +86,7 @@ const managementMenu: MenuItem[] = [
 
 const othersMenu: MenuItem[] = [
   { key: 'branch', label: 'Branch', icon: Store, href: '/branches' },
-  { key: 'restaurant', label: 'Restaurant', icon: MapPin, href: '/restaurants' },
+  { key: 'outlet', label: 'Outlet', icon: Store, href: '/outlets' },
   {
     key: 'devices',
     label: 'Devices',

@@ -25,6 +25,14 @@ enum BranchType {
   OTHER
 }
 
+enum OutletType {
+  RESTAURANT
+  SUPERMARKET
+  CONVENIENCE_STORE
+  PHARMACY
+  OTHER
+}
+
 enum TaskType {
   REGULAR
   DEVICE_CHECK
@@ -132,12 +140,32 @@ model Branch {
 
   // Relations
   employees      User[]
+  outlets        Outlet[]
   tasks          Task[]
   devices        Device[]
   taskAssignments TaskAssignment[]
   surveyResponses SurveyResponse[]
 
   @@map("branches")
+}
+
+model Outlet {
+  id        String    @id @default(uuid())
+  name      String
+  code      String    @unique
+  address   String?
+  phone     String?
+  type      OutletType @default(OTHER)
+  brand     String?
+  branchId  String
+  branch    Branch    @relation(fields: [branchId], references: [id])
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([branchId])
+  @@map("outlets")
 }
 
 model TaskTemplate {

@@ -16,6 +16,14 @@ export enum BranchType {
   OTHER = 'OTHER',
 }
 
+export enum OutletType {
+  RESTAURANT = 'RESTAURANT',
+  SUPERMARKET = 'SUPERMARKET',
+  CONVENIENCE_STORE = 'CONVENIENCE_STORE',
+  PHARMACY = 'PHARMACY',
+  OTHER = 'OTHER',
+}
+
 export enum TaskType {
   REGULAR = 'REGULAR',
   DEVICE_CHECK = 'DEVICE_CHECK',
@@ -185,6 +193,52 @@ export interface UpdateBranchInput {
   type?: string;
   regionId?: string;
   managerId?: string;
+  isActive?: boolean;
+}
+
+// ==================== Outlet ====================
+
+export interface OutletDto {
+  id: string;
+  name: string;
+  code: string;
+  address: string | null;
+  phone: string | null;
+  type: string;
+  brand: string | null;
+  branchId: string;
+  branch: { id: string; name: string; code: string };
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}
+
+export interface OutletQueryParams extends PaginationQuery {
+  search?: string;
+  type?: string;
+  branchId?: string;
+  isActive?: string;
+}
+
+export interface CreateOutletInput {
+  name: string;
+  code: string;
+  address?: string;
+  phone?: string;
+  type?: string;
+  brand?: string;
+  branchId: string;
+}
+
+export interface UpdateOutletInput {
+  name?: string;
+  code?: string;
+  address?: string;
+  phone?: string;
+  type?: string;
+  brand?: string;
+  branchId?: string;
   isActive?: boolean;
 }
 

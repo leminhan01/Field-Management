@@ -25,16 +25,16 @@ interface DeviceTask {
 }
 
 const mockData: DeviceTask[] = [
-  { id: 1, branch: 'Restaurant B', task: 'Check Device', device: 'Camera B', deviceType: 'camera', startTime: '07:00:00', endTime: '20:00:00', status: 'Active', assignee: 'Nguyen Van A' },
-  { id: 2, branch: 'Restaurant B', task: 'Check Device', device: 'Camera B', deviceType: 'camera', startTime: '09:48:00', endTime: '17:00:00', status: 'Active', assignee: 'Tran Thi B' },
-  { id: 3, branch: 'Restaurant C', task: 'Maintenance POS', device: 'POS Machine #3', deviceType: 'pos', startTime: '08:00:00', endTime: '18:00:00', status: 'Pending', assignee: 'Le Minh C' },
+  { id: 1, branch: 'Outlet B', task: 'Check Device', device: 'Camera B', deviceType: 'camera', startTime: '07:00:00', endTime: '20:00:00', status: 'Active', assignee: 'Nguyen Van A' },
+  { id: 2, branch: 'Outlet B', task: 'Check Device', device: 'Camera B', deviceType: 'camera', startTime: '09:48:00', endTime: '17:00:00', status: 'Active', assignee: 'Tran Thi B' },
+  { id: 3, branch: 'Outlet C', task: 'Maintenance POS', device: 'POS Machine #3', deviceType: 'pos', startTime: '08:00:00', endTime: '18:00:00', status: 'Pending', assignee: 'Le Minh C' },
   { id: 4, branch: 'AEON Binh Tan', task: 'Check Device', device: 'Camera A1', deviceType: 'camera', startTime: '09:00:00', endTime: '21:00:00', status: 'Active', assignee: 'Pham Thi D' },
   { id: 5, branch: 'Lotte Mart Q7', task: 'Replace Screen', device: 'Digital Signage #2', deviceType: 'screen', startTime: '10:00:00', endTime: '16:00:00', status: 'Completed', assignee: 'Hoang Van E' },
   { id: 6, branch: 'Coopmart Tan Dinh', task: 'Check Device', device: 'Camera C', deviceType: 'camera', startTime: '07:30:00', endTime: '19:30:00', status: 'Active', assignee: 'Nguyen Van A' },
   { id: 7, branch: 'WinMart Q1', task: 'Setup Standee', device: 'Standee #5', deviceType: 'standee', startTime: '08:00:00', endTime: '17:00:00', status: 'Pending', assignee: 'Tran Thi B' },
   { id: 8, branch: 'GO! Big C', task: 'Check Device', device: 'Camera D', deviceType: 'camera', startTime: '09:00:00', endTime: '20:00:00', status: 'Overdue', assignee: 'Le Minh C' },
-  { id: 9, branch: 'Restaurant A', task: 'Install Camera', device: 'Camera E (new)', deviceType: 'camera', startTime: '14:00:00', endTime: '17:00:00', status: 'Pending', assignee: 'Pham Thi D' },
-  { id: 10, branch: 'Restaurant B', task: 'Check Device', device: 'Camera B', deviceType: 'camera', startTime: '07:00:00', endTime: '20:00:00', status: 'Active', assignee: 'Hoang Van E' },
+  { id: 9, branch: 'Outlet A', task: 'Install Camera', device: 'Camera E (new)', deviceType: 'camera', startTime: '14:00:00', endTime: '17:00:00', status: 'Pending', assignee: 'Pham Thi D' },
+  { id: 10, branch: 'Outlet B', task: 'Check Device', device: 'Camera B', deviceType: 'camera', startTime: '07:00:00', endTime: '20:00:00', status: 'Active', assignee: 'Hoang Van E' },
 ];
 
 const PAGE_SIZE = 8;

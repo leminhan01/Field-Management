@@ -14,6 +14,14 @@ export const BRANCH_TYPE_LABELS: Record<string, string> = {
   OTHER: 'Văn phòng đại diện',
 } as const;
 
+export const OUTLET_TYPE_LABELS: Record<string, string> = {
+  RESTAURANT: 'Nha hang',
+  SUPERMARKET: 'Sieu thi',
+  CONVENIENCE_STORE: 'Cua hang tien loi',
+  PHARMACY: 'Nha thuoc',
+  OTHER: 'Khac',
+} as const;
+
 export const TASK_STATUS_LABELS: Record<string, string> = {
   DRAFT: 'Nháp',
   ASSIGNED: 'Đã phân công',

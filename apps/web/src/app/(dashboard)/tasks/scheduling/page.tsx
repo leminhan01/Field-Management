@@ -12,7 +12,7 @@ const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const scheduleData: Record<string, { branch: string; task: string; assignee: string; time: string; type: string }[]> = {
   '2026-05-11': [
     { branch: 'Lotte Mart Q7', task: 'Kiem tra trung bay', assignee: 'Nguyen Van An', time: '08:00 - 10:00', type: 'BB' },
-    { branch: 'Restaurant B', task: 'Check Device', assignee: 'Dang Minh Quang', time: '09:00 - 17:00', type: 'Device' },
+    { branch: 'Outlet B', task: 'Check Device', assignee: 'Dang Minh Quang', time: '09:00 - 17:00', type: 'Device' },
   ],
   '2026-05-12': [
     { branch: 'Coopmart Tan Dinh', task: 'Sampling san pham', assignee: 'Tran Thi Bich', time: '09:00 - 12:00', type: 'BG' },
@@ -20,14 +20,14 @@ const scheduleData: Record<string, { branch: string; task: string; assignee: str
   '2026-05-13': [
     { branch: 'AEON Binh Tan', task: 'Kiem tra camera', assignee: 'Le Minh Chau', time: '08:00 - 18:00', type: 'Device' },
     { branch: 'WinMart Q1', task: 'Bao cao BG', assignee: 'Pham Thi Dung', time: '14:00 - 16:00', type: 'BG' },
-    { branch: 'Restaurant A', task: 'Cham soc KH VIP', assignee: 'Vo Thi Phuong', time: '10:00 - 12:00', type: 'BB' },
+    { branch: 'Outlet A', task: 'Cham soc KH VIP', assignee: 'Vo Thi Phuong', time: '10:00 - 12:00', type: 'BB' },
   ],
   '2026-05-14': [
     { branch: 'GO! Big C', task: 'Setup standee', assignee: 'Hoang Van Em', time: '08:00 - 11:00', type: 'Promotion' },
     { branch: 'Lotte Mart Q7', task: 'Kiem tra POS', assignee: 'Nguyen Van An', time: '13:00 - 15:00', type: 'BB' },
   ],
   '2026-05-15': [
-    { branch: 'Restaurant B', task: 'Bao tri thiet bi', assignee: 'Dang Minh Quang', time: '09:00 - 12:00', type: 'Device' },
+    { branch: 'Outlet B', task: 'Bao tri thiet bi', assignee: 'Dang Minh Quang', time: '09:00 - 12:00', type: 'Device' },
   ],
 };
 

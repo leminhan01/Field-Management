@@ -24,13 +24,13 @@ interface Device {
 
 const mockDevices: Device[] = [
   { id: 1, name: 'Camera A1', serial: 'CAM-001-AE', type: 'Camera', branch: 'AEON Binh Tan', status: 'Active', lastChecked: '14/05/2026', assignedTask: 'Check Device' },
-  { id: 2, name: 'Camera B', serial: 'CAM-002-RB', type: 'Camera', branch: 'Restaurant B', status: 'Active', lastChecked: '14/05/2026', assignedTask: 'Check Device' },
-  { id: 3, name: 'POS Machine #3', serial: 'POS-003-RB', type: 'POS', branch: 'Restaurant B', status: 'Maintenance', lastChecked: '10/05/2026', assignedTask: 'Maintenance POS' },
+  { id: 2, name: 'Camera B', serial: 'CAM-002-RB', type: 'Camera', branch: 'Outlet B', status: 'Active', lastChecked: '14/05/2026', assignedTask: 'Check Device' },
+  { id: 3, name: 'POS Machine #3', serial: 'POS-003-RB', type: 'POS', branch: 'Outlet B', status: 'Maintenance', lastChecked: '10/05/2026', assignedTask: 'Maintenance POS' },
   { id: 4, name: 'Digital Signage #2', serial: 'DSG-002-LM', type: 'Screen', branch: 'Lotte Mart Q7', status: 'Active', lastChecked: '13/05/2026', assignedTask: 'Replace Screen' },
   { id: 5, name: 'Standee #5', serial: 'STD-005-WM', type: 'Standee', branch: 'WinMart Q1', status: 'Active', lastChecked: '12/05/2026', assignedTask: 'Setup Standee' },
   { id: 6, name: 'Camera C', serial: 'CAM-003-CT', type: 'Camera', branch: 'Coopmart Tan Dinh', status: 'Broken', lastChecked: '08/05/2026', assignedTask: '-' },
   { id: 7, name: 'Camera D', serial: 'CAM-004-GB', type: 'Camera', branch: 'GO! Big C', status: 'Active', lastChecked: '14/05/2026', assignedTask: 'Check Device' },
-  { id: 8, name: 'Camera E (new)', serial: 'CAM-005-RA', type: 'Camera', branch: 'Restaurant A', status: 'Pending', lastChecked: '-', assignedTask: 'Install Camera' },
+  { id: 8, name: 'Camera E (new)', serial: 'CAM-005-RA', type: 'Camera', branch: 'Outlet A', status: 'Pending', lastChecked: '-', assignedTask: 'Install Camera' },
 ];
 
 const typeIcons: Record<string, typeof Camera> = { Camera, POS: Monitor, Screen: Tv, Standee: Monitor };

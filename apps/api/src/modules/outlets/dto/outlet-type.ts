@@ -1,0 +1,9 @@
+export const OUTLET_TYPES = {
+  RESTAURANT: 'RESTAURANT',
+  SUPERMARKET: 'SUPERMARKET',
+  CONVENIENCE_STORE: 'CONVENIENCE_STORE',
+  PHARMACY: 'PHARMACY',
+  OTHER: 'OTHER',
+} as const;
+
+export type OutletTypeValue = (typeof OUTLET_TYPES)[keyof typeof OUTLET_TYPES];
