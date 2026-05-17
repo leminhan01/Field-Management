@@ -101,6 +101,8 @@ export interface EmployeeDto {
   phone: string | null;
   avatar: string | null;
   role: string;
+  positionId: string | null;
+  position: { id: string; name: string; code: string; permissions: string[] } | null;
   isActive: boolean;
   branchId: string | null;
   branch: { id: string; name: string; code: string } | null;
@@ -123,6 +125,7 @@ export interface CreateEmployeeInput {
   phone?: string;
   role?: string;
   branchId?: string;
+  positionId?: string;
 }
 
 export interface UpdateEmployeeInput {
@@ -131,6 +134,53 @@ export interface UpdateEmployeeInput {
   phone?: string;
   role?: string;
   branchId?: string;
+  positionId?: string;
+  isActive?: boolean;
+}
+
+// ==================== Position ====================
+
+export interface PermissionDto {
+  key: string;
+  label: string;
+  group: string;
+}
+
+export interface PositionDto {
+  id: string;
+  name: string;
+  code: string;
+  description: string | null;
+  role: string;
+  permissions: string[];
+  isSystem: boolean;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  _count?: { users: number };
+}
+
+export interface PositionQueryParams extends PaginationQuery {
+  search?: string;
+  isActive?: string;
+}
+
+export interface CreatePositionInput {
+  name: string;
+  code: string;
+  description?: string;
+  role?: string;
+  permissions?: string[];
+  isActive?: boolean;
+}
+
+export interface UpdatePositionInput {
+  name?: string;
+  code?: string;
+  description?: string;
+  role?: string;
+  permissions?: string[];
   isActive?: boolean;
 }
 

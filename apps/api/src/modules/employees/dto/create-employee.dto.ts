@@ -47,4 +47,9 @@ export class CreateEmployeeDto {
   @IsOptional()
   @IsUUID('4', { message: 'Chi nhánh không hợp lệ' })
   branchId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID('4', { message: 'Chuc vu khong hop le' })
+  positionId?: string;
 }

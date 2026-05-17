@@ -13,6 +13,7 @@ import {
   Settings,
   Store,
   MonitorSpeaker,
+  ShieldCheck,
   ChevronDown,
   Briefcase,
   ChevronsLeft,
@@ -87,6 +88,7 @@ const managementMenu: MenuItem[] = [
 const othersMenu: MenuItem[] = [
   { key: 'branch', label: 'Branch', icon: Store, href: '/branches' },
   { key: 'outlet', label: 'Outlet', icon: Store, href: '/outlets' },
+  { key: 'positions', label: 'Positions', icon: ShieldCheck, href: '/positions' },
   {
     key: 'devices',
     label: 'Devices',

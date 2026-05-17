@@ -23,8 +23,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { extractErrorMessage, getBranches } from '@/lib/employees';
+import { getPositions } from '@/lib/positions';
 import { ROLE_LABELS } from '@fieldapp/shared';
-import type { EmployeeDto } from '@fieldapp/shared';
+import type { EmployeeDto, PositionDto } from '@fieldapp/shared';
 
 const MAX_AVATAR_SIZE = 10 * 1024 * 1024;
 const ACCEPTED_AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -54,6 +55,7 @@ const formSchema = z.object({
     .optional()
     .or(z.literal('')),
   role: z.string().optional(),
+  positionId: z.string().optional(),
   branchId: z.string().optional(),
   isActive: z.boolean().optional(),
 });
@@ -70,6 +72,7 @@ interface EmployeeFormProps {
 
 export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: EmployeeFormProps) {
   const [branches, setBranches] = useState<Array<{ id: string; name: string }>>([]);
+  const [positions, setPositions] = useState<PositionDto[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -91,6 +94,7 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
       password: '',
       phone: '',
       role: 'STAFF',
+      positionId: '',
       branchId: '',
       isActive: true,
     },
@@ -99,6 +103,9 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
   useEffect(() => {
     if (open) {
       getBranches().then(setBranches).catch(() => {});
+      getPositions({ page: 1, limit: 100 })
+        .then((result) => setPositions(result.data))
+        .catch(() => {});
     }
   }, [open]);
 
@@ -110,6 +117,7 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
         password: '',
         phone: employee.phone || '',
         role: employee.role,
+        positionId: employee.positionId || '',
         branchId: employee.branchId || '',
         isActive: employee.isActive,
       });
@@ -122,6 +130,7 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
         password: '',
         phone: '',
         role: 'STAFF',
+        positionId: '',
         branchId: '',
         isActive: true,
       });
@@ -131,6 +140,7 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
   }, [mode, employee, reset, open]);
 
   const selectedRole = watch('role');
+  const selectedPosition = watch('positionId');
   const selectedBranch = watch('branchId');
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -167,6 +177,7 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
       const payload: Record<string, unknown> = { ...data };
       if (!payload.phone) delete payload.phone;
       if (!payload.branchId) delete payload.branchId;
+      if (!payload.positionId) delete payload.positionId;
       if (!payload.role) delete payload.role;
       if (mode === 'edit') {
         delete payload.password;
@@ -278,6 +289,26 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
                 <SelectContent>
                   {Object.entries(ROLE_LABELS).map(([key, label]) => (
                     <SelectItem key={key} value={key}>{label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Chức vụ</Label>
+              <Select
+                value={selectedPosition || 'none'}
+                onValueChange={(v) => setValue('positionId', v === 'none' ? '' : v)}
+              >
+                <SelectTrigger className="h-9 text-[13px]">
+                  <SelectValue placeholder="Chọn chức vụ" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Không chọn</SelectItem>
+                  {positions.map((position) => (
+                    <SelectItem key={position.id} value={position.id}>
+                      {position.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>

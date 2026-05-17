@@ -22,6 +22,8 @@ const USER_SELECT = {
   phone: true,
   avatar: true,
   role: true,
+  positionId: true,
+  position: { select: { id: true, name: true, code: true, permissions: true } },
   isActive: true,
   branchId: true,
   branch: { select: { id: true, name: true, code: true } },
@@ -99,6 +101,7 @@ export class EmployeesService {
 
   async create(dto: CreateEmployeeDto, _currentUser: { id: string; role: string }) {
     await this.ensureBranchExists(dto.branchId);
+    const position = await this.ensurePositionExists(dto.positionId);
 
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -116,7 +119,8 @@ export class EmployeesService {
         name: dto.name,
         password: hashedPassword,
         phone: dto.phone,
-        role: dto.role || Role.STAFF,
+        role: dto.role || position?.role || Role.STAFF,
+        positionId: dto.positionId || null,
         branchId: dto.branchId,
       },
       select: USER_SELECT,
@@ -148,6 +152,7 @@ export class EmployeesService {
     }
 
     await this.ensureBranchExists(dto.branchId);
+    const position = await this.ensurePositionExists(dto.positionId);
 
     const updated = await this.prisma.user.update({
       where: { id },
@@ -155,8 +160,9 @@ export class EmployeesService {
         ...(dto.email && { email: dto.email }),
         ...(dto.name && { name: dto.name }),
         ...(dto.phone !== undefined && { phone: dto.phone }),
-        ...(dto.role && { role: dto.role }),
+        ...((dto.role || position) && { role: dto.role || position?.role }),
         ...(dto.branchId !== undefined && { branchId: dto.branchId }),
+        ...(dto.positionId !== undefined && { positionId: dto.positionId || null }),
         ...(dto.isActive !== undefined && { isActive: dto.isActive }),
       },
       select: USER_SELECT,
@@ -305,5 +311,20 @@ export class EmployeesService {
     if (!branch) {
       throw new BadRequestException('Chi nhánh không tồn tại hoặc đã bị xóa');
     }
+  }
+
+  private async ensurePositionExists(positionId?: string | null) {
+    if (!positionId) return null;
+
+    const position = await this.prisma.position.findFirst({
+      where: { id: positionId, deletedAt: null, isActive: true },
+      select: { id: true, role: true },
+    });
+
+    if (!position) {
+      throw new BadRequestException('Chuc vu khong ton tai hoac da bi khoa');
+    }
+
+    return position;
   }
 }

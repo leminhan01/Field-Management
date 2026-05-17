@@ -46,6 +46,11 @@ export class UpdateEmployeeDto {
 
   @ApiPropertyOptional()
   @IsOptional()
+  @IsUUID('4', { message: 'Chuc vu khong hop le' })
+  positionId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsBoolean()
   isActive?: boolean;
 }

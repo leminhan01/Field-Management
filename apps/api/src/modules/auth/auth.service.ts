@@ -1,9 +1,15 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../common/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import { RegisterDto, LoginDto, RefreshTokenDto, ChangePasswordDto } from './dto';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +26,7 @@ export class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const position = await this.ensurePositionExists(dto.positionId);
 
     const user = await this.prisma.user.create({
       data: {
@@ -27,14 +34,17 @@ export class AuthService {
         name: dto.name,
         password: hashedPassword,
         phone: dto.phone,
-        role: dto.role || 'STAFF',
+        role: dto.role || position?.role || Role.STAFF,
         branchId: dto.branchId,
+        positionId: dto.positionId,
       },
       select: {
         id: true,
         email: true,
         name: true,
         role: true,
+        positionId: true,
+        position: { select: { id: true, name: true, code: true, permissions: true } },
         phone: true,
         avatar: true,
         branchId: true,
@@ -77,6 +87,7 @@ export class AuthService {
         role: user.role,
         avatar: user.avatar,
         branchId: user.branchId,
+        positionId: user.positionId,
       },
     };
   }
@@ -135,6 +146,8 @@ export class AuthService {
         email: true,
         name: true,
         role: true,
+        positionId: true,
+        position: { select: { id: true, name: true, code: true, permissions: true } },
         phone: true,
         avatar: true,
         branchId: true,
@@ -189,5 +202,20 @@ export class AuthService {
     ]);
 
     return { accessToken, refreshToken };
+  }
+
+  private async ensurePositionExists(positionId?: string | null) {
+    if (!positionId) return null;
+
+    const position = await this.prisma.position.findFirst({
+      where: { id: positionId, deletedAt: null, isActive: true },
+      select: { id: true, role: true },
+    });
+
+    if (!position) {
+      throw new BadRequestException('Chuc vu khong ton tai hoac da bi khoa');
+    }
+
+    return position;
   }
 }

@@ -7,6 +7,7 @@ import { EmployeesModule } from './modules/employees/employees.module';
 import { BranchesModule } from './modules/branches/branches.module';
 import { OutletsModule } from './modules/outlets/outlets.module';
 import { UploadModule } from './modules/upload/upload.module';
+import { PositionsModule } from './modules/positions/positions.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { UploadModule } from './modules/upload/upload.module';
     BranchesModule,
     OutletsModule,
     UploadModule,
+    PositionsModule,
   ],
   controllers: [],
   providers: [],

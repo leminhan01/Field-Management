@@ -30,7 +30,16 @@ async function bootstrap() {
     .setTitle('FieldApp API')
     .setDescription('He thong quan ly cong viec agency BB/BG')
     .setVersion('1.0')
-    .addBearerAuth()
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'Nhap access token tu API /auth/login. Khong can them tien to Bearer.',
+      },
+      'access-token',
+    )
+    .addSecurityRequirements('access-token')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
