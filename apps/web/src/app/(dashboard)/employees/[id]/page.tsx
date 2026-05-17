@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import {
   Dialog,
@@ -114,8 +114,9 @@ export default function EmployeeDetailPage() {
       <Card className="border shadow-sm">
         <CardContent className="p-6">
           <div className="flex items-start gap-6">
-            <Avatar className="w-20 h-20" style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}>
-              <AvatarFallback className="bg-transparent text-white text-[24px] font-bold">
+            <Avatar className="w-20 h-20" style={!employee.avatar ? { background: 'linear-gradient(135deg, #667eea, #764ba2)' } : undefined}>
+              {employee.avatar && <AvatarImage src={employee.avatar} alt={employee.name} />}
+              <AvatarFallback className={`${employee.avatar ? '' : 'bg-transparent'} text-white text-[24px] font-bold`}>
                 {employee.name.split(' ').map((n) => n[0]).join('').slice(-2)}
               </AvatarFallback>
             </Avatar>

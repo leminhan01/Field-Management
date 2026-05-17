@@ -1,7 +1,7 @@
 'use client';
 
 import { Mail, Phone } from 'lucide-react';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { RoleBadge } from '@/components/shared/status-badge';
 import { StatusBadge } from '@/components/shared/status-badge';
 import { ActionMenu, type ActionItem } from '@/components/shared/action-menu';
@@ -21,8 +21,9 @@ export function getEmployeeColumns(actions: EmployeeActions): Column<EmployeeDto
       header: 'Nhân viên',
       render: (e) => (
         <div className="flex items-center gap-3">
-          <Avatar className="w-8 h-8" style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}>
-            <AvatarFallback className="bg-transparent text-white text-[12px] font-bold">
+          <Avatar className="w-8 h-8" style={!e.avatar ? { background: 'linear-gradient(135deg, #667eea, #764ba2)' } : undefined}>
+            {e.avatar && <AvatarImage src={e.avatar} alt={e.name} />}
+            <AvatarFallback className={`${e.avatar ? '' : 'bg-transparent'} text-white text-[12px] font-bold`}>
               {e.name.split(' ').map((n) => n[0]).join('').slice(-2)}
             </AvatarFallback>
           </Avatar>

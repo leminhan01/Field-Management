@@ -15,6 +15,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { EmployeesService } from './employees.service';
+import { UploadService } from '../upload/upload.service';
 import { CreateEmployeeDto, UpdateEmployeeDto, QueryEmployeeDto } from './dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -25,7 +26,10 @@ import { Role } from '@prisma/client';
 @Controller('employees')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class EmployeesController {
-  constructor(private employeesService: EmployeesService) {}
+  constructor(
+    private employeesService: EmployeesService,
+    private uploadService: UploadService,
+  ) {}
 
   @Get()
   @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.MANAGER)
@@ -75,6 +79,18 @@ export class EmployeesController {
     @CurrentUser() user: { id: string; role: string },
   ) {
     return this.employeesService.importFromExcel(file.buffer, user);
+  }
+
+  @Post(':id/avatar')
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.MANAGER)
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 10 * 1024 * 1024 } }))
+  async uploadAvatar(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() user: { id: string; role: string; branchId?: string | null },
+  ) {
+    const { url } = await this.uploadService.uploadImage(file, 'fieldapp/avatars');
+    return this.employeesService.updateAvatar(id, url, user);
   }
 
   @Patch(':id')

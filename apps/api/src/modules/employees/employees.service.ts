@@ -262,4 +262,30 @@ export class EmployeesService {
 
     return XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
   }
+
+  async updateAvatar(
+    id: string,
+    avatarUrl: string,
+    currentUser: { id: string; role: string; branchId?: string | null },
+  ) {
+    const user = await this.prisma.user.findUnique({
+      where: { id, deletedAt: null },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Không tìm thấy nhân viên');
+    }
+
+    if (currentUser.role === Role.MANAGER && user.branchId !== currentUser.branchId) {
+      throw new ForbiddenException('Bạn không có quyền sửa nhân viên này');
+    }
+
+    const updated = await this.prisma.user.update({
+      where: { id },
+      data: { avatar: avatarUrl },
+      select: USER_SELECT,
+    });
+
+    return updated;
+  }
 }

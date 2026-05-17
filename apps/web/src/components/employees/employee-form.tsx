@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Camera } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Select,
   SelectContent,
@@ -42,12 +43,15 @@ interface EmployeeFormProps {
   mode: 'create' | 'edit';
   employee?: EmployeeDto | null;
   onClose: () => void;
-  onSubmit: (data: Record<string, unknown>) => Promise<void>;
+  onSubmit: (data: Record<string, unknown>, avatarFile?: File) => Promise<void>;
 }
 
 export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: EmployeeFormProps) {
   const [branches, setBranches] = useState<Array<{ id: string; name: string }>>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -86,6 +90,8 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
         branchId: employee.branchId || '',
         isActive: employee.isActive,
       });
+      setAvatarPreview(employee.avatar || null);
+      setAvatarFile(null);
     } else if (mode === 'create') {
       reset({
         name: '',
@@ -96,11 +102,26 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
         branchId: '',
         isActive: true,
       });
+      setAvatarPreview(null);
+      setAvatarFile(null);
     }
   }, [mode, employee, reset, open]);
 
   const selectedRole = watch('role');
   const selectedBranch = watch('branchId');
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setAvatarFile(file);
+    const reader = new FileReader();
+    reader.onload = () => setAvatarPreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const initials = (name: string) =>
+    name.split(' ').map((n) => n[0]).join('').slice(-2).toUpperCase();
 
   const handleFormSubmit = async (data: FormData) => {
     setSubmitting(true);
@@ -114,14 +135,13 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
         delete (payload as any).isActive;
         if (employee) payload.isActive = data.isActive;
       } else {
-        // Create mode: password required
         if (!payload.password) {
           setSubmitting(false);
           return;
         }
         delete payload.isActive;
       }
-      await onSubmit(payload);
+      await onSubmit(payload, avatarFile || undefined);
       onClose();
     } finally {
       setSubmitting(false);
@@ -138,6 +158,49 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
         </DialogHeader>
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+          {/* Avatar upload */}
+          <div className="flex items-center gap-4">
+            <div className="relative group">
+              <Avatar className="w-16 h-16 cursor-pointer" onClick={() => avatarInputRef.current?.click()}>
+                {avatarPreview ? (
+                  <AvatarImage src={avatarPreview} alt="Avatar" />
+                ) : (
+                  <AvatarFallback
+                    className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white text-[18px] font-bold"
+                  >
+                    {watch('name') ? initials(watch('name')) : '?'}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+              <div
+                className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                onClick={() => avatarInputRef.current?.click()}
+              >
+                <Camera className="w-5 h-5 text-white" />
+              </div>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleAvatarChange}
+                className="hidden"
+              />
+            </div>
+            <div className="text-[12px] text-muted-foreground">
+              <p>Nhấn để {avatarPreview ? 'đổi' : 'tải lên'} ảnh đại diện</p>
+              <p>JPG, PNG hoặc WebP. Tối đa 10MB</p>
+              {avatarPreview && avatarFile && (
+                <button
+                  type="button"
+                  className="text-red-500 hover:underline mt-1"
+                  onClick={() => { setAvatarPreview(null); setAvatarFile(null); }}
+                >
+                  Xóa ảnh
+                </button>
+              )}
+            </div>
+          </div>
+
           <div className="space-y-1.5">
             <Label>Họ tên *</Label>
             <Input {...register('name')} placeholder="Nhập họ tên" className="h-9 text-[13px]" />

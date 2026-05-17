@@ -5,6 +5,7 @@ import { PrismaModule } from './common/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { EmployeesModule } from './modules/employees/employees.module';
 import { BranchesModule } from './modules/branches/branches.module';
+import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { BranchesModule } from './modules/branches/branches.module';
     AuthModule,
     EmployeesModule,
     BranchesModule,
+    UploadModule,
   ],
   controllers: [],
   providers: [],

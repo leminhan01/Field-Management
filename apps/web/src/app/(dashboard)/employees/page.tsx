@@ -21,7 +21,7 @@ import { EmployeeForm } from '@/components/employees/employee-form';
 import { EmployeeImportDialog } from '@/components/employees/employee-import-dialog';
 import { useEmployees } from '@/hooks/use-employees';
 import { useEmployeeMutations } from '@/hooks/use-employee-mutations';
-import { exportEmployees } from '@/lib/employees';
+import { exportEmployees, uploadAvatar } from '@/lib/employees';
 import type { EmployeeDto, EmployeeQueryParams } from '@fieldapp/shared';
 
 export default function EmployeesPage() {
@@ -74,12 +74,21 @@ export default function EmployeesPage() {
     setPage(1);
   }, []);
 
-  const handleFormSubmit = useCallback(async (formData: Record<string, unknown>) => {
+  const handleFormSubmit = useCallback(async (formData: Record<string, unknown>, avatarFile?: File) => {
+    let employeeId: string | null = null;
+
     if (editingEmployee) {
       await update(editingEmployee.id, formData as any);
+      employeeId = editingEmployee.id;
     } else {
-      await create(formData as any);
+      const created = await create(formData as any);
+      employeeId = created.id;
     }
+
+    if (avatarFile && employeeId) {
+      await uploadAvatar(employeeId, avatarFile);
+    }
+
     refetch();
   }, [editingEmployee, create, update, refetch]);
 

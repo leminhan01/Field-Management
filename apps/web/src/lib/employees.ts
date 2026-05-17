@@ -62,3 +62,14 @@ export async function getBranches() {
   const { data } = await apiClient.get<{ success: boolean; data: Array<{ id: string; name: string; code: string }> }>('/branches');
   return data.data;
 }
+
+export async function uploadAvatar(employeeId: string, file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+  const { data } = await apiClient.post<{ success: boolean; data: EmployeeDto }>(
+    `/employees/${employeeId}/avatar`,
+    formData,
+    { headers: { 'Content-Type': 'multipart/form-data' } },
+  );
+  return data.data;
+}
