@@ -22,15 +22,37 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { getBranches } from '@/lib/employees';
+import { extractErrorMessage, getBranches } from '@/lib/employees';
 import { ROLE_LABELS } from '@fieldapp/shared';
 import type { EmployeeDto } from '@fieldapp/shared';
 
+const MAX_AVATAR_SIZE = 10 * 1024 * 1024;
+const ACCEPTED_AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
 const formSchema = z.object({
-  name: z.string().min(1, 'Tên là bắt buộc'),
-  email: z.string().email('Email không hợp lệ'),
-  password: z.string().min(6, 'Mật khẩu tối thiểu 6 ký tự').optional().or(z.literal('')),
-  phone: z.string().optional(),
+  name: z
+    .string()
+    .min(1, 'Họ tên là bắt buộc')
+    .min(2, 'Họ tên phải có ít nhất 2 ký tự')
+    .max(100, 'Họ tên không được vượt quá 100 ký tự'),
+  email: z
+    .string()
+    .min(1, 'Email là bắt buộc')
+    .email('Email không đúng định dạng')
+    .max(255, 'Email không được vượt quá 255 ký tự'),
+  password: z
+    .string()
+    .min(6, 'Mật khẩu phải có ít nhất 6 ký tự')
+    .max(50, 'Mật khẩu không được vượt quá 50 ký tự')
+    .optional()
+    .or(z.literal('')),
+  phone: z
+    .string()
+    .regex(/^[0-9\s+()-]*$/, 'Số điện thoại không hợp lệ')
+    .min(9, 'Số điện thoại phải có ít nhất 9 chữ số')
+    .max(15, 'Số điện thoại không được vượt quá 15 ký tự')
+    .optional()
+    .or(z.literal('')),
   role: z.string().optional(),
   branchId: z.string().optional(),
   isActive: z.boolean().optional(),
@@ -49,6 +71,7 @@ interface EmployeeFormProps {
 export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: EmployeeFormProps) {
   const [branches, setBranches] = useState<Array<{ id: string; name: string }>>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
@@ -114,6 +137,20 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setServerError(null);
+
+    if (!ACCEPTED_AVATAR_TYPES.includes(file.type)) {
+      setServerError('Ảnh đại diện chỉ hỗ trợ JPG, PNG hoặc WebP');
+      e.target.value = '';
+      return;
+    }
+
+    if (file.size > MAX_AVATAR_SIZE) {
+      setServerError('Ảnh đại diện không được vượt quá 10MB');
+      e.target.value = '';
+      return;
+    }
+
     setAvatarFile(file);
     const reader = new FileReader();
     reader.onload = () => setAvatarPreview(reader.result as string);
@@ -125,6 +162,7 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
 
   const handleFormSubmit = async (data: FormData) => {
     setSubmitting(true);
+    setServerError(null);
     try {
       const payload: Record<string, unknown> = { ...data };
       if (!payload.phone) delete payload.phone;
@@ -136,13 +174,16 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
         if (employee) payload.isActive = data.isActive;
       } else {
         if (!payload.password) {
-          setSubmitting(false);
+          setServerError('Mật khẩu là bắt buộc khi thêm nhân viên');
           return;
         }
         delete payload.isActive;
       }
       await onSubmit(payload, avatarFile || undefined);
       onClose();
+    } catch (err) {
+      const fallback = mode === 'create' ? 'Thêm nhân viên thất bại' : 'Cập nhật nhân viên thất bại';
+      setServerError(extractErrorMessage(err, fallback));
     } finally {
       setSubmitting(false);
     }
@@ -224,6 +265,7 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
           <div className="space-y-1.5">
             <Label>Số điện thoại</Label>
             <Input {...register('phone')} placeholder="0901 234 567" className="h-9 text-[13px]" />
+            {errors.phone && <p className="text-[12px] text-red-500">{errors.phone.message}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -272,6 +314,12 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
                   <SelectItem value="false">Ngừng hoạt động</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+          )}
+
+          {serverError && (
+            <div className="whitespace-pre-line rounded-md bg-red-50 border border-red-200 p-3 text-[13px] text-red-700">
+              {serverError}
             </div>
           )}
 

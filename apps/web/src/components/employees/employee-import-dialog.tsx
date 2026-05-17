@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { Upload, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
@@ -38,8 +39,15 @@ export function EmployeeImportDialog({ open, onClose, onImport, onSuccess }: Emp
     try {
       const res = await onImport(file);
       setResult(res);
-      if (res.imported > 0) onSuccess();
-    } catch {
+      if (res.imported > 0) {
+        toast.success(`Đã import ${res.imported}/${res.total} nhân viên`);
+        onSuccess();
+      } else {
+        toast.warning('Không có nhân viên nào được import');
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Import thất bại';
+      toast.error(msg);
       setResult(null);
     } finally {
       setUploading(false);

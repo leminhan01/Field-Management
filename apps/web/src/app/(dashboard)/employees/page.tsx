@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Download, Upload, Filter, Loader2, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -21,7 +22,7 @@ import { EmployeeForm } from '@/components/employees/employee-form';
 import { EmployeeImportDialog } from '@/components/employees/employee-import-dialog';
 import { useEmployees } from '@/hooks/use-employees';
 import { useEmployeeMutations } from '@/hooks/use-employee-mutations';
-import { exportEmployees, uploadAvatar } from '@/lib/employees';
+import { exportEmployees, uploadAvatar, extractErrorMessage } from '@/lib/employees';
 import type { EmployeeDto, EmployeeQueryParams } from '@fieldapp/shared';
 
 export default function EmployeesPage() {
@@ -75,21 +76,33 @@ export default function EmployeesPage() {
   }, []);
 
   const handleFormSubmit = useCallback(async (formData: Record<string, unknown>, avatarFile?: File) => {
-    let employeeId: string | null = null;
+    try {
+      let employeeId: string | null = null;
 
-    if (editingEmployee) {
-      await update(editingEmployee.id, formData as any);
-      employeeId = editingEmployee.id;
-    } else {
-      const created = await create(formData as any);
-      employeeId = created.id;
+      if (editingEmployee) {
+        await update(editingEmployee.id, formData as any);
+        employeeId = editingEmployee.id;
+        toast.success('Cập nhật nhân viên thành công');
+      } else {
+        const created = await create(formData as any);
+        employeeId = created.id;
+        toast.success('Thêm nhân viên thành công');
+      }
+
+      if (avatarFile && employeeId) {
+        try {
+          await uploadAvatar(employeeId, avatarFile);
+        } catch {
+          toast.warning('Nhân viên đã được lưu nhưng tải ảnh đại diện thất bại');
+        }
+      }
+
+      refetch();
+    } catch (err) {
+      const msg = extractErrorMessage(err, editingEmployee ? 'Cập nhật nhân viên thất bại' : 'Thêm nhân viên thất bại');
+      toast.error(msg);
+      throw err;
     }
-
-    if (avatarFile && employeeId) {
-      await uploadAvatar(employeeId, avatarFile);
-    }
-
-    refetch();
   }, [editingEmployee, create, update, refetch]);
 
   const handleDelete = useCallback(async () => {
@@ -97,12 +110,26 @@ export default function EmployeesPage() {
     setDeleting(true);
     try {
       await remove(deleteTarget.id);
+      toast.success(`Đã xóa nhân viên ${deleteTarget.name}`);
       refetch();
       setDeleteTarget(null);
+    } catch (err) {
+      const msg = extractErrorMessage(err, 'Xóa nhân viên thất bại');
+      toast.error(msg);
     } finally {
       setDeleting(false);
     }
   }, [deleteTarget, remove, refetch]);
+
+  const handleExport = useCallback(async () => {
+    try {
+      await exportEmployees(params);
+      toast.success('Xuất file Excel thành công');
+    } catch (err) {
+      const msg = extractErrorMessage(err, 'Xuất file Excel thất bại');
+      toast.error(msg);
+    }
+  }, [params]);
 
   const handleImportSuccess = useCallback(() => {
     refetch();
@@ -134,7 +161,7 @@ export default function EmployeesPage() {
               variant="outline"
               size="sm"
               className="h-8 gap-1.5 text-[13px]"
-              onClick={() => exportEmployees(params)}
+              onClick={handleExport}
             >
               <Download className="w-3.5 h-3.5" />Export
             </Button>

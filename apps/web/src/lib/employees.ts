@@ -8,9 +8,46 @@ import type {
   ImportResult,
 } from '@fieldapp/shared';
 
+function normalizeErrorMessage(message: unknown): string | null {
+  if (typeof message === 'string' && message.trim()) {
+    return message;
+  }
+
+  if (Array.isArray(message)) {
+    const messages = message.filter(
+      (item): item is string => typeof item === 'string' && item.trim().length > 0,
+    );
+
+    return messages.length ? messages.join('\n') : null;
+  }
+
+  return null;
+}
+
+function extractErrorMessage(err: unknown, fallback: string): string {
+  if (err && typeof err === 'object' && 'response' in err) {
+    const axiosErr = err as {
+      response?: {
+        data?: {
+          message?: unknown;
+          error?: { message?: unknown; details?: unknown };
+        };
+      };
+    };
+
+    return normalizeErrorMessage(axiosErr.response?.data?.message)
+      || normalizeErrorMessage(axiosErr.response?.data?.error?.message)
+      || normalizeErrorMessage(axiosErr.response?.data?.error?.details)
+      || fallback;
+  }
+  if (err instanceof Error) return err.message;
+  return fallback;
+}
+
+export { extractErrorMessage };
+
 export async function getEmployees(params?: EmployeeQueryParams) {
   const { data } = await apiClient.get('/employees', { params });
-  // TransformInterceptor wraps: { success: true, data: { data: [...], meta: {...} } }
   return data.data as PaginatedResponse<EmployeeDto>;
 }
 

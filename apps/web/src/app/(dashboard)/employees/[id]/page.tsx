@@ -26,9 +26,10 @@ import {
 } from '@/components/ui/dialog';
 import { PageWrapper } from '@/components/shared/page-wrapper';
 import { StatusBadge, RoleBadge } from '@/components/shared/status-badge';
+import { toast } from 'sonner';
 import { useEmployee } from '@/hooks/use-employee';
 import { useEmployeeMutations } from '@/hooks/use-employee-mutations';
-import { ROLE_LABELS } from '@fieldapp/shared';
+import { extractErrorMessage } from '@/lib/employees';import { ROLE_LABELS } from '@fieldapp/shared';
 
 export default function EmployeeDetailPage() {
   const params = useParams();
@@ -45,7 +46,11 @@ export default function EmployeeDetailPage() {
     setDeleting(true);
     try {
       await remove(employee.id);
+      toast.success(`Đã xóa nhân viên ${employee.name}`);
       router.push('/employees');
+    } catch (err) {
+      const msg = extractErrorMessage(err, 'Xóa nhân viên thất bại');
+      toast.error(msg);
     } finally {
       setDeleting(false);
     }

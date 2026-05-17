@@ -1,5 +1,6 @@
 import {
   Injectable,
+  BadRequestException,
   NotFoundException,
   ConflictException,
   ForbiddenException,
@@ -97,6 +98,8 @@ export class EmployeesService {
   }
 
   async create(dto: CreateEmployeeDto, _currentUser: { id: string; role: string }) {
+    await this.ensureBranchExists(dto.branchId);
+
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -143,6 +146,8 @@ export class EmployeesService {
         throw new ConflictException('Email đã tồn tại');
       }
     }
+
+    await this.ensureBranchExists(dto.branchId);
 
     const updated = await this.prisma.user.update({
       where: { id },
@@ -287,5 +292,18 @@ export class EmployeesService {
     });
 
     return updated;
+  }
+
+  private async ensureBranchExists(branchId?: string | null) {
+    if (!branchId) return;
+
+    const branch = await this.prisma.branch.findFirst({
+      where: { id: branchId, deletedAt: null },
+      select: { id: true },
+    });
+
+    if (!branch) {
+      throw new BadRequestException('Chi nhánh không tồn tại hoặc đã bị xóa');
+    }
   }
 }
