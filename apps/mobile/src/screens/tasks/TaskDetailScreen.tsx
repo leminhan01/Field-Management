@@ -15,24 +15,30 @@ const TaskDetailScreen = ({ route, navigation }: TaskDetailScreenProps) => {
 
   const outlet = task?.task?.outlet;
   const template = task?.task?.template;
+  const hasCoordinates = outlet?.latitude != null && outlet?.longitude != null;
+  const hasMapTarget = hasCoordinates || Boolean(outlet?.address);
 
   const handleOpenMap = () => {
-    if (outlet?.latitude && outlet?.longitude) {
-      const url = `https://maps.google.com/maps?q=${outlet.latitude},${outlet.longitude}`;
-      Linking.openURL(url);
-    }
+    if (!outlet || !hasMapTarget) return;
+
+    const query =
+      hasCoordinates
+        ? `${outlet.latitude},${outlet.longitude}`
+        : encodeURIComponent(outlet.address || outlet.name);
+
+    Linking.openURL(`https://maps.google.com/maps?q=${query}`);
   };
 
   const handleCall = () => {
-    if (outlet?.address) {
-      Linking.openURL(`tel:${outlet.address}`);
-    }
+    if (!outlet?.phone) return;
+    Linking.openURL(`tel:${outlet.phone}`);
   };
 
   const handleStartTask = () => {
     if (!task) return;
-    Alert.alert('Bắt đầu', 'Bắt đầu thực hiện công việc này?', [
-      { text: 'Huỷ', style: 'cancel' },
+
+    Alert.alert('Bắt đầu công việc', 'Bắt đầu thực hiện công việc này?', [
+      { text: 'Hủy', style: 'cancel' },
       {
         text: 'Bắt đầu',
         onPress: () => {
@@ -68,7 +74,7 @@ const TaskDetailScreen = ({ route, navigation }: TaskDetailScreenProps) => {
         <View style={styles.centerContent}>
           <MaterialCommunityIcons name="alert-circle-outline" size={48} color={COLORS.error} />
           <Text style={styles.errorText}>Không tải được chi tiết công việc.</Text>
-          <TouchableOpacity onPress={() => refetch()} style={styles.retryButton}>
+          <TouchableOpacity onPress={() => refetch()} style={styles.retryButton} activeOpacity={0.75}>
             <Text style={styles.retryText}>Thử lại</Text>
           </TouchableOpacity>
         </View>
@@ -78,73 +84,93 @@ const TaskDetailScreen = ({ route, navigation }: TaskDetailScreenProps) => {
 
   const isPending = task.status === 'PENDING';
   const isInProgress = task.status === 'IN_PROGRESS';
+  const note = task.notes || task.task.description;
 
   return (
     <View style={styles.outer}>
       <TopAppBar title="Chi tiết công việc" showBackButton onBackPress={() => navigation.goBack()} />
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        {/* Map section */}
         <View style={styles.mapSection}>
-          {outlet?.latitude && outlet?.longitude ? (
-            <View style={styles.mapPlaceholder}>
-              <MaterialCommunityIcons name="map-marker" size={48} color={COLORS.primary} />
-              <Text style={styles.mapText}>{outlet.name}</Text>
+          <View style={styles.mapCanvas}>
+            <View style={[styles.mapRoad, styles.mapRoadPrimary]} />
+            <View style={[styles.mapRoad, styles.mapRoadSecondary]} />
+            <View style={[styles.mapRoad, styles.mapRoadDiagonal]} />
+            <View style={styles.mapBlockOne} />
+            <View style={styles.mapBlockTwo} />
+            <View style={styles.mapPin}>
+              <MaterialCommunityIcons name="map-marker" size={30} color={COLORS.primary} />
             </View>
-          ) : (
-            <View style={styles.mapPlaceholder}>
-              <MaterialCommunityIcons name="map-outline" size={48} color={COLORS.onSurfaceVariant} />
-              <Text style={styles.mapText}>Chưa có vị trí</Text>
-            </View>
-          )}
+          </View>
 
-          {/* Store info overlay */}
-          {outlet && (
+          {outlet ? (
             <View style={styles.storeOverlay}>
-              <View style={styles.storeInfo}>
-                <View style={styles.storeIconCircle}>
-                  <MaterialCommunityIcons name="store" size={20} color={COLORS.onPrimary} />
-                </View>
-                <View style={styles.storeTextBlock}>
-                  <Text style={styles.storeName}>{outlet.name}</Text>
-                  {outlet.address ? (
-                    <View style={styles.addressRow}>
-                      <MaterialCommunityIcons name="map-marker-outline" size={14} color={COLORS.onSurfaceVariant} />
-                      <Text style={styles.addressText} numberOfLines={1}>{outlet.address}</Text>
-                    </View>
-                  ) : null}
-                </View>
+              <View style={styles.storeIconCircle}>
+                <MaterialCommunityIcons name="storefront" size={24} color={COLORS.onPrimary} />
               </View>
-              <View style={styles.storeActions}>
-                <TouchableOpacity style={styles.storeActionButton} onPress={handleOpenMap}>
-                  <MaterialCommunityIcons name="directions" size={18} color={COLORS.primary} />
-                  <Text style={styles.storeActionText}>Mở bản đồ</Text>
-                </TouchableOpacity>
+              <View style={styles.storeTextBlock}>
+                <Text style={styles.storeName} numberOfLines={1}>
+                  {outlet.name}
+                </Text>
+                <View style={styles.addressRow}>
+                  <MaterialCommunityIcons name="map-marker-outline" size={16} color={COLORS.onSurfaceVariant} />
+                  <Text style={styles.addressText} numberOfLines={1}>
+                    {outlet.address || 'Chưa có địa chỉ'}
+                  </Text>
+                </View>
               </View>
             </View>
-          )}
-        </View>
-
-        {/* Status */}
-        <View style={styles.statusRow}>
-          <StatusChip status={task.status} />
-          <Text style={styles.taskTitle}>{task.task.title}</Text>
-          {task.task.description ? (
-            <Text style={styles.taskDescription}>{task.task.description}</Text>
           ) : null}
         </View>
 
-        {/* Contact card */}
-        <View style={styles.card}>
-          <Text style={styles.cardHeader}>THÔNG TIN LIÊN HỆ</Text>
-          <View style={styles.contactRow}>
-            <MaterialCommunityIcons name="account-outline" size={20} color={COLORS.onSurfaceVariant} />
-            <Text style={styles.contactText}>{outlet?.name || 'Chưa có thông tin'}</Text>
+        <View style={styles.content}>
+          <View style={styles.summaryCard}>
+            <View style={styles.summaryTopRow}>
+              <StatusChip status={task.status} />
+              <TouchableOpacity
+                style={[styles.mapButton, !hasMapTarget && styles.mapButtonDisabled]}
+                onPress={handleOpenMap}
+                disabled={!hasMapTarget}
+                activeOpacity={0.75}
+              >
+                <MaterialCommunityIcons name="directions" size={18} color={COLORS.primary} />
+                <Text style={styles.mapButtonText}>Mở bản đồ</Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.taskTitle}>{task.task.title}</Text>
+            {task.task.description ? <Text style={styles.taskDescription}>{task.task.description}</Text> : null}
           </View>
-        </View>
 
-        {/* Task requirements */}
-        {template && (
+          <View style={styles.card}>
+            <Text style={styles.cardHeader}>THÔNG TIN LIÊN HỆ</Text>
+            <View style={styles.contactRow}>
+              <View style={styles.contactIcon}>
+                <MaterialCommunityIcons name="account-outline" size={22} color={COLORS.onSurfaceVariant} />
+              </View>
+              <View style={styles.contactTextBlock}>
+                <Text style={styles.contactLabel}>Người đại diện</Text>
+                <Text style={styles.contactValue}>{outlet?.name || task.task.branch.name}</Text>
+              </View>
+            </View>
+
+            <View style={styles.contactDivider} />
+
+            <View style={styles.contactRow}>
+              <View style={styles.contactIcon}>
+                <MaterialCommunityIcons name="phone-outline" size={22} color={COLORS.onSurfaceVariant} />
+              </View>
+              <View style={styles.contactTextBlock}>
+                <Text style={styles.contactLabel}>Số điện thoại</Text>
+                <Text style={styles.contactValue}>{outlet?.phone || 'Chưa có số điện thoại'}</Text>
+              </View>
+              {outlet?.phone ? (
+                <TouchableOpacity style={styles.callButton} onPress={handleCall} activeOpacity={0.75}>
+                  <MaterialCommunityIcons name="phone" size={20} color={COLORS.onPrimary} />
+                </TouchableOpacity>
+              ) : null}
+            </View>
+          </View>
+
           <View style={styles.card}>
             <View style={styles.cardHeaderRow}>
               <Text style={styles.cardHeader}>YÊU CẦU CÔNG VIỆC</Text>
@@ -152,39 +178,40 @@ const TaskDetailScreen = ({ route, navigation }: TaskDetailScreenProps) => {
                 <Text style={styles.priorityText}>Ưu tiên cao</Text>
               </View>
             </View>
-            {template.checklist && template.checklist.length > 0 ? (
-              template.checklist.map((item: string, index: number) => (
-                <View key={index} style={styles.checklistItem}>
-                  <MaterialCommunityIcons
-                    name="check-circle-outline"
-                    size={20}
-                    color={COLORS.secondary}
-                  />
+
+            {template?.checklist && template.checklist.length > 0 ? (
+              template.checklist.map((item, index) => (
+                <View key={`${item}-${index}`} style={styles.checklistItem}>
+                  <MaterialCommunityIcons name="check-circle-outline" size={20} color={COLORS.primary} />
                   <Text style={styles.checklistText}>{item}</Text>
                 </View>
               ))
             ) : (
-              <Text style={styles.emptyNote}>Không có yêu cầu cụ thể.</Text>
+              <View style={styles.checklistItem}>
+                <MaterialCommunityIcons name="check-circle-outline" size={20} color={COLORS.primary} />
+                <Text style={styles.checklistText}>Thực hiện đúng hướng dẫn trong mô tả công việc.</Text>
+              </View>
             )}
-          </View>
-        )}
 
-        {/* Notes */}
-        {task.notes && (
-          <View style={styles.card}>
-            <Text style={styles.cardHeader}>GHI CHÚ</Text>
-            <Text style={styles.notesText}>{task.notes}</Text>
+            {note ? (
+              <View style={styles.noteBox}>
+                <Text style={styles.noteText}>
+                  <Text style={styles.noteStrong}>Ghi chú thêm: </Text>
+                  {note}
+                </Text>
+              </View>
+            ) : null}
           </View>
-        )}
+        </View>
       </ScrollView>
 
-      {/* Fixed bottom action */}
       {(isPending || isInProgress) && (
         <View style={[styles.bottomAction, { paddingBottom: insets.bottom || SPACING.md }]}>
           <TouchableOpacity
             style={[styles.actionButton, isInProgress ? styles.actionButtonGreen : styles.actionButtonPrimary]}
             onPress={isInProgress ? handleSubmitReport : handleStartTask}
-            activeOpacity={0.7}
+            activeOpacity={0.78}
+            disabled={updateStatus.isPending}
           >
             <MaterialCommunityIcons
               name={isInProgress ? 'send' : 'play'}
@@ -212,7 +239,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 100,
+    paddingBottom: 104,
   },
   centerContent: {
     flex: 1,
@@ -223,12 +250,14 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 14,
+    lineHeight: 20,
     color: COLORS.onSurfaceVariant,
     textAlign: 'center',
   },
   retryButton: {
+    minHeight: 44,
+    justifyContent: 'center',
     paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm,
     borderRadius: 8,
     backgroundColor: COLORS.primaryContainer,
   },
@@ -237,45 +266,96 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   mapSection: {
-    height: 220,
+    height: 256,
     backgroundColor: COLORS.surfaceContainer,
     position: 'relative',
-    justifyContent: 'center',
-    alignItems: 'center',
+    overflow: 'hidden',
   },
-  mapPlaceholder: {
+  mapCanvas: {
+    flex: 1,
+    backgroundColor: '#dfe8ef',
+  },
+  mapRoad: {
+    position: 'absolute',
+    backgroundColor: '#f8fafc',
+    borderColor: '#cbd5e1',
+    borderWidth: 1,
+  },
+  mapRoadPrimary: {
+    left: -24,
+    right: -24,
+    top: 96,
+    height: 42,
+    transform: [{ rotate: '-6deg' }],
+  },
+  mapRoadSecondary: {
+    top: -32,
+    bottom: -32,
+    left: 132,
+    width: 38,
+    transform: [{ rotate: '9deg' }],
+  },
+  mapRoadDiagonal: {
+    left: 8,
+    right: -16,
+    top: 178,
+    height: 26,
+    transform: [{ rotate: '18deg' }],
+  },
+  mapBlockOne: {
+    position: 'absolute',
+    left: 20,
+    top: 26,
+    width: 92,
+    height: 52,
+    borderRadius: 8,
+    backgroundColor: '#c9dfd1',
+  },
+  mapBlockTwo: {
+    position: 'absolute',
+    right: 28,
+    bottom: 34,
+    width: 112,
+    height: 60,
+    borderRadius: 8,
+    backgroundColor: '#d6d8ef',
+  },
+  mapPin: {
+    position: 'absolute',
+    top: 96,
+    left: '50%',
+    width: 44,
+    height: 44,
+    marginLeft: -22,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255,255,255,0.9)',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  mapText: {
-    fontSize: 14,
-    color: COLORS.onSurfaceVariant,
-    marginTop: SPACING.xs,
   },
   storeOverlay: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
+    bottom: SPACING.md,
+    left: SPACING.md,
+    right: SPACING.md,
+    minHeight: 72,
     backgroundColor: COLORS.surface,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.outlineVariant,
     padding: SPACING.md,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  storeInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.sm,
+    gap: SPACING.md,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   storeIconCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: COLORS.primaryContainer,
     alignItems: 'center',
     justifyContent: 'center',
@@ -284,7 +364,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   storeName: {
-    fontSize: 16,
+    fontSize: 18,
+    lineHeight: 24,
     fontWeight: '600',
     color: COLORS.onSurface,
   },
@@ -292,111 +373,169 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginTop: 2,
+    marginTop: 4,
   },
   addressText: {
-    fontSize: 13,
-    color: COLORS.onSurfaceVariant,
     flex: 1,
+    fontSize: 14,
+    color: COLORS.onSurfaceVariant,
   },
-  storeActions: {
-    flexDirection: 'row',
-    marginTop: SPACING.sm,
+  content: {
+    padding: SPACING.md,
+    gap: SPACING.md,
+  },
+  summaryCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.outlineVariant,
+    padding: SPACING.md,
     gap: SPACING.sm,
   },
-  storeActionButton: {
+  summaryTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: SPACING.sm,
+  },
+  mapButton: {
+    minHeight: 40,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.sm,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.primary,
   },
-  storeActionText: {
-    fontSize: 13,
-    color: COLORS.primary,
-    fontWeight: '500',
+  mapButtonDisabled: {
+    opacity: 0.45,
   },
-  statusRow: {
-    padding: SPACING.md,
-    gap: SPACING.sm,
+  mapButtonText: {
+    color: COLORS.primary,
+    fontSize: 13,
+    fontWeight: '600',
   },
   taskTitle: {
     fontSize: 20,
+    lineHeight: 26,
     fontWeight: '700',
     color: COLORS.onSurface,
   },
   taskDescription: {
     fontSize: 14,
-    color: COLORS.onSurfaceVariant,
     lineHeight: 20,
+    color: COLORS.onSurfaceVariant,
   },
   card: {
     backgroundColor: COLORS.surface,
-    borderRadius: 12,
+    borderRadius: 8,
     padding: SPACING.md,
-    marginHorizontal: SPACING.md,
-    marginBottom: SPACING.sm,
     borderWidth: 1,
     borderColor: COLORS.outlineVariant,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
   },
   cardHeader: {
-    fontSize: 11,
+    fontSize: 12,
+    lineHeight: 16,
     fontWeight: '700',
     color: COLORS.primary,
-    letterSpacing: 0.08,
-    marginBottom: SPACING.sm,
+    letterSpacing: 0.8,
   },
   cardHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: SPACING.sm,
+    gap: SPACING.sm,
   },
   priorityBadge: {
-    backgroundColor: COLORS.secondaryContainer,
+    backgroundColor: 'rgba(0,110,28,0.12)',
     paddingHorizontal: SPACING.sm,
-    paddingVertical: 2,
-    borderRadius: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
   },
   priorityText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: COLORS.onSecondaryContainer,
+    color: COLORS.secondary,
+    fontSize: 12,
+    fontWeight: '700',
   },
   contactRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.sm,
-    paddingVertical: SPACING.xs,
+    gap: SPACING.md,
+    paddingTop: SPACING.md,
   },
-  contactText: {
-    fontSize: 14,
+  contactDivider: {
+    height: 1,
+    backgroundColor: COLORS.surfaceVariant,
+    marginTop: SPACING.md,
+  },
+  contactIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.surfaceContainerHigh,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  contactTextBlock: {
+    flex: 1,
+  },
+  contactLabel: {
+    fontSize: 13,
+    lineHeight: 18,
+    color: COLORS.onSurfaceVariant,
+  },
+  contactValue: {
+    fontSize: 16,
+    lineHeight: 22,
+    fontWeight: '600',
     color: COLORS.onSurface,
+    marginTop: 2,
+  },
+  callButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: COLORS.primaryContainer,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   checklistItem: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: SPACING.sm,
-    paddingVertical: SPACING.xs,
+    marginTop: SPACING.sm,
   },
   checklistText: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 16,
+    lineHeight: 24,
     color: COLORS.onSurface,
-    lineHeight: 20,
   },
-  emptyNote: {
+  noteBox: {
+    marginTop: SPACING.md,
+    padding: SPACING.sm,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.outlineVariant,
+    backgroundColor: COLORS.surfaceContainer,
+  },
+  noteText: {
     fontSize: 14,
+    lineHeight: 20,
     color: COLORS.onSurfaceVariant,
     fontStyle: 'italic',
   },
-  notesText: {
-    fontSize: 14,
+  noteStrong: {
     color: COLORS.onSurface,
-    lineHeight: 20,
+    fontWeight: '700',
+    fontStyle: 'normal',
   },
   bottomAction: {
     position: 'absolute',
@@ -415,11 +554,11 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   actionButton: {
+    minHeight: 48,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: SPACING.sm,
-    height: 48,
     borderRadius: 8,
   },
   actionButtonPrimary: {

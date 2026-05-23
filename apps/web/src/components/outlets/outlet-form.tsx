@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -38,9 +38,9 @@ const formSchema = z.object({
     .regex(/^[A-Z0-9_-]+$/i, 'Ma outlet chi gom chu, so, dau gach ngang hoac gach duoi'),
   address: z.string().trim().max(255, 'Dia chi qua dai').optional().or(z.literal('')),
   phone: z.string().trim().max(30, 'So dien thoai qua dai').optional().or(z.literal('')),
-  type: z.string().min(1, 'Loai outlet la bat buoc'),
-  brand: z.string().trim().max(80, 'Thuong hieu qua dai').optional().or(z.literal('')),
-  branchId: z.string().min(1, 'Chi nhanh quan ly la bat buoc'),
+  type: z.string().min(1, 'Type outlet la bat buoc'),
+  brand: z.string().trim().max(80, 'Brand qua dai').optional().or(z.literal('')),
+  branchId: z.string().min(1, 'Managing branch is required'),
   isActive: z.boolean().optional(),
 });
 
@@ -136,7 +136,7 @@ export function OutletForm({ open, mode, outlet, onClose, onSubmit }: OutletForm
       await onSubmit(payload);
       onClose();
     } catch (err) {
-      const fallback = mode === 'create' ? 'Them outlet that bai' : 'Cap nhat outlet that bai';
+      const fallback = mode === 'create' ? 'Failed to create outlet' : 'Failed to update outlet';
       setServerError(extractOutletErrorMessage(err, fallback));
     } finally {
       setSubmitting(false);
@@ -147,9 +147,9 @@ export function OutletForm({ open, mode, outlet, onClose, onSubmit }: OutletForm
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="sm:max-w-[620px]">
         <DialogHeader>
-          <DialogTitle>{mode === 'create' ? 'Them outlet moi' : 'Chinh sua outlet'}</DialogTitle>
+          <DialogTitle>{mode === 'create' ? 'Add new outlet' : 'Edit outlet'}</DialogTitle>
           <DialogDescription className="sr-only">
-            Nhap thong tin outlet va chi nhanh quan ly outlet.
+            Enter outlet information and its managing branch.
           </DialogDescription>
         </DialogHeader>
 
@@ -170,7 +170,7 @@ export function OutletForm({ open, mode, outlet, onClose, onSubmit }: OutletForm
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label>Loai outlet *</Label>
+              <Label>Type outlet *</Label>
               <Select value={selectedType || 'OTHER'} onValueChange={(v) => setValue('type', v)}>
                 <SelectTrigger className="h-9 text-[13px]">
                   <SelectValue />
@@ -185,13 +185,13 @@ export function OutletForm({ open, mode, outlet, onClose, onSubmit }: OutletForm
             </div>
 
             <div className="space-y-1.5">
-              <Label>Chi nhanh quan ly *</Label>
+              <Label>Managing branch *</Label>
               <Select value={selectedBranch || 'none'} onValueChange={(v) => v !== 'none' && setValue('branchId', v)}>
                 <SelectTrigger className="h-9 text-[13px]">
-                  <SelectValue placeholder="Chon chi nhanh" />
+                  <SelectValue placeholder="Select branch" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none" disabled>Chon chi nhanh</SelectItem>
+                  <SelectItem value="none" disabled>Select branch</SelectItem>
                   {branches.map((branch) => (
                     <SelectItem key={branch.id} value={branch.id}>
                       {branch.name}
@@ -205,7 +205,7 @@ export function OutletForm({ open, mode, outlet, onClose, onSubmit }: OutletForm
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label>Thuong hieu</Label>
+              <Label>Brand</Label>
               <Input {...register('brand')} placeholder="Brand A" className="h-9 text-[13px]" />
               {errors.brand && <p className="text-[12px] text-red-500">{errors.brand.message}</p>}
             </div>
@@ -225,7 +225,7 @@ export function OutletForm({ open, mode, outlet, onClose, onSubmit }: OutletForm
 
           {mode === 'edit' && (
             <div className="space-y-1.5">
-              <Label>Trang thai</Label>
+              <Label>Status</Label>
               <Select
                 value={watch('isActive') ? 'true' : 'false'}
                 onValueChange={(v) => setValue('isActive', v === 'true')}
@@ -234,8 +234,8 @@ export function OutletForm({ open, mode, outlet, onClose, onSubmit }: OutletForm
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="true">Hoat dong</SelectItem>
-                  <SelectItem value="false">Ngung hoat dong</SelectItem>
+                  <SelectItem value="true">Active</SelectItem>
+                  <SelectItem value="false">Inactive</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -249,11 +249,11 @@ export function OutletForm({ open, mode, outlet, onClose, onSubmit }: OutletForm
 
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={submitting}>
-              Huy
+              Cancel
             </Button>
             <Button type="submit" size="sm" disabled={submitting} className="bg-[#0052cc] hover:bg-[#003d9b]">
               {submitting && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
-              {mode === 'create' ? 'Them' : 'Luu'}
+              {mode === 'create' ? 'Add' : 'Save'}
             </Button>
           </div>
         </form>

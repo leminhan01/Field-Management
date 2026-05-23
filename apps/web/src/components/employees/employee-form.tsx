@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
@@ -33,25 +33,25 @@ const ACCEPTED_AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const formSchema = z.object({
   name: z
     .string()
-    .min(1, 'Họ tên là bắt buộc')
-    .min(2, 'Họ tên phải có ít nhất 2 ký tự')
-    .max(100, 'Họ tên không được vượt quá 100 ký tự'),
+    .min(1, 'Full name is required')
+    .min(2, 'Full name must be at least 2 characters')
+    .max(100, 'Full name must not exceed 100 characters'),
   email: z
     .string()
-    .min(1, 'Email là bắt buộc')
-    .email('Email không đúng định dạng')
-    .max(255, 'Email không được vượt quá 255 ký tự'),
+    .min(1, 'Email is required')
+    .email('Email is invalid')
+    .max(255, 'Email must not exceed 255 characters'),
   password: z
     .string()
-    .min(6, 'Mật khẩu phải có ít nhất 6 ký tự')
-    .max(50, 'Mật khẩu không được vượt quá 50 ký tự')
+    .min(6, 'Password must be at least 6 characters')
+    .max(50, 'Password must not exceed 50 characters')
     .optional()
     .or(z.literal('')),
   phone: z
     .string()
-    .regex(/^[0-9\s+()-]*$/, 'Số điện thoại không hợp lệ')
-    .min(9, 'Số điện thoại phải có ít nhất 9 chữ số')
-    .max(15, 'Số điện thoại không được vượt quá 15 ký tự')
+    .regex(/^[0-9\s+()-]*$/, 'Phone number is invalid')
+    .min(9, 'Phone number must contain at least 9 digits')
+    .max(15, 'Phone number must not exceed 15 characters')
     .optional()
     .or(z.literal('')),
   role: z.string().optional(),
@@ -150,13 +150,13 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
     setServerError(null);
 
     if (!ACCEPTED_AVATAR_TYPES.includes(file.type)) {
-      setServerError('Ảnh đại diện chỉ hỗ trợ JPG, PNG hoặc WebP');
+      setServerError('Avatar only supports JPG, PNG, or WebP');
       e.target.value = '';
       return;
     }
 
     if (file.size > MAX_AVATAR_SIZE) {
-      setServerError('Ảnh đại diện không được vượt quá 10MB');
+      setServerError('Avatar must not exceed 10MB');
       e.target.value = '';
       return;
     }
@@ -185,7 +185,7 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
         if (employee) payload.isActive = data.isActive;
       } else {
         if (!payload.password) {
-          setServerError('Mật khẩu là bắt buộc khi thêm nhân viên');
+          setServerError('Password is required when creating an employee');
           return;
         }
         delete payload.isActive;
@@ -193,7 +193,7 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
       await onSubmit(payload, avatarFile || undefined);
       onClose();
     } catch (err) {
-      const fallback = mode === 'create' ? 'Thêm nhân viên thất bại' : 'Cập nhật nhân viên thất bại';
+      const fallback = mode === 'create' ? 'Failed to create employee' : 'Failed to update employee';
       setServerError(extractErrorMessage(err, fallback));
     } finally {
       setSubmitting(false);
@@ -205,7 +205,7 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>
-            {mode === 'create' ? 'Thêm nhân viên mới' : 'Chỉnh sửa nhân viên'}
+            {mode === 'create' ? 'Add new employee' : 'Edit employee'}
           </DialogTitle>
         </DialogHeader>
 
@@ -239,23 +239,23 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
               />
             </div>
             <div className="text-[12px] text-muted-foreground">
-              <p>Nhấn để {avatarPreview ? 'đổi' : 'tải lên'} ảnh đại diện</p>
-              <p>JPG, PNG hoặc WebP. Tối đa 10MB</p>
+              <p>Click to {avatarPreview ? 'change' : 'upload'} avatar</p>
+              <p>JPG, PNG, or WebP. Max 10MB</p>
               {avatarPreview && avatarFile && (
                 <button
                   type="button"
                   className="text-red-500 hover:underline mt-1"
                   onClick={() => { setAvatarPreview(null); setAvatarFile(null); }}
                 >
-                  Xóa ảnh
+                  Remove photo
                 </button>
               )}
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <Label>Họ tên *</Label>
-            <Input {...register('name')} placeholder="Nhập họ tên" className="h-9 text-[13px]" />
+            <Label>Full name *</Label>
+            <Input {...register('name')} placeholder="Enter full name" className="h-9 text-[13px]" />
             {errors.name && <p className="text-[12px] text-red-500">{errors.name.message}</p>}
           </div>
 
@@ -267,21 +267,21 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
 
           {mode === 'create' && (
             <div className="space-y-1.5">
-              <Label>Mật khẩu *</Label>
-              <Input {...register('password')} type="password" placeholder="Tối thiểu 6 ký tự" className="h-9 text-[13px]" />
+              <Label>Password *</Label>
+              <Input {...register('password')} type="password" placeholder="At least 6 characters" className="h-9 text-[13px]" />
               {errors.password && <p className="text-[12px] text-red-500">{errors.password.message}</p>}
             </div>
           )}
 
           <div className="space-y-1.5">
-            <Label>Số điện thoại</Label>
+            <Label>Phone number</Label>
             <Input {...register('phone')} placeholder="0901 234 567" className="h-9 text-[13px]" />
             {errors.phone && <p className="text-[12px] text-red-500">{errors.phone.message}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label>Vai trò</Label>
+              <Label>Role</Label>
               <Select value={selectedRole || 'STAFF'} onValueChange={(v) => setValue('role', v)}>
                 <SelectTrigger className="h-9 text-[13px]">
                   <SelectValue />
@@ -295,16 +295,16 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
             </div>
 
             <div className="space-y-1.5">
-              <Label>Chức vụ</Label>
+              <Label>Position</Label>
               <Select
                 value={selectedPosition || 'none'}
                 onValueChange={(v) => setValue('positionId', v === 'none' ? '' : v)}
               >
                 <SelectTrigger className="h-9 text-[13px]">
-                  <SelectValue placeholder="Chọn chức vụ" />
+                  <SelectValue placeholder="Select position" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">Không chọn</SelectItem>
+                  <SelectItem value="none">None</SelectItem>
                   {positions.map((position) => (
                     <SelectItem key={position.id} value={position.id}>
                       {position.name}
@@ -315,13 +315,13 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
             </div>
 
             <div className="space-y-1.5">
-              <Label>Chi nhánh</Label>
+              <Label>Branch</Label>
               <Select value={selectedBranch || 'none'} onValueChange={(v) => setValue('branchId', v === 'none' ? '' : v)}>
                 <SelectTrigger className="h-9 text-[13px]">
-                  <SelectValue placeholder="Chọn chi nhánh" />
+                  <SelectValue placeholder="Select branch" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">Không chọn</SelectItem>
+                  <SelectItem value="none">None</SelectItem>
                   {branches.map((b) => (
                     <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
                   ))}
@@ -332,7 +332,7 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
 
           {mode === 'edit' && employee && (
             <div className="space-y-1.5">
-              <Label>Trạng thái</Label>
+              <Label>Status</Label>
               <Select
                 value={watch('isActive') ? 'true' : 'false'}
                 onValueChange={(v) => setValue('isActive', v === 'true')}
@@ -341,8 +341,8 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="true">Hoạt động</SelectItem>
-                  <SelectItem value="false">Ngừng hoạt động</SelectItem>
+                  <SelectItem value="true">Active</SelectItem>
+                  <SelectItem value="false">Inactive</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -356,11 +356,11 @@ export function EmployeeForm({ open, mode, employee, onClose, onSubmit }: Employ
 
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={submitting}>
-              Hủy
+              Cancel
             </Button>
             <Button type="submit" size="sm" disabled={submitting} className="bg-[#0052cc] hover:bg-[#003d9b]">
               {submitting && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
-              {mode === 'create' ? 'Thêm' : 'Lưu'}
+              {mode === 'create' ? 'Add' : 'Save'}
             </Button>
           </div>
         </form>

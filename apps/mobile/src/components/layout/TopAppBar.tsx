@@ -31,11 +31,11 @@ const TopAppBar = ({
         <View style={styles.left}>
           {showBackButton ? (
             <TouchableOpacity onPress={onBackPress} style={styles.iconButton}>
-              <MaterialCommunityIcons name="arrow-left" size={24} color={COLORS.onSurface} />
+              <MaterialCommunityIcons name="arrow-left" size={24} color={COLORS.onSurfaceVariant} />
             </TouchableOpacity>
           ) : showMenuButton ? (
             <TouchableOpacity onPress={onMenuPress} style={styles.iconButton}>
-              <MaterialCommunityIcons name="menu" size={24} color={COLORS.onSurface} />
+              <MaterialCommunityIcons name="menu" size={24} color={COLORS.primary} />
             </TouchableOpacity>
           ) : null}
         </View>
@@ -64,6 +64,11 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.outlineVariant,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 2,
+    elevation: 2,
   },
   bar: {
     height: 56,
@@ -78,8 +83,8 @@ const styles = StyleSheet.create({
   },
   title: {
     flex: 1,
-    fontSize: 22,
-    fontWeight: '600',
+    fontSize: 20,
+    fontWeight: '700',
     color: COLORS.primary,
     textAlign: 'center',
   },
@@ -96,15 +101,15 @@ const styles = StyleSheet.create({
     borderRadius: 24,
   },
   avatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: COLORS.primaryContainer,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.surfaceVariant,
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarText: {
-    color: COLORS.onPrimary,
+    color: COLORS.onSurfaceVariant,
     fontSize: 16,
     fontWeight: '600',
   },

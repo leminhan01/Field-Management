@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, Image, Alert } from 'react-native';
+import { Alert, Image, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { COLORS, SPACING } from '../../utils/constants';
@@ -7,6 +7,7 @@ import { COLORS, SPACING } from '../../utils/constants';
 export interface PhotoItem {
   uri: string;
   id?: string;
+  createdAt?: string;
 }
 
 interface PhotoCaptureProps {
@@ -16,15 +17,19 @@ interface PhotoCaptureProps {
 }
 
 const PhotoCapture = ({ photos, onPhotosChange, maxPhotos = 10 }: PhotoCaptureProps) => {
+  const { width } = useWindowDimensions();
+  const gridWidth = Math.min(width - SPACING.md * 4, 640);
+  const cellSize = Math.max(132, Math.floor((gridWidth - SPACING.sm) / 2));
+
   const handleCapture = async () => {
     if (photos.length >= maxPhotos) {
-      Alert.alert('Giới hạn', `Tối đa ${maxPhotos} ảnh.`);
+      Alert.alert('Giới hạn ảnh', `Tối đa ${maxPhotos} ảnh cho một báo cáo.`);
       return;
     }
 
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Cần quyền truy cập', 'Vui lòng cấp quyền camera để chụp ảnh.');
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Cần quyền truy cập', 'Vui lòng cấp quyền camera để chụp ảnh minh chứng.');
       return;
     }
 
@@ -35,7 +40,15 @@ const PhotoCapture = ({ photos, onPhotosChange, maxPhotos = 10 }: PhotoCapturePr
     });
 
     if (!result.canceled && result.assets[0]) {
-      onPhotosChange([...photos, { uri: result.assets[0].uri }]);
+      const asset = result.assets[0];
+      onPhotosChange([
+        ...photos,
+        {
+          uri: asset.uri,
+          id: asset.assetId ?? asset.uri,
+          createdAt: new Date().toISOString(),
+        },
+      ]);
     }
   };
 
@@ -48,36 +61,43 @@ const PhotoCapture = ({ photos, onPhotosChange, maxPhotos = 10 }: PhotoCapturePr
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <MaterialCommunityIcons name="camera-outline" size={20} color={COLORS.primary} />
-        <Text style={styles.sectionTitle}>Ảnh Minh Chứng</Text>
+        <MaterialCommunityIcons name="camera-outline" size={22} color={COLORS.primary} />
+        <Text style={styles.sectionTitle}>Ảnh minh chứng</Text>
       </View>
 
       <View style={styles.grid}>
-        {photos.map((photo, index) => (
-          <View key={photo.id || index} style={styles.photoCell}>
-            <Image source={{ uri: photo.uri }} style={styles.photo} />
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => handleRemove(index)}
-            >
-              <MaterialCommunityIcons name="close-circle" size={20} color={COLORS.error} />
-            </TouchableOpacity>
-            <View style={styles.photoOverlay}>
-              <MaterialCommunityIcons name="clock-outline" size={10} color="#fff" />
-              <Text style={styles.photoTime}>
-                {new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
-              </Text>
+        {photos.map((photo, index) => {
+          const capturedAt = photo.createdAt ? new Date(photo.createdAt) : new Date();
+          return (
+            <View key={photo.id || photo.uri} style={[styles.photoCell, { width: cellSize, height: cellSize }]}>
+              <Image source={{ uri: photo.uri }} style={styles.photo} />
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => handleRemove(index)}
+                activeOpacity={0.75}
+              >
+                <MaterialCommunityIcons name="delete-outline" size={20} color={COLORS.error} />
+              </TouchableOpacity>
+              <View style={styles.photoOverlay}>
+                <Text style={styles.photoTime}>
+                  {capturedAt.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} - Mặt tiền
+                </Text>
+              </View>
             </View>
-          </View>
-        ))}
+          );
+        })}
 
-        {photos.length < maxPhotos && (
-          <TouchableOpacity style={styles.captureButton} onPress={handleCapture} activeOpacity={0.7}>
-            <MaterialCommunityIcons name="camera-plus-outline" size={32} color={COLORS.primaryContainer} />
-            <Text style={styles.captureText}>Chụp Ảnh</Text>
-            <Text style={styles.captureText}>Trưng Bày</Text>
+        {photos.length < maxPhotos ? (
+          <TouchableOpacity
+            style={[styles.captureButton, { width: cellSize, height: cellSize }]}
+            onPress={handleCapture}
+            activeOpacity={0.78}
+          >
+            <MaterialCommunityIcons name="camera-plus" size={34} color={COLORS.primaryContainer} />
+            <Text style={styles.captureText}>Chụp ảnh</Text>
+            <Text style={styles.captureText}>trưng bày</Text>
           </TouchableOpacity>
-        )}
+        ) : null}
       </View>
 
       <Text style={styles.helperText}>Yêu cầu ít nhất 1 ảnh toàn cảnh kệ hàng.</Text>
@@ -87,20 +107,18 @@ const PhotoCapture = ({ photos, onPhotosChange, maxPhotos = 10 }: PhotoCapturePr
 
 export default PhotoCapture;
 
-const CELL_SIZE = 160;
-
 const styles = StyleSheet.create({
   container: {
-    marginBottom: SPACING.md,
+    gap: SPACING.sm,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.sm,
-    marginBottom: SPACING.sm,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 18,
+    lineHeight: 24,
     fontWeight: '600',
     color: COLORS.onSurface,
   },
@@ -110,11 +128,10 @@ const styles = StyleSheet.create({
     gap: SPACING.sm,
   },
   photoCell: {
-    width: CELL_SIZE,
-    height: CELL_SIZE,
     borderRadius: 8,
     overflow: 'hidden',
     position: 'relative',
+    backgroundColor: COLORS.surfaceVariant,
   },
   photo: {
     width: '100%',
@@ -123,29 +140,31 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     position: 'absolute',
-    top: 4,
-    right: 4,
+    top: SPACING.sm,
+    right: SPACING.sm,
     zIndex: 2,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.88)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   photoOverlay: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    backgroundColor: 'rgba(0,0,0,0.58)',
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: SPACING.xs,
   },
   photoTime: {
-    color: '#fff',
-    fontSize: 10,
+    color: COLORS.onPrimary,
+    fontSize: 11,
+    fontWeight: '600',
   },
   captureButton: {
-    width: CELL_SIZE,
-    height: CELL_SIZE,
     borderRadius: 8,
     borderWidth: 2,
     borderColor: COLORS.primaryContainer,
@@ -155,13 +174,15 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   captureText: {
-    fontSize: 12,
+    fontSize: 15,
+    lineHeight: 20,
     color: COLORS.primaryContainer,
-    fontWeight: '500',
+    fontWeight: '600',
+    textTransform: 'capitalize',
   },
   helperText: {
-    fontSize: 12,
+    fontSize: 13,
+    lineHeight: 18,
     color: COLORS.onSurfaceVariant,
-    marginTop: SPACING.sm,
   },
 });

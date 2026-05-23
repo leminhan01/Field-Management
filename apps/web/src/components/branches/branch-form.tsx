@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -30,18 +30,18 @@ const formSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(1, 'Tên chi nhánh là bắt buộc')
-    .min(2, 'Tên chi nhánh phải có ít nhất 2 ký tự')
-    .max(120, 'Tên chi nhánh không được vượt quá 120 ký tự'),
+    .min(1, 'Branch name là bắt buộc')
+    .min(2, 'Branch name phải có ít nhất 2 ký tự')
+    .max(120, 'Branch name không được vượt quá 120 ký tự'),
   code: z
     .string()
     .trim()
-    .min(1, 'Mã chi nhánh là bắt buộc')
-    .min(2, 'Mã chi nhánh phải có ít nhất 2 ký tự')
-    .max(30, 'Mã chi nhánh không được vượt quá 30 ký tự')
-    .regex(/^[A-Z0-9_-]+$/i, 'Mã chi nhánh chỉ gồm chữ, số, dấu gạch ngang hoặc gạch dưới'),
-  address: z.string().trim().max(255, 'Địa chỉ không được vượt quá 255 ký tự').optional().or(z.literal('')),
-  type: z.string().min(1, 'Phân vùng chi nhánh là bắt buộc'),
+    .min(1, 'Branch code is required')
+    .min(2, 'Branch code must be at least 2 characters')
+    .max(30, 'Branch code must not exceed 30 characters')
+    .regex(/^[A-Z0-9_-]+$/i, 'Branch code can only contain letters, numbers, hyphens, or underscores'),
+  address: z.string().trim().max(255, 'Address must not exceed 255 characters').optional().or(z.literal('')),
+  type: z.string().min(1, 'Branch division is required'),
   isActive: z.boolean().optional(),
 });
 
@@ -118,7 +118,7 @@ export function BranchForm({ open, mode, branch, onClose, onSubmit }: BranchForm
       await onSubmit(payload);
       onClose();
     } catch (err) {
-      const fallback = mode === 'create' ? 'Thêm chi nhánh thất bại' : 'Cập nhật chi nhánh thất bại';
+      const fallback = mode === 'create' ? 'Failed to create branch' : 'Failed to update branch';
       setServerError(extractBranchErrorMessage(err, fallback));
     } finally {
       setSubmitting(false);
@@ -129,33 +129,33 @@ export function BranchForm({ open, mode, branch, onClose, onSubmit }: BranchForm
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="sm:max-w-[520px]">
         <DialogHeader>
-          <DialogTitle>{mode === 'create' ? 'Thêm chi nhánh mới' : 'Chỉnh sửa chi nhánh'}</DialogTitle>
+          <DialogTitle>{mode === 'create' ? 'Add new branch' : 'Edit branch'}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label>Tên chi nhánh *</Label>
-              <Input {...register('name')} placeholder="Công ty A - Chi nhánh miền Nam" className="h-9 text-[13px]" />
+              <Label>Branch name *</Label>
+              <Input {...register('name')} placeholder="Company A - Southern Branch" className="h-9 text-[13px]" />
               {errors.name && <p className="text-[12px] text-red-500">{errors.name.message}</p>}
             </div>
 
             <div className="space-y-1.5">
-              <Label>Mã chi nhánh *</Label>
+              <Label>Branch code *</Label>
               <Input {...register('code')} placeholder="CN-MN" className="h-9 text-[13px] uppercase" />
               {errors.code && <p className="text-[12px] text-red-500">{errors.code.message}</p>}
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <Label>Địa chỉ</Label>
-            <Textarea {...register('address')} placeholder="Nhập địa chỉ chi nhánh" className="min-h-[76px] text-[13px]" />
+            <Label>Address</Label>
+            <Textarea {...register('address')} placeholder="Enter branch address" className="min-h-[76px] text-[13px]" />
             {errors.address && <p className="text-[12px] text-red-500">{errors.address.message}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label>Phân vùng *</Label>
+              <Label>Division *</Label>
               <Select value={selectedType || 'OTHER'} onValueChange={(v) => setValue('type', v)}>
                 <SelectTrigger className="h-9 text-[13px]">
                   <SelectValue />
@@ -171,7 +171,7 @@ export function BranchForm({ open, mode, branch, onClose, onSubmit }: BranchForm
 
             {mode === 'edit' && (
               <div className="space-y-1.5">
-                <Label>Trạng thái</Label>
+                <Label>Status</Label>
                 <Select
                   value={watch('isActive') ? 'true' : 'false'}
                   onValueChange={(v) => setValue('isActive', v === 'true')}
@@ -180,8 +180,8 @@ export function BranchForm({ open, mode, branch, onClose, onSubmit }: BranchForm
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="true">Hoạt động</SelectItem>
-                    <SelectItem value="false">Ngưng hoạt động</SelectItem>
+                    <SelectItem value="true">Active</SelectItem>
+                    <SelectItem value="false">Inactive</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -196,11 +196,11 @@ export function BranchForm({ open, mode, branch, onClose, onSubmit }: BranchForm
 
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={submitting}>
-              Hủy
+              Cancel
             </Button>
             <Button type="submit" size="sm" disabled={submitting} className="bg-[#0052cc] hover:bg-[#003d9b]">
               {submitting && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
-              {mode === 'create' ? 'Thêm' : 'Lưu'}
+              {mode === 'create' ? 'Add' : 'Save'}
             </Button>
           </div>
         </form>

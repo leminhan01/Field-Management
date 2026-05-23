@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useCallback, useEffect, useState } from 'react';
 import { getDashboardOverview } from '@/lib/dashboard';
@@ -17,7 +17,7 @@ export function useDashboardOverview() {
       const result = await getDashboardOverview();
       setData(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Không thể tải dữ liệu dashboard');
+      setError(err instanceof Error ? err.message : 'Unable to load dashboard data');
     } finally {
       setLoading(false);
     }

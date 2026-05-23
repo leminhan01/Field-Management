@@ -1,36 +1,54 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, SPACING } from '../../utils/constants';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
-import type { Icon } from '@expo/vector-icons/build/createIconSet';
+type MaterialIconName = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
 
 interface TabConfigItem {
   name: string;
   label: string;
-  icon: Icon;
-  activeIcon: Icon;
+  icon: MaterialIconName;
+  activeIcon: MaterialIconName;
   showBadge?: boolean;
 }
 
 const TAB_CONFIG: TabConfigItem[] = [
-  { name: 'TasksTab', label: 'Nhiệm vụ', icon: 'clipboard-check-outline' as Icon, activeIcon: 'clipboard-check' as Icon },
-  { name: 'MapTab', label: 'Bản đồ', icon: 'map-outline' as Icon, activeIcon: 'map' as Icon },
-  { name: 'NotificationsTab', label: 'Thông báo', icon: 'bell-outline' as Icon, activeIcon: 'bell' as Icon, showBadge: true },
-  { name: 'ProfileTab', label: 'Cá nhân', icon: 'account-outline' as Icon, activeIcon: 'account' as Icon },
+  {
+    name: 'TasksTab',
+    label: 'Nhiệm vụ',
+    icon: 'clipboard-check-outline',
+    activeIcon: 'clipboard-check',
+  },
+  { name: 'MapTab', label: 'Bản đồ', icon: 'map-outline', activeIcon: 'map' },
+  {
+    name: 'NotificationsTab',
+    label: 'Thông báo',
+    icon: 'bell-outline',
+    activeIcon: 'bell',
+    showBadge: true,
+  },
+  { name: 'ProfileTab', label: 'Cá nhân', icon: 'account-outline', activeIcon: 'account' },
 ];
 
-const BottomNavBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
+const BottomNavBar = ({ state, navigation }: BottomTabBarProps) => {
   const insets = useSafeAreaInsets();
+  const focusedRoute = state.routes[state.index];
+  const focusedNestedRoute = getFocusedRouteNameFromRoute(focusedRoute);
+
+  if (focusedRoute.name === 'TasksTab' && focusedNestedRoute === 'TaskDetail') {
+    return null;
+  }
 
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom || SPACING.sm }]}>
       <View style={styles.bar}>
         {state.routes.map((route, index) => {
           const isFocused = state.index === index;
-          const config = TAB_CONFIG.find((t) => t.name === route.name);
+          const config = TAB_CONFIG.find((tab) => tab.name === route.name);
           if (!config) return null;
 
           const onPress = () => {
@@ -50,7 +68,7 @@ const BottomNavBar = ({ state, descriptors, navigation }: BottomTabBarProps) => 
               key={route.key}
               onPress={onPress}
               style={styles.tab}
-              activeOpacity={0.7}
+              activeOpacity={0.75}
             >
               <View style={[styles.tabContent, isFocused && styles.tabContentActive]}>
                 <View>
@@ -59,14 +77,9 @@ const BottomNavBar = ({ state, descriptors, navigation }: BottomTabBarProps) => 
                     size={24}
                     color={isFocused ? COLORS.onSecondaryContainer : COLORS.onSurfaceVariant}
                   />
-                  {config.showBadge && !isFocused && <View style={styles.badge} />}
+                  {config.showBadge && !isFocused ? <View style={styles.badge} /> : null}
                 </View>
-                <Text
-                  style={[
-                    styles.tabLabel,
-                    isFocused && styles.tabLabelActive,
-                  ]}
-                >
+                <Text style={[styles.tabLabel, isFocused && styles.tabLabelActive]}>
                   {config.label}
                 </Text>
               </View>
@@ -82,14 +95,16 @@ export default BottomNavBar;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: COLORS.surfaceContainer,
     borderTopWidth: 1,
     borderTopColor: COLORS.outlineVariant,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 8,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 10,
   },
   bar: {
     height: 64,
@@ -106,9 +121,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-    borderRadius: 16,
+    paddingVertical: 6,
+    borderRadius: 24,
     minWidth: 64,
+    minHeight: 48,
   },
   tabContentActive: {
     backgroundColor: COLORS.secondaryContainer,

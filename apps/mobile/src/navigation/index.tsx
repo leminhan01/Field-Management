@@ -42,6 +42,7 @@ const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
 function TaskStackNavigator() {
   return (
     <TaskStack.Navigator screenOptions={{ headerShown: false }}>
+      <TaskStack.Screen name="TaskList" component={HomeScreen} />
       <TaskStack.Screen name="TaskDetail" component={TaskDetailScreen} />
       <TaskStack.Screen name="ReportSubmit" component={ReportSubmitScreen} />
     </TaskStack.Navigator>
@@ -72,7 +73,7 @@ function MainTabs() {
       tabBar={(props) => <BottomNavBar {...props} />}
       screenOptions={{ headerShown: false }}
     >
-      <Tab.Screen name="TasksTab" component={HomeScreen} />
+      <Tab.Screen name="TasksTab" component={TaskStackNavigator} />
       <Tab.Screen name="MapTab" component={MapPlaceholderScreen} />
       <Tab.Screen name="NotificationsTab" component={NotificationsScreen} />
       <Tab.Screen name="ProfileTab" component={ProfileStackNavigator} />

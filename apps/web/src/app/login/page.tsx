@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { Mail, Lock, Loader2, Eye, EyeOff, Briefcase } from 'lucide-react';
@@ -11,9 +11,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
 
 const features = [
-  { icon: '📊', title: 'Dashboard Tong quan', desc: 'Thong ke realtime, bieu do hieu suat' },
-  { icon: '📋', title: 'Quan ly Cong viec', desc: 'Task, Template, Phan cong, Bao cao' },
-  { icon: '👥', title: 'Quan ly Nhan su', desc: 'Staff, Role, Chi nhanh, Thiet bi' },
+  { icon: '📊', title: 'Dashboard overview', desc: 'Realtime statistics and performance charts' },
+  { icon: '📋', title: 'Quan ly Task', desc: 'Task, Template, Assign, Bao cao' },
+  { icon: '👥', title: 'Staff Management', desc: 'Staff, roles, branches, devices' },
 ];
 
 export default function LoginPage() {
@@ -76,7 +76,7 @@ export default function LoginPage() {
             <Briefcase className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-white text-2xl font-bold">Field Management</h1>
-          <p className="text-gray-400 text-sm mt-2">He thong quan ly cong viec Agency</p>
+          <p className="text-gray-400 text-sm mt-2">He thong quan ly tasks Agency</p>
         </motion.div>
 
         {/* Features */}

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
@@ -82,24 +82,24 @@ export default function EmployeesPage() {
       if (editingEmployee) {
         await update(editingEmployee.id, formData as any);
         employeeId = editingEmployee.id;
-        toast.success('Cập nhật nhân viên thành công');
+        toast.success('Employee updated successfully');
       } else {
         const created = await create(formData as any);
         employeeId = created.id;
-        toast.success('Thêm nhân viên thành công');
+        toast.success('Employee created successfully');
       }
 
       if (avatarFile && employeeId) {
         try {
           await uploadAvatar(employeeId, avatarFile);
         } catch {
-          toast.warning('Nhân viên đã được lưu nhưng tải ảnh đại diện thất bại');
+          toast.warning('Employee was saved, but avatar upload failed');
         }
       }
 
       refetch();
     } catch (err) {
-      const msg = extractErrorMessage(err, editingEmployee ? 'Cập nhật nhân viên thất bại' : 'Thêm nhân viên thất bại');
+      const msg = extractErrorMessage(err, editingEmployee ? 'Failed to update employee' : 'Failed to create employee');
       toast.error(msg);
       throw err;
     }
@@ -110,11 +110,11 @@ export default function EmployeesPage() {
     setDeleting(true);
     try {
       await remove(deleteTarget.id);
-      toast.success(`Đã xóa nhân viên ${deleteTarget.name}`);
+      toast.success(`Deleted employee ${deleteTarget.name}`);
       refetch();
       setDeleteTarget(null);
     } catch (err) {
-      const msg = extractErrorMessage(err, 'Xóa nhân viên thất bại');
+      const msg = extractErrorMessage(err, 'Failed to delete employee');
       toast.error(msg);
     } finally {
       setDeleting(false);
@@ -124,9 +124,9 @@ export default function EmployeesPage() {
   const handleExport = useCallback(async () => {
     try {
       await exportEmployees(params);
-      toast.success('Xuất file Excel thành công');
+      toast.success('Excel file exported successfully');
     } catch (err) {
-      const msg = extractErrorMessage(err, 'Xuất file Excel thất bại');
+      const msg = extractErrorMessage(err, 'Failed to export Excel file');
       toast.error(msg);
     }
   }, [params]);
@@ -138,13 +138,13 @@ export default function EmployeesPage() {
   return (
     <PageWrapper>
       <PageToolbar
-        title="Quản lý nhân viên"
-        description={`${meta.total} nhân viên`}
-        searchPlaceholder="Tìm kiếm nhân viên..."
+        title="Employee management"
+        description={`${meta.total} employees`}
+        searchPlaceholder="Search employees..."
         searchValue={search}
         onSearchChange={handleSearchChange}
         primaryAction={{
-          label: 'Thêm nhân viên',
+          label: 'Add employees',
           onClick: () => { setEditingEmployee(null); setShowForm(true); },
         }}
         secondaryActions={
@@ -171,7 +171,7 @@ export default function EmployeesPage() {
               className={`h-8 gap-1.5 text-[13px] ${showFilter ? 'bg-[#0052cc]/10 text-[#0052cc] border-[#0052cc]' : ''}`}
               onClick={() => setShowFilter(!showFilter)}
             >
-              <Filter className="w-3.5 h-3.5" />Bộ lọc
+              <Filter className="w-3.5 h-3.5" />Filters
             </Button>
           </>
         }
@@ -234,15 +234,15 @@ export default function EmployeesPage() {
       <Dialog open={!!deleteTarget} onOpenChange={(v) => !v && setDeleteTarget(null)}>
         <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
-            <DialogTitle>Xác nhận xóa</DialogTitle>
+            <DialogTitle>Confirm deletion</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa nhân viên <strong>{deleteTarget?.name}</strong>?
-              Hành động này không thể hoàn tác.
+              Are you sure you want to delete employee <strong>{deleteTarget?.name}</strong>?
+              This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" size="sm" onClick={() => setDeleteTarget(null)}>
-              Hủy
+              Cancel
             </Button>
             <Button
               variant="destructive"
@@ -252,7 +252,7 @@ export default function EmployeesPage() {
             >
               {deleting && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
               <Trash2 className="w-4 h-4 mr-1" />
-              Xóa
+              Delete
             </Button>
           </div>
         </DialogContent>

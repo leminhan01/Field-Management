@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Mail, Phone } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -18,7 +18,7 @@ export function getEmployeeColumns(actions: EmployeeActions): Column<EmployeeDto
   return [
     {
       key: 'name',
-      header: 'Nhân viên',
+      header: 'Employee',
       render: (e) => (
         <div className="flex items-center gap-3">
           <Avatar className="w-8 h-8" style={!e.avatar ? { background: 'linear-gradient(135deg, #667eea, #764ba2)' } : undefined}>
@@ -33,7 +33,7 @@ export function getEmployeeColumns(actions: EmployeeActions): Column<EmployeeDto
     },
     {
       key: 'contact',
-      header: 'Liên hệ',
+      header: 'Contact',
       render: (e) => (
         <div className="space-y-0.5">
           <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground">
@@ -49,22 +49,22 @@ export function getEmployeeColumns(actions: EmployeeActions): Column<EmployeeDto
     },
     {
       key: 'role',
-      header: 'Vai trò',
+      header: 'Role',
       render: (e) => <RoleBadge role={e.role.replace(/_/g, ' ')} />,
     },
     {
       key: 'branch',
-      header: 'Chi nhánh',
+      header: 'Branch',
       render: (e) => <span className="text-muted-foreground">{e.branch?.name || '—'}</span>,
     },
     {
       key: 'status',
-      header: 'Trạng thái',
+      header: 'Status',
       render: (e) => <StatusBadge status={e.isActive ? 'active' : 'inactive'} />,
     },
     {
       key: 'createdAt',
-      header: 'Ngày tạo',
+      header: 'Created date',
       render: (e) => (
         <span className="font-mono text-muted-foreground">
           {new Date(e.createdAt).toLocaleDateString('vi-VN')}
@@ -77,9 +77,9 @@ export function getEmployeeColumns(actions: EmployeeActions): Column<EmployeeDto
       className: 'w-10',
       render: (e) => {
         const items: ActionItem[] = [
-          { label: 'Chỉnh sửa', onClick: () => actions.onEdit(e) },
-          { label: 'Xem chi tiết', onClick: () => actions.onView(e) },
-          { label: 'Xóa', onClick: () => actions.onDelete(e), variant: 'destructive' },
+          { label: 'Edit', onClick: () => actions.onEdit(e) },
+          { label: 'View details', onClick: () => actions.onView(e) },
+          { label: 'Delete', onClick: () => actions.onDelete(e), variant: 'destructive' },
         ];
         return <ActionMenu actions={items} />;
       },

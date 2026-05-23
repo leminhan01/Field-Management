@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useMemo, useState } from 'react';
 import { Edit, Loader2, Plus, ShieldCheck, Trash2 } from 'lucide-react';
@@ -115,15 +115,15 @@ export default function PositionsPage() {
       };
       if (editing) {
         await updatePosition(editing.id, payload);
-        toast.success('Cap nhat chuc vu thanh cong');
+        toast.success('Position updated successfully');
       } else {
         await createPosition(payload);
-        toast.success('Tao chuc vu thanh cong');
+        toast.success('Position created successfully');
       }
       setOpen(false);
       refetch();
     } catch (err) {
-      toast.error(extractErrorMessage(err, 'Luu chuc vu that bai'));
+      toast.error(extractErrorMessage(err, 'Save positions that bai'));
     } finally {
       setSubmitting(false);
     }
@@ -133,18 +133,18 @@ export default function PositionsPage() {
     if (!deleteTarget) return;
     try {
       await deletePosition(deleteTarget.id);
-      toast.success('Xoa chuc vu thanh cong');
+      toast.success('Delete positions thanh cong');
       setDeleteTarget(null);
       refetch();
     } catch (err) {
-      toast.error(extractErrorMessage(err, 'Xoa chuc vu that bai'));
+      toast.error(extractErrorMessage(err, 'Delete positions that bai'));
     }
   };
 
   const columns: Column<PositionTableRow>[] = [
     {
       key: 'name',
-      header: 'Chuc vu',
+      header: 'Position',
       render: (row) => (
         <div>
           <div className="font-medium">{row.name}</div>
@@ -166,12 +166,12 @@ export default function PositionsPage() {
     },
     {
       key: 'users',
-      header: 'Nhan vien',
+      header: 'Employee',
       render: (row) => row._count?.users || 0,
     },
     {
       key: 'status',
-      header: 'Trang thai',
+      header: 'Status',
       render: (row) => (
         <Badge variant={row.isActive ? 'default' : 'secondary'}>
           {row.isActive ? 'Active' : 'Inactive'}
@@ -203,15 +203,15 @@ export default function PositionsPage() {
   return (
     <PageWrapper>
       <PageToolbar
-        title="Quan ly chuc vu"
-        description={`${meta.total} chuc vu`}
-        searchPlaceholder="Tim kiem chuc vu..."
+        title="Position management"
+        description={`${meta.total} positions`}
+        searchPlaceholder="Search positions..."
         searchValue={search}
         onSearchChange={(value) => {
           setSearch(value);
           setPage(1);
         }}
-        primaryAction={{ label: 'Them chuc vu', onClick: openCreate }}
+        primaryAction={{ label: 'Add positions', onClick: openCreate }}
       />
 
       {loading ? (
@@ -230,19 +230,19 @@ export default function PositionsPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[760px]">
           <DialogHeader>
-            <DialogTitle>{editing ? 'Cap nhat chuc vu' : 'Them chuc vu'}</DialogTitle>
+            <DialogTitle>{editing ? 'Update position' : 'Add positions'}</DialogTitle>
           </DialogHeader>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label>Tên chức vụ</Label>
+              <Label>Position name</Label>
               <Input
                 value={form.name}
                 onChange={(event) => setForm({ ...form, name: event.target.value })}
               />
             </div>
             <div className="space-y-2">
-              <Label>Ma chuc vu</Label>
+              <Label>Position code</Label>
               <Input
                 value={form.code}
                 onChange={(event) => setForm({ ...form, code: event.target.value.toUpperCase() })}
@@ -276,7 +276,7 @@ export default function PositionsPage() {
               />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <Label>Mo ta</Label>
+              <Label>Description</Label>
               <Textarea
                 value={form.description}
                 onChange={(event) => setForm({ ...form, description: event.target.value })}
@@ -287,7 +287,7 @@ export default function PositionsPage() {
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-sm font-semibold">
               <ShieldCheck className="h-4 w-4 text-primary" />
-              Phan quyen su dung
+              Access permissions
             </div>
             <div className="grid gap-3 md:grid-cols-2">
               {Object.entries(permissionGroups).map(([group, items]) => (
@@ -310,10 +310,10 @@ export default function PositionsPage() {
           </div>
 
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setOpen(false)}>Huy</Button>
+            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
             <Button onClick={handleSubmit} disabled={submitting || !form.name || !form.code}>
               {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-              Luu
+              Save
             </Button>
           </div>
         </DialogContent>
@@ -322,14 +322,14 @@ export default function PositionsPage() {
       <Dialog open={!!deleteTarget} onOpenChange={(value) => !value && setDeleteTarget(null)}>
         <DialogContent className="sm:max-w-[420px]">
           <DialogHeader>
-            <DialogTitle>Xac nhan xoa chuc vu</DialogTitle>
+            <DialogTitle>Confirm deletion positions</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            Chuc vu {deleteTarget?.name} se bi xoa mem neu khong con nhan vien dang su dung.
+            Position {deleteTarget?.name} will be soft-deleted if no employees are using it.
           </p>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setDeleteTarget(null)}>Huy</Button>
-            <Button variant="destructive" onClick={handleDelete}>Xoa</Button>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleDelete}>Delete</Button>
           </div>
         </DialogContent>
       </Dialog>

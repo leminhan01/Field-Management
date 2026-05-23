@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -48,29 +48,29 @@ interface QuickAction {
 
 const quickActions: QuickAction[] = [
   {
-    label: 'Tạo công việc định kỳ',
-    description: 'BB, BG, promotion tại cửa hàng',
+    label: 'Create regular task',
+    description: 'BB, BG, in-store promotion',
     href: '/tasks/regular',
     icon: ClipboardList,
     className: 'bg-blue-50 text-blue-700 hover:bg-blue-100',
   },
   {
-    label: 'Lên lịch phân công',
-    description: 'Sắp lịch theo ngày, tuần hoặc tháng',
+    label: 'Schedule assignments',
+    description: 'Plan by day, week, or month',
     href: '/tasks/scheduling',
     icon: CalendarRange,
     className: 'bg-amber-50 text-amber-700 hover:bg-amber-100',
   },
   {
-    label: 'Tạo mẫu công việc',
-    description: 'Checklist, ảnh bắt buộc, thời lượng',
+    label: 'Create task template',
+    description: 'Checklist, required photos, duration',
     href: '/task-templates',
     icon: FileText,
     className: 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100',
   },
   {
-    label: 'Kiểm tra thiết bị',
-    description: 'Camera, POS, màn hình, standee',
+    label: 'Device inspection',
+    description: 'Camera, POS, display, standee',
     href: '/tasks/device-tasks',
     icon: Camera,
     className: 'bg-violet-50 text-violet-700 hover:bg-violet-100',
@@ -148,33 +148,33 @@ function formatDate(value: string | null) {
 function buildSummaryCards(data: ReturnType<typeof useDashboardOverview>['data']): SummaryCard[] {
   return [
     {
-      title: 'Nhân sự',
+      title: 'Staff',
       value: String(data?.summary.employees.total || 0),
-      detail: `${data?.summary.employees.active || 0} đang hoạt động, ${data?.summary.employees.inactive || 0} tạm ngưng`,
+      detail: `${data?.summary.employees.active || 0} active, ${data?.summary.employees.inactive || 0} inactive`,
       icon: Users,
       iconClass: 'text-blue-600',
       iconBg: 'bg-blue-50',
     },
     {
-      title: 'Chi nhánh / cửa hàng',
+      title: 'Branches / outlets',
       value: String((data?.summary.branches.total || 0) + (data?.summary.outlets.total || 0)),
-      detail: `${data?.summary.branches.active || 0} chi nhánh, ${data?.summary.outlets.active || 0} cửa hàng hoạt động`,
+      detail: `${data?.summary.branches.active || 0} branches, ${data?.summary.outlets.active || 0} active outlets`,
       icon: Store,
       iconClass: 'text-emerald-600',
       iconBg: 'bg-emerald-50',
     },
     {
-      title: 'Công việc trong tuần',
+      title: 'Tasks this week',
       value: String(data?.summary.tasks.thisWeek || 0),
-      detail: `${data?.summary.tasks.total || 0} công việc trong toàn hệ thống`,
+      detail: `${data?.summary.tasks.total || 0} tasks across the system`,
       icon: ClipboardCheck,
       iconClass: 'text-amber-600',
       iconBg: 'bg-amber-50',
     },
     {
-      title: 'Thiết bị theo dõi',
+      title: 'Tracked devices',
       value: String(data?.summary.devices.total || 0),
-      detail: `${data?.summary.devices.active || 0} active, ${data?.summary.devices.issue || 0} cần xử lý`,
+      detail: `${data?.summary.devices.active || 0} active, ${data?.summary.devices.issue || 0} need attention`,
       icon: MonitorSpeaker,
       iconClass: 'text-violet-600',
       iconBg: 'bg-violet-50',
@@ -199,7 +199,7 @@ export default function DashboardPage() {
             Dashboard
           </h1>
           <p className="text-[14px] text-[#434654] mt-1">
-            Tổng quan vận hành FieldApp theo nhân sự, cửa hàng, công việc, thiết bị và báo cáo.
+            FieldApp operations overview across staff, outlets, tasks, devices, and reports.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -210,12 +210,12 @@ export default function DashboardPage() {
             disabled={loading}
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-            Làm mới
+            Refresh
           </Button>
           <Button asChild className="h-9 gap-2 bg-[#0052cc] hover:bg-[#003d9b] text-white shadow-md">
             <Link href="/tasks/regular">
               <Plus className="w-4 h-4" />
-              Tạo công việc
+              Create task
             </Link>
           </Button>
         </div>
@@ -259,14 +259,14 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between px-5 py-4 border-b border-[#e0e1ec]">
               <div>
                 <h2 className="text-[15px] font-semibold text-[#191b23]">
-                  Công việc gần đây
+                  Recent tasks
                 </h2>
                 <p className="text-[12px] text-[#434654] mt-0.5">
-                  Theo luồng Draft, Assigned, In Progress, Completed, Approved/Rejected.
+                  Tracked through Draft, Assigned, In Progress, Completed, and Approved/Rejected.
                 </p>
               </div>
               <Link href="/tasks/regular" className="flex items-center gap-1 text-[13px] font-semibold text-[#0052cc] hover:text-[#003d9b] transition-colors">
-                Xem tất cả
+                View all
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -274,12 +274,12 @@ export default function DashboardPage() {
               <table className="w-full text-left">
                 <thead>
                   <tr className="bg-[#f3f3fd] border-b border-[#e0e1ec]">
-                    <th className="px-5 py-3 text-[11px] font-bold uppercase tracking-[0.06em] text-[#434654]/60">Công việc</th>
-                    <th className="px-5 py-3 text-[11px] font-bold uppercase tracking-[0.06em] text-[#434654]/60">Loại</th>
-                    <th className="px-5 py-3 text-[11px] font-bold uppercase tracking-[0.06em] text-[#434654]/60">Cửa hàng</th>
-                    <th className="px-5 py-3 text-[11px] font-bold uppercase tracking-[0.06em] text-[#434654]/60">Nhân sự</th>
-                    <th className="px-5 py-3 text-[11px] font-bold uppercase tracking-[0.06em] text-[#434654]/60">Trạng thái</th>
-                    <th className="px-5 py-3 text-[11px] font-bold uppercase tracking-[0.06em] text-[#434654]/60">Hạn</th>
+                    <th className="px-5 py-3 text-[11px] font-bold uppercase tracking-[0.06em] text-[#434654]/60">Task</th>
+                    <th className="px-5 py-3 text-[11px] font-bold uppercase tracking-[0.06em] text-[#434654]/60">Type</th>
+                    <th className="px-5 py-3 text-[11px] font-bold uppercase tracking-[0.06em] text-[#434654]/60">Outlet</th>
+                    <th className="px-5 py-3 text-[11px] font-bold uppercase tracking-[0.06em] text-[#434654]/60">Staff</th>
+                    <th className="px-5 py-3 text-[11px] font-bold uppercase tracking-[0.06em] text-[#434654]/60">Status</th>
+                    <th className="px-5 py-3 text-[11px] font-bold uppercase tracking-[0.06em] text-[#434654]/60">Due date</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#e0e1ec]">
@@ -287,7 +287,7 @@ export default function DashboardPage() {
                     <tr>
                       <td colSpan={6} className="px-5 py-10 text-center text-[13px] text-[#434654]">
                         <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2" />
-                        Đang tải dữ liệu
+                        Loading data
                       </td>
                     </tr>
                   ) : data?.recentTasks.length ? (
@@ -296,7 +296,7 @@ export default function DashboardPage() {
                         <td className="px-5 py-3.5 text-[13px] font-semibold text-[#191b23] whitespace-nowrap">{task.title}</td>
                         <td className="px-5 py-3.5 text-[13px] text-[#434654]">{typeLabelMap[task.type] || task.type}</td>
                         <td className="px-5 py-3.5 text-[13px] text-[#434654] whitespace-nowrap">{task.branch}</td>
-                        <td className="px-5 py-3.5 text-[13px] text-[#434654] whitespace-nowrap">{task.assignee || 'Chưa gán'}</td>
+                        <td className="px-5 py-3.5 text-[13px] text-[#434654] whitespace-nowrap">{task.assignee || 'Unassigned'}</td>
                         <td className="px-5 py-3.5"><StatusBadge status={statusLabelMap[task.status] || task.status} /></td>
                         <td className="px-5 py-3.5 text-[13px] text-[#434654] font-mono whitespace-nowrap">{formatDate(task.dueDate)}</td>
                       </tr>
@@ -304,7 +304,7 @@ export default function DashboardPage() {
                   ) : (
                     <tr>
                       <td colSpan={6} className="px-5 py-10 text-center text-[13px] text-[#434654]">
-                        Chưa có công việc
+                        No tasks yet
                       </td>
                     </tr>
                   )}
@@ -315,7 +315,7 @@ export default function DashboardPage() {
 
           <motion.div variants={itemVariants} className="bg-white rounded-xl shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-[#e0e1ec] p-5">
             <h2 className="text-[15px] font-semibold text-[#191b23] mb-4">
-              Tiến độ công việc
+              Task progress
             </h2>
             <div className="space-y-3.5">
               {(data?.taskStatuses || []).map((item) => (
@@ -335,7 +335,7 @@ export default function DashboardPage() {
                 </div>
               ))}
               {!loading && !data?.taskStatuses.length && (
-                <p className="text-[13px] text-[#434654]">Chưa có dữ liệu tiến độ.</p>
+                <p className="text-[13px] text-[#434654]">No progress data yet.</p>
               )}
             </div>
           </motion.div>
@@ -344,7 +344,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
           <motion.div variants={itemVariants} className="bg-white rounded-xl shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-[#e0e1ec] p-5">
             <h2 className="text-[15px] font-semibold text-[#191b23] mb-4">
-              Thao tác nhanh
+              Quick actions
             </h2>
             <div className="space-y-2">
               {quickActions.map((action) => (
@@ -365,7 +365,7 @@ export default function DashboardPage() {
 
           <motion.div variants={itemVariants} className="lg:col-span-2 bg-white rounded-xl shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-[#e0e1ec] p-5">
             <h2 className="text-[15px] font-semibold text-[#191b23] mb-4">
-              Module đã xây dựng
+              Built modules
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
               {(data?.modules || []).map((module) => (
@@ -386,7 +386,7 @@ export default function DashboardPage() {
               {loading && !data && (
                 <div className="col-span-full py-8 text-center text-[13px] text-[#434654]">
                   <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2" />
-                  Đang tải module
+                  Loading modules
                 </div>
               )}
             </div>

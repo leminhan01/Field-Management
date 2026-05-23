@@ -8,7 +8,7 @@ export class CreateReportDto {
   assignmentId!: string;
 
   @IsObject()
-  checklistData!: Record<string, boolean>;
+  checklistData!: Record<string, unknown>;
 
   @IsArray()
   @IsString({ each: true })

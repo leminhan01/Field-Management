@@ -45,6 +45,7 @@ const MY_TASK_ASSIGNMENT_SELECT = {
           name: true,
           code: true,
           address: true,
+          phone: true,
           latitude: true,
           longitude: true,
         },
@@ -217,11 +218,15 @@ export class MeService {
         taskId: dto.taskId,
         assignmentId: dto.assignmentId,
         submittedById: userId,
-        checklistData: dto.checklistData,
+        checklistData: dto.checklistData as Prisma.InputJsonObject,
         photos: dto.photos,
         notes: dto.notes,
         rating: dto.rating,
       },
+    });
+
+    await this.updateAssignmentStatus(userId, dto.assignmentId, {
+      status: AssignmentStatus.COMPLETED,
     });
 
     return report;

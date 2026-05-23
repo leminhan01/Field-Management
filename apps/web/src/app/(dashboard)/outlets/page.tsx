@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useCallback, useMemo, useState } from 'react';
 import { Building2, Filter, Loader2, MapPin, Phone, Trash2 } from 'lucide-react';
@@ -68,17 +68,17 @@ export default function OutletsPage() {
     try {
       if (editingOutlet) {
         await update(editingOutlet.id, formData as UpdateOutletInput);
-        toast.success('Cap nhat outlet thanh cong');
+        toast.success('Outlet updated successfully');
       } else {
         await create(formData as unknown as CreateOutletInput);
-        toast.success('Them outlet thanh cong');
+        toast.success('Outlet created successfully');
       }
 
       refetch();
     } catch (err) {
       const msg = extractOutletErrorMessage(
         err,
-        editingOutlet ? 'Cap nhat outlet that bai' : 'Them outlet that bai',
+        editingOutlet ? 'Failed to update outlet' : 'Failed to create outlet',
       );
       toast.error(msg);
       throw err;
@@ -91,11 +91,11 @@ export default function OutletsPage() {
     setDeleting(true);
     try {
       await remove(deleteTarget.id);
-      toast.success(`Da xoa outlet ${deleteTarget.name}`);
+      toast.success(`Deleted outlet ${deleteTarget.name}`);
       refetch();
       setDeleteTarget(null);
     } catch (err) {
-      toast.error(extractOutletErrorMessage(err, 'Xoa outlet that bai'));
+      toast.error(extractOutletErrorMessage(err, 'Failed to delete outlet'));
     } finally {
       setDeleting(false);
     }
@@ -119,22 +119,22 @@ export default function OutletsPage() {
     },
     {
       key: 'branch',
-      header: 'Chi nhanh quan ly',
+      header: 'Managing branch',
       render: (outlet) => <span className="text-muted-foreground">{outlet.branch.name}</span>,
     },
     {
       key: 'type',
-      header: 'Loai',
+      header: 'Type',
       render: (outlet) => <TypeBadge type={OUTLET_TYPE_LABELS[outlet.type] || outlet.type} />,
     },
     {
       key: 'brand',
-      header: 'Thuong hieu',
+      header: 'Brand',
       render: (outlet) => <span className="text-muted-foreground">{outlet.brand || '-'}</span>,
     },
     {
       key: 'address',
-      header: 'Dia diem',
+      header: 'Location',
       className: 'max-w-[260px]',
       render: (outlet) => (
         <span className="flex items-center gap-1 text-muted-foreground truncate">
@@ -145,7 +145,7 @@ export default function OutletsPage() {
     },
     {
       key: 'phone',
-      header: 'Lien he',
+      header: 'Contact',
       render: (outlet) => (
         <span className="flex items-center gap-1 text-muted-foreground">
           <Phone className="w-3.5 h-3.5" />
@@ -155,8 +155,8 @@ export default function OutletsPage() {
     },
     {
       key: 'status',
-      header: 'Trang thai',
-      render: (outlet) => <StatusBadge status={outlet.isActive ? 'Hoat dong' : 'Ngung hoat dong'} />,
+      header: 'Status',
+      render: (outlet) => <StatusBadge status={outlet.isActive ? 'Active' : 'Inactive'} />,
     },
     {
       key: 'actions',
@@ -167,14 +167,14 @@ export default function OutletsPage() {
           <ActionMenu
             actions={[
               {
-                label: 'Chinh sua',
+                label: 'Edit',
                 onClick: () => {
                   setEditingOutlet(outlet);
                   setShowForm(true);
                 },
               },
               {
-                label: 'Xoa',
+                label: 'Delete',
                 onClick: () => setDeleteTarget(outlet),
                 variant: 'destructive',
               },
@@ -188,13 +188,13 @@ export default function OutletsPage() {
   return (
     <PageWrapper>
       <PageToolbar
-        title="Quan ly outlet"
+        title="Outlet management"
         description={`${meta.total} outlet`}
-        searchPlaceholder="Tim kiem outlet, dia diem, chi nhanh..."
+        searchPlaceholder="Search outlets, locations, branches..."
         searchValue={search}
         onSearchChange={handleSearchChange}
         primaryAction={{
-          label: 'Them outlet',
+          label: 'Add outlet',
           onClick: () => {
             setEditingOutlet(null);
             setShowForm(true);
@@ -207,7 +207,7 @@ export default function OutletsPage() {
             className={`h-8 gap-1.5 text-[13px] ${showFilter ? 'bg-[#0052cc]/10 text-[#0052cc] border-[#0052cc]' : ''}`}
             onClick={() => setShowFilter(!showFilter)}
           >
-            <Filter className="w-3.5 h-3.5" />Bo loc
+            <Filter className="w-3.5 h-3.5" />Filters
           </Button>
         }
       />
@@ -246,7 +246,7 @@ export default function OutletsPage() {
             selectedIds={selectedIds}
             onSelectChange={setSelectedIds}
             getRowId={(row) => row.id}
-            emptyMessage="Khong co outlet"
+            emptyMessage="No outlets found"
           />
           <div className="mt-4">
             <Pagination page={page} totalPages={meta.totalPages} onPageChange={setPage} />
@@ -268,19 +268,19 @@ export default function OutletsPage() {
       <Dialog open={!!deleteTarget} onOpenChange={(v) => !v && setDeleteTarget(null)}>
         <DialogContent className="sm:max-w-[420px]">
           <DialogHeader>
-            <DialogTitle>Xac nhan xoa</DialogTitle>
+            <DialogTitle>Confirm deletion</DialogTitle>
             <DialogDescription>
-              Ban co chac chan muon xoa outlet <strong>{deleteTarget?.name}</strong>?
+              Are you sure you want to delete outlet <strong>{deleteTarget?.name}</strong>?
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" size="sm" onClick={() => setDeleteTarget(null)} disabled={deleting}>
-              Huy
+              Cancel
             </Button>
             <Button variant="destructive" size="sm" onClick={handleDelete} disabled={deleting}>
               {deleting && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
               <Trash2 className="w-4 h-4 mr-1" />
-              Xoa
+              Delete
             </Button>
           </div>
         </DialogContent>

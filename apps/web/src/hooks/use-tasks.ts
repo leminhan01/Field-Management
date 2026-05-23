@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { extractTaskErrorMessage, getTasks } from '@/lib/tasks';
@@ -20,7 +20,7 @@ export function useTasks(params: TaskQueryParams = {}) {
       setData(result.data);
       setMeta(result.meta);
     } catch (err) {
-      setError(extractTaskErrorMessage(err, 'Khong the tai danh sach cong viec'));
+      setError(extractTaskErrorMessage(err, 'Unable to load tasks'));
     } finally {
       setLoading(false);
     }

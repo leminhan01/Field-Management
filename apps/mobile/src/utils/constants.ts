@@ -1,4 +1,4 @@
-// Material Design 3 color system - matching mockup HTML palette
+// Material Design 3 color system matching the mobile mockups.
 export const COLORS = {
   primary: '#000666',
   primaryContainer: '#1a237e',

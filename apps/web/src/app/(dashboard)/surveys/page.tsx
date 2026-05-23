@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
@@ -23,7 +23,7 @@ interface Survey {
 }
 
 const mockSurveys: Survey[] = [
-  { id: 1, title: 'Khai sat muc do hai long KH tai cua hang', questions: 12, responses: 45, targetBranches: 8, status: 'Active', createdBy: 'Admin', createdAt: '01/05/2026', endDate: '31/05/2026' },
+  { id: 1, title: 'Khai sat items do hai long KH tai cua hang', questions: 12, responses: 45, targetBranches: 8, status: 'Active', createdBy: 'Admin', createdAt: '01/05/2026', endDate: '31/05/2026' },
   { id: 2, title: 'Danh gia trung bay san pham BB', questions: 8, responses: 32, targetBranches: 12, status: 'Active', createdBy: 'Manager', createdAt: '05/05/2026', endDate: '20/05/2026' },
   { id: 3, title: 'Khai sat hieu qua sampling', questions: 6, responses: 18, targetBranches: 5, status: 'Draft', createdBy: 'Admin', createdAt: '10/05/2026', endDate: '-' },
   { id: 4, title: 'Feedback thiet bi tai diem ban', questions: 10, responses: 56, targetBranches: 15, status: 'Completed', createdBy: 'Admin', createdAt: '01/04/2026', endDate: '30/04/2026' },

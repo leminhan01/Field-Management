@@ -601,6 +601,7 @@ export interface MyTaskAssignmentDto {
       name: string;
       code: string;
       address: string | null;
+      phone: string | null;
       latitude: number | null;
       longitude: number | null;
     } | null;

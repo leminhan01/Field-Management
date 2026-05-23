@@ -26,16 +26,16 @@ const TaskCard = ({ task, onPress, onActionPress }: TaskCardProps) => {
     <TouchableOpacity
       style={[styles.card, isInProgress && styles.cardInProgress]}
       onPress={onPress}
-      activeOpacity={0.7}
+      activeOpacity={0.78}
     >
       <View style={styles.topRow}>
         <View style={styles.infoSection}>
-          <Text style={styles.storeName} numberOfLines={1}>
+          <Text style={styles.storeName} numberOfLines={2}>
             {storeName}
           </Text>
           {address ? (
             <View style={styles.locationRow}>
-              <MaterialCommunityIcons name="map-marker-outline" size={14} color={COLORS.onSurfaceVariant} />
+              <MaterialCommunityIcons name="map-marker-outline" size={16} color={COLORS.onSurfaceVariant} />
               <Text style={styles.address} numberOfLines={1}>
                 {address}
               </Text>
@@ -50,29 +50,29 @@ const TaskCard = ({ task, onPress, onActionPress }: TaskCardProps) => {
       <View style={styles.bottomRow}>
         {timeSlot ? (
           <View style={styles.timeRow}>
-            <MaterialCommunityIcons name="clock-outline" size={14} color={COLORS.onSurfaceVariant} />
+            <MaterialCommunityIcons name="clock-outline" size={16} color={COLORS.onSurfaceVariant} />
             <Text style={styles.timeText}>{timeSlot}</Text>
           </View>
         ) : (
           <View />
         )}
 
-        {!isCompleted && (
+        {!isCompleted ? (
           <TouchableOpacity
             style={[styles.actionButton, isInProgress ? styles.actionButtonOutlined : styles.actionButtonFilled]}
             onPress={onActionPress}
-            activeOpacity={0.7}
+            activeOpacity={0.75}
           >
             <Text style={[styles.actionText, isInProgress ? styles.actionTextOutlined : styles.actionTextFilled]}>
               {isInProgress ? 'Tiếp tục' : 'Bắt đầu'}
             </Text>
             <MaterialCommunityIcons
               name={isInProgress ? 'chevron-right' : 'play'}
-              size={16}
+              size={18}
               color={isInProgress ? COLORS.primary : COLORS.onPrimary}
             />
           </TouchableOpacity>
-        )}
+        ) : null}
       </View>
     </TouchableOpacity>
   );
@@ -83,7 +83,7 @@ export default TaskCard;
 const styles = StyleSheet.create({
   card: {
     backgroundColor: COLORS.surface,
-    borderRadius: 12,
+    borderRadius: 8,
     padding: SPACING.md,
     borderWidth: 1,
     borderColor: COLORS.surfaceVariant,
@@ -103,13 +103,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
+    gap: SPACING.sm,
   },
   infoSection: {
     flex: 1,
-    marginRight: SPACING.sm,
   },
   storeName: {
-    fontSize: 16,
+    fontSize: 18,
+    lineHeight: 23,
     fontWeight: '600',
     color: COLORS.onSurface,
     marginBottom: 4,
@@ -120,7 +121,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   address: {
-    fontSize: 13,
+    fontSize: 14,
     color: COLORS.onSurfaceVariant,
     flex: 1,
   },
@@ -133,17 +134,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: SPACING.sm,
   },
   timeRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+    flexShrink: 1,
   },
   timeText: {
-    fontSize: 13,
+    fontSize: 14,
     color: COLORS.onSurfaceVariant,
   },
   actionButton: {
+    minHeight: 48,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: SPACING.md,
@@ -155,12 +159,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primaryContainer,
   },
   actionButtonOutlined: {
-    backgroundColor: 'transparent',
+    backgroundColor: COLORS.surface,
     borderWidth: 1,
     borderColor: COLORS.primary,
   },
   actionText: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
   },
   actionTextFilled: {

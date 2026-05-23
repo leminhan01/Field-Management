@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useMemo, useState } from 'react';
 import { CalendarClock, Filter, Loader2, MapPin, RefreshCw, Store, Trash2, User } from 'lucide-react';
@@ -95,15 +95,15 @@ export default function RegularTaskPage() {
   };
 
   const handleDelete = async (task: TaskDto) => {
-    if (!window.confirm(`Xoa cong viec "${task.title}"?`)) return;
+    if (!window.confirm(`Delete tasks "${task.title}"?`)) return;
 
     setDeletingId(task.id);
     try {
       await deleteTask(task.id);
-      toast.success('Da xoa cong viec');
+      toast.success('Task deleted');
       tasks.refetch();
     } catch (err) {
-      toast.error(extractTaskErrorMessage(err, 'Xoa cong viec that bai'));
+      toast.error(extractTaskErrorMessage(err, 'Delete tasks that bai'));
     } finally {
       setDeletingId(null);
     }
@@ -112,22 +112,22 @@ export default function RegularTaskPage() {
   const columns: Column<TaskRow>[] = useMemo(() => [
     {
       key: 'title',
-      header: 'Cong viec',
+      header: 'Task',
       render: (task) => (
         <div className="min-w-[240px]">
           <p className="font-semibold text-[#191b23]">{task.title}</p>
-          <p className="text-[12px] text-muted-foreground">{task.template?.name || task.description || 'Khong co mau'}</p>
+          <p className="text-[12px] text-muted-foreground">{task.template?.name || task.description || 'Khong co templates'}</p>
         </div>
       ),
     },
     {
       key: 'type',
-      header: 'Loai',
+      header: 'Type',
       render: (task) => <TypeBadge type={TASK_TYPE_LABELS[task.type] || task.type} />,
     },
     {
       key: 'location',
-      header: 'Dia diem',
+      header: 'Location',
       render: (task) => (
         <div className="space-y-1">
           <span className="flex items-center gap-1 text-[13px] text-muted-foreground">
@@ -141,7 +141,7 @@ export default function RegularTaskPage() {
     },
     {
       key: 'assignees',
-      header: 'Nhan vien',
+      header: 'Employee',
       render: (task) => (
         <div className="flex max-w-[260px] flex-wrap gap-1.5">
           {task.assignments.slice(0, 3).map((assignment) => (
@@ -165,7 +165,7 @@ export default function RegularTaskPage() {
     },
     {
       key: 'status',
-      header: 'Trang thai',
+      header: 'Status',
       render: (task) => <StatusBadge status={formatStatus(task.status)} />,
     },
     {
@@ -182,7 +182,7 @@ export default function RegularTaskPage() {
           <ActionMenu
             actions={[
               {
-                label: deletingId === task.id ? 'Dang xoa...' : 'Xoa',
+                label: deletingId === task.id ? 'Deleting...' : 'Delete',
                 icon: <Trash2 className="h-4 w-4" />,
                 onClick: () => handleDelete(task),
                 variant: 'destructive',
@@ -197,8 +197,8 @@ export default function RegularTaskPage() {
   return (
     <PageWrapper>
       <PageToolbar
-        title="Danh sach cong viec"
-        description={`${tasks.meta.total} cong viec`}
+        title="Task list"
+        description={`${tasks.meta.total} tasks`}
         searchPlaceholder="Tim task, branch, outlet, nhan vien..."
         searchValue={search}
         onSearchChange={(value) => {
@@ -206,7 +206,7 @@ export default function RegularTaskPage() {
           setPage(1);
         }}
         primaryAction={{
-          label: 'Phan cong',
+          label: 'Assign',
           onClick: () => window.location.assign('/tasks/scheduling'),
         }}
         secondaryActions={
@@ -220,7 +220,7 @@ export default function RegularTaskPage() {
               className={`h-8 gap-1.5 text-[13px] ${showFilter ? 'border-[#0052cc] bg-[#0052cc]/10 text-[#0052cc]' : ''}`}
               onClick={() => setShowFilter((value) => !value)}
             >
-              <Filter className="h-3.5 w-3.5" />Bo loc
+              <Filter className="h-3.5 w-3.5" />Filters
             </Button>
           </>
         }
@@ -229,17 +229,17 @@ export default function RegularTaskPage() {
       {showFilter && (
         <div className="mb-4 grid gap-3 rounded-lg border bg-white p-3 lg:grid-cols-4">
           <Select value={typeFilter || 'all'} onValueChange={(value) => { setTypeFilter(value === 'all' ? '' : value); setPage(1); }}>
-            <SelectTrigger className="h-9 text-[13px]"><SelectValue placeholder="Loai task" /></SelectTrigger>
+            <SelectTrigger className="h-9 text-[13px]"><SelectValue placeholder="Type task" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Tat ca loai</SelectItem>
+              <SelectItem value="all">All types</SelectItem>
               {TASK_TYPES.map((type) => <SelectItem key={type} value={type}>{TASK_TYPE_LABELS[type] || type}</SelectItem>)}
             </SelectContent>
           </Select>
 
           <Select value={statusFilter || 'all'} onValueChange={(value) => { setStatusFilter(value === 'all' ? '' : value); setPage(1); }}>
-            <SelectTrigger className="h-9 text-[13px]"><SelectValue placeholder="Trang thai" /></SelectTrigger>
+            <SelectTrigger className="h-9 text-[13px]"><SelectValue placeholder="Status" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Tat ca trang thai</SelectItem>
+              <SelectItem value="all">All statuses</SelectItem>
               {TASK_STATUSES.map((status) => <SelectItem key={status} value={status}>{formatStatus(status)}</SelectItem>)}
             </SelectContent>
           </Select>
@@ -266,7 +266,7 @@ export default function RegularTaskPage() {
           </Select>
 
           <Select value={assigneeFilter || 'all'} onValueChange={(value) => { setAssigneeFilter(value === 'all' ? '' : value); setPage(1); }}>
-            <SelectTrigger className="h-9 text-[13px]"><SelectValue placeholder="Nhan vien" /></SelectTrigger>
+            <SelectTrigger className="h-9 text-[13px]"><SelectValue placeholder="Employee" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tat ca nhan vien</SelectItem>
               {employees.data.map((employee) => <SelectItem key={employee.id} value={employee.id}>{employee.name}</SelectItem>)}
@@ -284,7 +284,7 @@ export default function RegularTaskPage() {
           </div>
 
           <Button variant="outline" size="sm" className="h-9 self-end justify-self-start" onClick={resetFilters}>
-            Xoa bo loc
+            Delete bo loc
           </Button>
         </div>
       )}
@@ -308,7 +308,7 @@ export default function RegularTaskPage() {
             selectedIds={selectedIds}
             onSelectChange={setSelectedIds}
             getRowId={(row) => row.id}
-            emptyMessage="Chua co cong viec"
+            emptyMessage="No tasks yet"
           />
           <div className="mt-4">
             <Pagination page={page} totalPages={tasks.meta.totalPages} onPageChange={setPage} />

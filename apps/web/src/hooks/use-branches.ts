@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getBranches } from '@/lib/branches';
@@ -20,7 +20,7 @@ export function useBranches(params: BranchQueryParams = {}) {
       setData(result.data);
       setMeta(result.meta);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Không thể tải danh sách chi nhánh');
+      setError(err instanceof Error ? err.message : 'Unable to load branches');
     } finally {
       setLoading(false);
     }

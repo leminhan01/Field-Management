@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -46,10 +46,10 @@ export default function EmployeeDetailPage() {
     setDeleting(true);
     try {
       await remove(employee.id);
-      toast.success(`Đã xóa nhân viên ${employee.name}`);
+      toast.success(`Deleted employee ${employee.name}`);
       router.push('/employees');
     } catch (err) {
-      const msg = extractErrorMessage(err, 'Xóa nhân viên thất bại');
+      const msg = extractErrorMessage(err, 'Failed to delete employee');
       toast.error(msg);
     } finally {
       setDeleting(false);
@@ -70,9 +70,9 @@ export default function EmployeeDetailPage() {
     return (
       <PageWrapper>
         <div className="flex flex-col items-center justify-center h-64 gap-4">
-          <p className="text-muted-foreground">{error || 'Không tìm thấy nhân viên'}</p>
+          <p className="text-muted-foreground">{error || 'Employee not found'}</p>
           <Button variant="outline" size="sm" onClick={() => router.push('/employees')}>
-            <ArrowLeft className="w-4 h-4 mr-1" />Quay lại
+            <ArrowLeft className="w-4 h-4 mr-1" />Back
           </Button>
         </div>
       </PageWrapper>
@@ -81,13 +81,13 @@ export default function EmployeeDetailPage() {
 
   const infoItems = [
     { icon: Mail, label: 'Email', value: employee.email },
-    { icon: Phone, label: 'Số điện thoại', value: employee.phone || '—' },
-    { icon: MapPin, label: 'Chi nhánh', value: employee.branch?.name || '—' },
-    { icon: Shield, label: 'Vai trò', value: ROLE_LABELS[employee.role] || employee.role },
-    { icon: Calendar, label: 'Ngày tạo', value: new Date(employee.createdAt).toLocaleDateString('vi-VN') },
+    { icon: Phone, label: 'Phone number', value: employee.phone || '—' },
+    { icon: MapPin, label: 'Branch', value: employee.branch?.name || '—' },
+    { icon: Shield, label: 'Role', value: ROLE_LABELS[employee.role] || employee.role },
+    { icon: Calendar, label: 'Created date', value: new Date(employee.createdAt).toLocaleDateString('vi-VN') },
     {
       icon: Calendar,
-      label: 'Cập nhật lần cuối',
+      label: 'Last updated',
       value: new Date(employee.updatedAt).toLocaleDateString('vi-VN'),
     },
   ];
@@ -101,16 +101,16 @@ export default function EmployeeDetailPage() {
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
-            <h1 className="text-[22px] font-semibold text-[#191b23]">Chi tiết nhân viên</h1>
+            <h1 className="text-[22px] font-semibold text-[#191b23]">Employee details</h1>
             <p className="text-[14px] text-[#434654]">Employees / {employee.name}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => setShowDelete(true)}>
-            <Trash2 className="w-4 h-4 mr-1" />Xóa
+            <Trash2 className="w-4 h-4 mr-1" />Delete
           </Button>
           <Button size="sm" className="bg-[#0052cc] hover:bg-[#003d9b]" onClick={() => router.push('/employees')}>
-            <Pencil className="w-4 h-4 mr-1" />Chỉnh sửa
+            <Pencil className="w-4 h-4 mr-1" />Edit
           </Button>
         </div>
       </div>
@@ -158,19 +158,19 @@ export default function EmployeeDetailPage() {
             <>
               <Separator className="my-6" />
               <div>
-                <h3 className="text-[14px] font-semibold text-[#191b23] mb-3">Thông tin chi nhánh</h3>
+                <h3 className="text-[14px] font-semibold text-[#191b23] mb-3">Branch information</h3>
                 <div className="grid grid-cols-2 gap-x-12 gap-y-4">
                   <div className="flex items-center gap-3">
                     <MapPin className="w-4 h-4 text-muted-foreground shrink-0" />
                     <div>
-                      <p className="text-[12px] text-muted-foreground">Tên chi nhánh</p>
+                      <p className="text-[12px] text-muted-foreground">Branch name</p>
                       <p className="text-[13px] text-[#191b23]">{employee.branch.name}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <Shield className="w-4 h-4 text-muted-foreground shrink-0" />
                     <div>
-                      <p className="text-[12px] text-muted-foreground">Mã chi nhánh</p>
+                      <p className="text-[12px] text-muted-foreground">Branch code</p>
                       <p className="text-[13px] text-[#191b23] font-mono">{employee.branch.code}</p>
                     </div>
                   </div>
@@ -185,20 +185,20 @@ export default function EmployeeDetailPage() {
       <Dialog open={showDelete} onOpenChange={setShowDelete}>
         <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
-            <DialogTitle>Xác nhận xóa</DialogTitle>
+            <DialogTitle>Confirm deletion</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa nhân viên <strong>{employee.name}</strong>?
-              Hành động này không thể hoàn tác.
+              Are you sure you want to delete employee <strong>{employee.name}</strong>?
+              This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" size="sm" onClick={() => setShowDelete(false)}>
-              Hủy
+              Cancel
             </Button>
             <Button variant="destructive" size="sm" onClick={handleDelete} disabled={deleting}>
               {deleting && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
               <Trash2 className="w-4 h-4 mr-1" />
-              Xóa
+              Delete
             </Button>
           </div>
         </DialogContent>

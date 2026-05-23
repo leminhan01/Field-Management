@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
@@ -118,7 +118,7 @@ export default function SchedulingPage() {
 
   const handleSubmit = async () => {
     if (!canSubmit) {
-      toast.error('Vui long chon day du branch, nhan vien, outlet, mau/nhom cong viec va lich');
+      toast.error('Please select a branch, employee, outlet, task template/group, and schedule');
       return;
     }
 
@@ -138,10 +138,10 @@ export default function SchedulingPage() {
         titlePrefix: form.titlePrefix.trim() || undefined,
       });
 
-      toast.success(`Da tao ${result.taskCount} task va ${result.assignmentCount} phan cong`);
+      toast.success(`Created ${result.taskCount} tasks and ${result.assignmentCount} assignments`);
       setForm({ ...EMPTY_FORM, startDate: form.startDate, startTime: form.startTime });
     } catch (err) {
-      toast.error(extractTaskManagementErrorMessage(err, 'Phan cong that bai'));
+      toast.error(extractTaskManagementErrorMessage(err, 'Assignment failed'));
     } finally {
       setSubmitting(false);
     }
@@ -150,13 +150,13 @@ export default function SchedulingPage() {
   return (
     <PageWrapper>
       <PageToolbar
-        title="Phan cong lich"
-        description="Tao task tu mau cong viec hoac nhom cong viec cho nhan vien theo outlet"
+        title="Schedule assignments"
+        description="Create tasks from templates or task groups for employees by outlet"
         searchPlaceholder="Tim nhanh nhan vien..."
         searchValue={employeeSearch}
         onSearchChange={setEmployeeSearch}
         primaryAction={{
-          label: submitting ? 'Dang phan cong' : 'Phan cong',
+          label: submitting ? 'Dang assignments' : 'Assign',
           onClick: handleSubmit,
         }}
         secondaryActions={
@@ -247,7 +247,7 @@ export default function SchedulingPage() {
 
           <div className="grid gap-4 lg:grid-cols-2">
             <SelectionPanel
-              title="Nhan vien"
+              title="Employee"
               count={form.employeeIds.length}
               loading={employees.loading}
               error={employees.error}
@@ -273,7 +273,7 @@ export default function SchedulingPage() {
               count={form.outletIds.length}
               loading={outlets.loading}
               error={outlets.error}
-              emptyMessage={form.branchId ? 'Khong co outlet phu hop' : 'Chon branch de tai outlet'}
+              emptyMessage={form.branchId ? 'No outlets found phu hop' : 'Chon branch de tai outlet'}
               toolbar={
                 <div className="relative">
                   <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
@@ -292,7 +292,7 @@ export default function SchedulingPage() {
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
-            <SelectionPanel title="Mau cong viec" count={form.templateIds.length} loading={templates.loading} emptyMessage="Chua co mau cong viec hoat dong">
+            <SelectionPanel title="Task templates" count={form.templateIds.length} loading={templates.loading} emptyMessage="No active task templates yet">
               {templates.data.map((template) => (
                 <label key={template.id} className="flex cursor-pointer items-center gap-3 rounded-md px-2 py-2 hover:bg-muted">
                   <Checkbox checked={form.templateIds.includes(template.id)} onCheckedChange={() => setForm({ ...form, templateIds: toggleValue(form.templateIds, template.id) })} />
@@ -302,13 +302,13 @@ export default function SchedulingPage() {
               ))}
             </SelectionPanel>
 
-            <SelectionPanel title="Nhom cong viec" count={form.taskGroupIds.length} loading={groups.loading} emptyMessage="Chua co nhom cong viec hoat dong">
+            <SelectionPanel title="Task groups" count={form.taskGroupIds.length} loading={groups.loading} emptyMessage="No active task groups yet">
               {groups.data.map((group) => (
                 <label key={group.id} className="flex cursor-pointer items-start gap-3 rounded-md px-2 py-2 hover:bg-muted">
                   <Checkbox className="mt-0.5" checked={form.taskGroupIds.includes(group.id)} onCheckedChange={() => setForm({ ...form, taskGroupIds: toggleValue(form.taskGroupIds, group.id) })} />
                   <span className="flex-1">
                     <span className="block text-[13px] font-medium">{group.name}</span>
-                    <span className="block text-[12px] text-muted-foreground">{group.templates.length} mau cong viec</span>
+                    <span className="block text-[12px] text-muted-foreground">{group.templates.length} task templates</span>
                   </span>
                   <Badge variant="outline">{group.code}</Badge>
                 </label>
@@ -320,22 +320,22 @@ export default function SchedulingPage() {
         <Card className="h-fit border p-4 shadow-sm">
           <div className="flex items-center gap-2 border-b pb-3">
             <CalendarDays className="h-4 w-4 text-primary" />
-            <h2 className="text-[14px] font-semibold">Tom tat phan cong</h2>
+            <h2 className="text-[14px] font-semibold">Tom tat assignments</h2>
           </div>
           <div className="mt-4 space-y-3 text-[13px]">
-            <SummaryRow label="Nhan vien" value={form.employeeIds.length} />
+            <SummaryRow label="Employee" value={form.employeeIds.length} />
             <SummaryRow label="Outlet" value={form.outletIds.length} />
             <SummaryRow label="Mau rieng" value={form.templateIds.length} />
             <SummaryRow label="Nhom" value={form.taskGroupIds.length} />
             <SummaryRow label="Ngay tao lich" value={dateCount} />
-            <SummaryRow label="Uoc tinh phan cong" value={estimatedAssignments} strong />
+            <SummaryRow label="Uoc tinh assignments" value={estimatedAssignments} strong />
           </div>
           <Button className="mt-5 h-9 w-full gap-2 bg-[#2563EB] text-[13px] hover:bg-[#1D4ED8]" disabled={submitting || !canSubmit} onClick={handleSubmit}>
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-            Phan cong ngay
+            Assign ngay
           </Button>
           <Button variant="outline" className="mt-2 h-9 w-full gap-2 text-[13px]" onClick={() => setForm(EMPTY_FORM)} disabled={submitting}>
-            <Users className="h-4 w-4" />Xoa lua chon
+            <Users className="h-4 w-4" />Delete lua chon
           </Button>
         </Card>
       </div>

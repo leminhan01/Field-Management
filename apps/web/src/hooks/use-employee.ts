@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { getEmployee } from '@/lib/employees';
@@ -18,7 +18,7 @@ export function useEmployee(id: string | null) {
     setLoading(true);
     getEmployee(id)
       .then(setData)
-      .catch((e) => setError(e instanceof Error ? e.message : 'Không thể tải thông tin nhân viên'))
+      .catch((e) => setError(e instanceof Error ? e.message : 'Unable to load employee details'))
       .finally(() => setLoading(false));
   }, [id]);
 

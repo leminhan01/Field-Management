@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useRef } from 'react';
 import { Upload, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
@@ -40,13 +40,13 @@ export function EmployeeImportDialog({ open, onClose, onImport, onSuccess }: Emp
       const res = await onImport(file);
       setResult(res);
       if (res.imported > 0) {
-        toast.success(`Đã import ${res.imported}/${res.total} nhân viên`);
+        toast.success(`Imported ${res.imported}/${res.total} employees`);
         onSuccess();
       } else {
-        toast.warning('Không có nhân viên nào được import');
+        toast.warning('No employees were imported');
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Import thất bại';
+      const msg = err instanceof Error ? err.message : 'Import failed';
       toast.error(msg);
       setResult(null);
     } finally {
@@ -64,7 +64,7 @@ export function EmployeeImportDialog({ open, onClose, onImport, onSuccess }: Emp
     <Dialog open={open} onOpenChange={(v) => !v && handleClose()}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Import danh sách nhân viên</DialogTitle>
+          <DialogTitle>Import employee list</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -74,7 +74,7 @@ export function EmployeeImportDialog({ open, onClose, onImport, onSuccess }: Emp
           >
             <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
             <p className="text-[13px] text-muted-foreground">
-              {file ? file.name : 'Nhấn để chọn file Excel (.xlsx, .xls)'}
+              {file ? file.name : 'Click to select an Excel file (.xlsx, .xls)'}
             </p>
             <input
               ref={inputRef}
@@ -86,37 +86,37 @@ export function EmployeeImportDialog({ open, onClose, onImport, onSuccess }: Emp
           </div>
 
           <p className="text-[12px] text-muted-foreground">
-            File Excel cần có các cột: <strong>email</strong>, <strong>name</strong>, phone, role, branchId.
-            Mật khẩu mặc định: FieldApp@123
+            Excel file must include these columns: <strong>email</strong>, <strong>name</strong>, phone, role, branchId.
+            Default password: FieldApp@123
           </p>
 
           {result && (
             <div className="space-y-2 p-4 bg-gray-50 rounded-lg text-[13px]">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                <span>Tổng số dòng: <strong>{result.total}</strong></span>
+                <span>Total rows: <strong>{result.total}</strong></span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                <span>Đã import: <strong className="text-emerald-600">{result.imported}</strong></span>
+                <span>Imported: <strong className="text-emerald-600">{result.imported}</strong></span>
               </div>
               {result.skipped > 0 && (
                 <div className="flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 text-amber-500" />
-                  <span>Bỏ qua: <strong className="text-amber-600">{result.skipped}</strong></span>
+                  <span>Skipped: <strong className="text-amber-600">{result.skipped}</strong></span>
                 </div>
               )}
               {result.errors.length > 0 && (
                 <div className="mt-2 space-y-1">
-                  <p className="text-red-500 font-semibold">Chi tiết lỗi:</p>
+                  <p className="text-red-500 font-semibold">Error details:</p>
                   {result.errors.slice(0, 10).map((err, i) => (
                     <p key={i} className="text-[12px] text-red-500">
-                      Dòng {err.row}: {err.message}
+                      Row {err.row}: {err.message}
                     </p>
                   ))}
                   {result.errors.length > 10 && (
                     <p className="text-[12px] text-muted-foreground">
-                      ... và {result.errors.length - 10} lỗi khác
+                      ... and {result.errors.length - 10} more errors
                     </p>
                   )}
                 </div>
@@ -126,7 +126,7 @@ export function EmployeeImportDialog({ open, onClose, onImport, onSuccess }: Emp
 
           <div className="flex justify-end gap-2">
             <Button variant="outline" size="sm" onClick={handleClose}>
-              Đóng
+              Close
             </Button>
             <Button
               size="sm"

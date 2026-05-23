@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useCallback, useMemo, useState } from 'react';
 import { Building2, Filter, Loader2, MapPin, Trash2 } from 'lucide-react';
@@ -66,17 +66,17 @@ export default function BranchesPage() {
     try {
       if (editingBranch) {
         await update(editingBranch.id, formData as UpdateBranchInput);
-        toast.success('Cập nhật chi nhánh thành công');
+        toast.success('Branch updated successfully');
       } else {
         await create(formData as unknown as CreateBranchInput);
-        toast.success('Thêm chi nhánh thành công');
+        toast.success('Branch created successfully');
       }
 
       refetch();
     } catch (err) {
       const msg = extractBranchErrorMessage(
         err,
-        editingBranch ? 'Cập nhật chi nhánh thất bại' : 'Thêm chi nhánh thất bại',
+        editingBranch ? 'Failed to update branch' : 'Failed to create branch',
       );
       toast.error(msg);
       throw err;
@@ -89,11 +89,11 @@ export default function BranchesPage() {
     setDeleting(true);
     try {
       await remove(deleteTarget.id);
-      toast.success(`Đã xóa chi nhánh ${deleteTarget.name}`);
+      toast.success(`Deleted branch ${deleteTarget.name}`);
       refetch();
       setDeleteTarget(null);
     } catch (err) {
-      toast.error(extractBranchErrorMessage(err, 'Xóa chi nhánh thất bại'));
+      toast.error(extractBranchErrorMessage(err, 'Failed to delete branch'));
     } finally {
       setDeleting(false);
     }
@@ -102,7 +102,7 @@ export default function BranchesPage() {
   const columns: Column<BranchRow>[] = useMemo(() => [
     {
       key: 'name',
-      header: 'Tên chi nhánh',
+      header: 'Branch name',
       render: (branch) => (
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
@@ -117,33 +117,33 @@ export default function BranchesPage() {
     },
     {
       key: 'type',
-      header: 'Phân vùng',
+      header: 'Division',
       render: (branch) => <TypeBadge type={BRANCH_TYPE_LABELS[branch.type] || branch.type} />,
     },
     {
       key: 'region',
-      header: 'Khu vực',
+      header: 'Region',
       render: (branch) => (
         <span className="flex items-center gap-1 text-muted-foreground">
           <MapPin className="w-3.5 h-3.5" />
-          {branch.region?.name || 'Chưa gán'}
+          {branch.region?.name || 'Unassigned'}
         </span>
       ),
     },
     {
       key: 'address',
-      header: 'Địa chỉ',
+      header: 'Address',
       className: 'max-w-[240px]',
       render: (branch) => <span className="text-muted-foreground truncate block">{branch.address || '—'}</span>,
     },
     {
       key: 'manager',
-      header: 'Quản lý',
+      header: 'Manager',
       render: (branch) => <span className="text-muted-foreground">{branch.manager?.name || '—'}</span>,
     },
     {
       key: 'staff',
-      header: 'Nhân sự',
+      header: 'Staff',
       render: (branch) => (
         <Avatar className="w-7 h-7">
           <AvatarFallback className="bg-muted text-[12px] font-semibold">{branch._count.employees}</AvatarFallback>
@@ -152,8 +152,8 @@ export default function BranchesPage() {
     },
     {
       key: 'status',
-      header: 'Trạng thái',
-      render: (branch) => <StatusBadge status={branch.isActive ? 'Hoạt động' : 'Ngưng hoạt động'} />,
+      header: 'Status',
+      render: (branch) => <StatusBadge status={branch.isActive ? 'Active' : 'Inactive'} />,
     },
     {
       key: 'actions',
@@ -164,14 +164,14 @@ export default function BranchesPage() {
           <ActionMenu
             actions={[
               {
-                label: 'Chỉnh sửa',
+                label: 'Edit',
                 onClick: () => {
                   setEditingBranch(branch);
                   setShowForm(true);
                 },
               },
               {
-                label: 'Xóa',
+                label: 'Delete',
                 onClick: () => setDeleteTarget(branch),
                 variant: 'destructive',
               },
@@ -185,13 +185,13 @@ export default function BranchesPage() {
   return (
     <PageWrapper>
       <PageToolbar
-        title="Quản lý chi nhánh"
-        description={`${meta.total} chi nhánh`}
-        searchPlaceholder="Tìm kiếm chi nhánh..."
+        title="Manager branches"
+        description={`${meta.total} branches`}
+        searchPlaceholder="Search branches..."
         searchValue={search}
         onSearchChange={handleSearchChange}
         primaryAction={{
-          label: 'Thêm chi nhánh',
+          label: 'Add branches',
           onClick: () => {
             setEditingBranch(null);
             setShowForm(true);
@@ -204,7 +204,7 @@ export default function BranchesPage() {
             className={`h-8 gap-1.5 text-[13px] ${showFilter ? 'bg-[#0052cc]/10 text-[#0052cc] border-[#0052cc]' : ''}`}
             onClick={() => setShowFilter(!showFilter)}
           >
-            <Filter className="w-3.5 h-3.5" />Bộ lọc
+            <Filter className="w-3.5 h-3.5" />Filters
           </Button>
         }
       />
@@ -238,7 +238,7 @@ export default function BranchesPage() {
             selectedIds={selectedIds}
             onSelectChange={setSelectedIds}
             getRowId={(row) => row.id}
-            emptyMessage="Không có chi nhánh"
+            emptyMessage="No branches found"
           />
           <div className="mt-4">
             <Pagination page={page} totalPages={meta.totalPages} onPageChange={setPage} />
@@ -260,20 +260,20 @@ export default function BranchesPage() {
       <Dialog open={!!deleteTarget} onOpenChange={(v) => !v && setDeleteTarget(null)}>
         <DialogContent className="sm:max-w-[420px]">
           <DialogHeader>
-            <DialogTitle>Xác nhận xóa</DialogTitle>
+            <DialogTitle>Confirm deletion</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa chi nhánh <strong>{deleteTarget?.name}</strong>?
-              Chi nhánh có nhân viên hoặc dữ liệu liên quan sẽ không thể xóa.
+              Are you sure you want to delete branch <strong>{deleteTarget?.name}</strong>?
+              Branches with employees or related data cannot be deleted.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" size="sm" onClick={() => setDeleteTarget(null)} disabled={deleting}>
-              Hủy
+              Cancel
             </Button>
             <Button variant="destructive" size="sm" onClick={handleDelete} disabled={deleting}>
               {deleting && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
               <Trash2 className="w-4 h-4 mr-1" />
-              Xóa
+              Delete
             </Button>
           </div>
         </DialogContent>

@@ -7,8 +7,6 @@ const API_BASE_URL =
   Constants.expoConfig?.extra?.apiUrl ||
   'http://192.168.1.8:3001/api/v1';
 
-console.log('API base URL:', API_BASE_URL);
-
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },

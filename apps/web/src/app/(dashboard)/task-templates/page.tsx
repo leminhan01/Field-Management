@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useCallback, useMemo, useState } from 'react';
 import { ClipboardList, CopyPlus, Filter, FolderKanban, Loader2, Trash2 } from 'lucide-react';
@@ -174,7 +174,7 @@ export default function TaskTemplatesPage() {
   const handleTemplateSubmit = async () => {
     const checklist = toChecklistArray(templateForm.checklistText);
     if (!templateForm.name.trim() || !checklist.length) {
-      toast.error('Ten mau va checklist la bat buoc');
+      toast.error('Template name and checklist are required');
       return;
     }
 
@@ -191,16 +191,16 @@ export default function TaskTemplatesPage() {
 
       if (editingTemplate) {
         await updateTaskTemplate(editingTemplate.id, { ...payload, isActive: templateForm.isActive });
-        toast.success('Da cap nhat mau cong viec');
+        toast.success('Task template updated');
       } else {
         await createTaskTemplate(payload as CreateTaskTemplateInput);
-        toast.success('Da tao mau cong viec');
+        toast.success('Created task templates');
       }
 
       setTemplateFormOpen(false);
       refetchAll();
     } catch (err) {
-      toast.error(extractTaskManagementErrorMessage(err, 'Luu mau cong viec that bai'));
+      toast.error(extractTaskManagementErrorMessage(err, 'Save task templates that bai'));
     } finally {
       setSubmitting(false);
     }
@@ -208,7 +208,7 @@ export default function TaskTemplatesPage() {
 
   const handleGroupSubmit = async () => {
     if (!groupForm.name.trim() || !groupForm.code.trim() || !groupForm.templateIds.length) {
-      toast.error('Ten, ma nhom va mau cong viec la bat buoc');
+      toast.error('Name, group code, and task templates are required');
       return;
     }
 
@@ -223,16 +223,16 @@ export default function TaskTemplatesPage() {
 
       if (editingGroup) {
         await updateTaskGroup(editingGroup.id, { ...payload, isActive: groupForm.isActive });
-        toast.success('Da cap nhat nhom cong viec');
+        toast.success('Da cap nhat task groups');
       } else {
         await createTaskGroup(payload as CreateTaskGroupInput);
-        toast.success('Da tao nhom cong viec');
+        toast.success('Created task groups');
       }
 
       setGroupFormOpen(false);
       refetchAll();
     } catch (err) {
-      toast.error(extractTaskManagementErrorMessage(err, 'Luu nhom cong viec that bai'));
+      toast.error(extractTaskManagementErrorMessage(err, 'Save task groups that bai'));
     } finally {
       setSubmitting(false);
     }
@@ -240,7 +240,7 @@ export default function TaskTemplatesPage() {
 
   const handleAssignGroup = async () => {
     if (!assignGroupTarget || !assignForm.assigneeId || !assignForm.branchId || !assignForm.scheduledAt) {
-      toast.error('Nhan vien, chi nhanh va thoi gian phan cong la bat buoc');
+      toast.error('Employee, chi nhanh va thoi gian assignments la bat buoc');
       return;
     }
 
@@ -250,36 +250,36 @@ export default function TaskTemplatesPage() {
         ...assignForm,
         titlePrefix: assignForm.titlePrefix.trim() || undefined,
       });
-      toast.success(`Da tao ${result.assignedTasks.length} cong viec tu nhom`);
+      toast.success(`Created ${result.assignedTasks.length} tasks from group`);
       setAssignOpen(false);
       setAssignGroupTarget(null);
       setAssignForm(EMPTY_ASSIGN_FORM);
     } catch (err) {
-      toast.error(extractTaskManagementErrorMessage(err, 'Phan cong nhom that bai'));
+      toast.error(extractTaskManagementErrorMessage(err, 'Assign nhom that bai'));
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDeleteTemplate = async (template: TaskTemplateDto) => {
-    if (!window.confirm(`Xoa mau cong viec "${template.name}"?`)) return;
+    if (!window.confirm(`Delete task templates "${template.name}"?`)) return;
     try {
       await deleteTaskTemplate(template.id);
-      toast.success('Da xoa mau cong viec');
+      toast.success('Task template deleted');
       refetchAll();
     } catch (err) {
-      toast.error(extractTaskManagementErrorMessage(err, 'Xoa mau cong viec that bai'));
+      toast.error(extractTaskManagementErrorMessage(err, 'Delete task templates that bai'));
     }
   };
 
   const handleDeleteGroup = async (group: TaskGroupDto) => {
-    if (!window.confirm(`Xoa nhom cong viec "${group.name}"?`)) return;
+    if (!window.confirm(`Delete task groups "${group.name}"?`)) return;
     try {
       await deleteTaskGroup(group.id);
-      toast.success('Da xoa nhom cong viec');
+      toast.success('Da xoa task groups');
       refetchAll();
     } catch (err) {
-      toast.error(extractTaskManagementErrorMessage(err, 'Xoa nhom cong viec that bai'));
+      toast.error(extractTaskManagementErrorMessage(err, 'Delete task groups that bai'));
     }
   };
 
@@ -295,7 +295,7 @@ export default function TaskTemplatesPage() {
   const templateColumns: Column<TemplateRow>[] = useMemo(() => [
     {
       key: 'name',
-      header: 'Mau cong viec',
+      header: 'Task templates',
       render: (template) => (
         <div className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -303,35 +303,35 @@ export default function TaskTemplatesPage() {
           </div>
           <div>
             <p className="font-semibold text-[#191b23]">{template.name}</p>
-            <p className="line-clamp-1 max-w-[360px] text-[12px] text-muted-foreground">{template.description || 'Khong co mo ta'}</p>
+            <p className="line-clamp-1 max-w-[360px] text-[12px] text-muted-foreground">{template.description || 'No description'}</p>
           </div>
         </div>
       ),
     },
     {
       key: 'type',
-      header: 'Loai',
+      header: 'Type',
       render: (template) => <TypeBadge type={TASK_TYPE_LABELS[template.type] || template.type} />,
     },
     {
       key: 'checklist',
       header: 'Checklist',
-      render: (template) => <Badge variant="outline">{Array.isArray(template.checklist) ? template.checklist.length : 0} muc</Badge>,
+      render: (template) => <Badge variant="outline">{Array.isArray(template.checklist) ? template.checklist.length : 0} items</Badge>,
     },
     {
       key: 'duration',
-      header: 'Thoi luong',
-      render: (template) => <span className="text-muted-foreground">{template.estimatedDuration || '-'} phut</span>,
+      header: 'Duration',
+      render: (template) => <span className="text-muted-foreground">{template.estimatedDuration || '-'} minutes</span>,
     },
     {
       key: 'photo',
-      header: 'Anh',
-      render: (template) => <span className="text-muted-foreground">{template.photoRequired ? 'Bat buoc' : 'Khong bat buoc'}</span>,
+      header: 'Photo',
+      render: (template) => <span className="text-muted-foreground">{template.photoRequired ? 'Required' : 'Optional'}</span>,
     },
     {
       key: 'status',
-      header: 'Trang thai',
-      render: (template) => <StatusBadge status={template.isActive ? 'Hoat dong' : 'Ngung hoat dong'} />,
+      header: 'Status',
+      render: (template) => <StatusBadge status={template.isActive ? 'Active' : 'Inactive'} />,
     },
     {
       key: 'actions',
@@ -341,8 +341,8 @@ export default function TaskTemplatesPage() {
         <div onClick={(event) => event.stopPropagation()}>
           <ActionMenu
             actions={[
-              { label: 'Chinh sua', onClick: () => resetTemplateForm(template) },
-              { label: 'Xoa', onClick: () => handleDeleteTemplate(template), variant: 'destructive' },
+              { label: 'Edit', onClick: () => resetTemplateForm(template) },
+              { label: 'Delete', onClick: () => handleDeleteTemplate(template), variant: 'destructive' },
             ]}
           />
         </div>
@@ -353,7 +353,7 @@ export default function TaskTemplatesPage() {
   const groupColumns: Column<GroupRow>[] = useMemo(() => [
     {
       key: 'name',
-      header: 'Nhom cong viec',
+      header: 'Task groups',
       render: (group) => (
         <div className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
@@ -368,7 +368,7 @@ export default function TaskTemplatesPage() {
     },
     {
       key: 'templates',
-      header: 'Mau trong nhom',
+      header: 'Templates in group',
       render: (group) => (
         <div className="flex max-w-[360px] flex-wrap gap-1.5">
           {group.templates.slice(0, 3).map((item) => (
@@ -380,8 +380,8 @@ export default function TaskTemplatesPage() {
     },
     {
       key: 'count',
-      header: 'So mau',
-      render: (group) => <Badge variant="outline">{group.templates.length} mau</Badge>,
+      header: 'Template count',
+      render: (group) => <Badge variant="outline">{group.templates.length} templates</Badge>,
     },
     {
       key: 'created',
@@ -390,8 +390,8 @@ export default function TaskTemplatesPage() {
     },
     {
       key: 'status',
-      header: 'Trang thai',
-      render: (group) => <StatusBadge status={group.isActive ? 'Hoat dong' : 'Ngung hoat dong'} />,
+      header: 'Status',
+      render: (group) => <StatusBadge status={group.isActive ? 'Active' : 'Inactive'} />,
     },
     {
       key: 'actions',
@@ -402,7 +402,7 @@ export default function TaskTemplatesPage() {
           <ActionMenu
             actions={[
               {
-                label: 'Phan cong nhom',
+                label: 'Assign nhom',
                 icon: <CopyPlus className="h-4 w-4" />,
                 onClick: () => {
                   setAssignGroupTarget(group);
@@ -410,8 +410,8 @@ export default function TaskTemplatesPage() {
                   setAssignOpen(true);
                 },
               },
-              { label: 'Chinh sua', onClick: () => resetGroupForm(group) },
-              { label: 'Xoa', onClick: () => handleDeleteGroup(group), variant: 'destructive' },
+              { label: 'Edit', onClick: () => resetGroupForm(group) },
+              { label: 'Delete', onClick: () => handleDeleteGroup(group), variant: 'destructive' },
             ]}
           />
         </div>
@@ -422,9 +422,9 @@ export default function TaskTemplatesPage() {
   return (
     <PageWrapper>
       <PageToolbar
-        title="Quan ly cong viec"
-        description={activeTab === 'templates' ? `${templates.meta.total} mau cong viec` : `${groups.meta.total} nhom cong viec`}
-        searchPlaceholder={activeTab === 'templates' ? 'Tim mau cong viec...' : 'Tim nhom cong viec...'}
+        title="Task management"
+        description={activeTab === 'templates' ? `${templates.meta.total} task templates` : `${groups.meta.total} task groups`}
+        searchPlaceholder={activeTab === 'templates' ? 'Search task templates...' : 'Search task groups...'}
         searchValue={search}
         onSearchChange={(value) => {
           setSearch(value);
@@ -432,7 +432,7 @@ export default function TaskTemplatesPage() {
           setGroupPage(1);
         }}
         primaryAction={{
-          label: activeTab === 'templates' ? 'Tao mau' : 'Tao nhom',
+          label: activeTab === 'templates' ? 'Tao templates' : 'Create group',
           onClick: () => activeTab === 'templates' ? resetTemplateForm(null) : resetGroupForm(null),
         }}
         secondaryActions={
@@ -442,7 +442,7 @@ export default function TaskTemplatesPage() {
             className={`h-8 gap-1.5 text-[13px] ${showFilter ? 'border-[#0052cc] bg-[#0052cc]/10 text-[#0052cc]' : ''}`}
             onClick={() => setShowFilter((value) => !value)}
           >
-            <Filter className="h-3.5 w-3.5" />Bo loc
+            <Filter className="h-3.5 w-3.5" />Filters
           </Button>
         }
       />
@@ -453,8 +453,8 @@ export default function TaskTemplatesPage() {
         setStatusFilter('');
       }}>
         <TabsList className="mb-4">
-          <TabsTrigger value="templates">Mau cong viec</TabsTrigger>
-          <TabsTrigger value="groups">Nhom cong viec</TabsTrigger>
+          <TabsTrigger value="templates">Task templates</TabsTrigger>
+          <TabsTrigger value="groups">Task groups</TabsTrigger>
         </TabsList>
 
         {showFilter && (
@@ -462,10 +462,10 @@ export default function TaskTemplatesPage() {
             {activeTab === 'templates' && (
               <Select value={typeFilter || 'all'} onValueChange={(value) => setTypeFilter(value === 'all' ? '' : value)}>
                 <SelectTrigger className="h-9 text-[13px]">
-                  <SelectValue placeholder="Loai cong viec" />
+                  <SelectValue placeholder="Type tasks" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Tat ca loai</SelectItem>
+                  <SelectItem value="all">All types</SelectItem>
                   {TASK_TYPES.map((type) => (
                     <SelectItem key={type} value={type}>{TASK_TYPE_LABELS[type] || type}</SelectItem>
                   ))}
@@ -474,19 +474,19 @@ export default function TaskTemplatesPage() {
             )}
             <Select value={statusFilter || 'all'} onValueChange={(value) => setStatusFilter(value === 'all' ? '' : value)}>
               <SelectTrigger className="h-9 text-[13px]">
-                <SelectValue placeholder="Trang thai" />
+                <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tat ca trang thai</SelectItem>
-                <SelectItem value="true">Hoat dong</SelectItem>
-                <SelectItem value="false">Ngung hoat dong</SelectItem>
+                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="true">Active</SelectItem>
+                <SelectItem value="false">Inactive</SelectItem>
               </SelectContent>
             </Select>
             <Button variant="outline" size="sm" className="h-9 justify-self-start" onClick={() => {
               setTypeFilter('');
               setStatusFilter('');
             }}>
-              Xoa bo loc
+              Delete bo loc
             </Button>
           </div>
         )}
@@ -498,7 +498,7 @@ export default function TaskTemplatesPage() {
             </div>
           ) : (
             <>
-              <DataTable columns={templateColumns} data={templates.data as TemplateRow[]} emptyMessage="Khong co mau cong viec" />
+              <DataTable columns={templateColumns} data={templates.data as TemplateRow[]} emptyMessage="No task templates found" />
               <div className="mt-4">
                 <Pagination page={templatePage} totalPages={templates.meta.totalPages} onPageChange={setTemplatePage} />
               </div>
@@ -513,7 +513,7 @@ export default function TaskTemplatesPage() {
             </div>
           ) : (
             <>
-              <DataTable columns={groupColumns} data={groups.data as GroupRow[]} emptyMessage="Khong co nhom cong viec" />
+              <DataTable columns={groupColumns} data={groups.data as GroupRow[]} emptyMessage="No task groups found" />
               <div className="mt-4">
                 <Pagination page={groupPage} totalPages={groups.meta.totalPages} onPageChange={setGroupPage} />
               </div>
@@ -525,16 +525,16 @@ export default function TaskTemplatesPage() {
       <Dialog open={templateFormOpen} onOpenChange={(value) => !value && setTemplateFormOpen(false)}>
         <DialogContent className="sm:max-w-[640px]">
           <DialogHeader>
-            <DialogTitle>{editingTemplate ? 'Chinh sua mau cong viec' : 'Tao mau cong viec'}</DialogTitle>
+            <DialogTitle>{editingTemplate ? 'Edit task template' : 'Create task template'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-1.5">
-                <Label>Ten mau *</Label>
+                <Label>Ten templates *</Label>
                 <Input value={templateForm.name} onChange={(e) => setTemplateForm({ ...templateForm, name: e.target.value })} className="h-9 text-[13px]" />
               </div>
               <div className="space-y-1.5">
-                <Label>Loai cong viec *</Label>
+                <Label>Type tasks *</Label>
                 <Select value={templateForm.type} onValueChange={(value) => setTemplateForm({ ...templateForm, type: value })}>
                   <SelectTrigger className="h-9 text-[13px]"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -544,7 +544,7 @@ export default function TaskTemplatesPage() {
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label>Mo ta</Label>
+              <Label>Description</Label>
               <Textarea value={templateForm.description} onChange={(e) => setTemplateForm({ ...templateForm, description: e.target.value })} className="min-h-[72px] text-[13px]" />
             </div>
             <div className="space-y-1.5">
@@ -552,31 +552,31 @@ export default function TaskTemplatesPage() {
               <Textarea
                 value={templateForm.checklistText}
                 onChange={(e) => setTemplateForm({ ...templateForm, checklistText: e.target.value })}
-                placeholder="Moi dong la mot hang muc can thuc hien"
+                placeholder="Moi dong la mot hang items can thuc hien"
                 className="min-h-[130px] text-[13px]"
               />
             </div>
             <div className="grid gap-4 md:grid-cols-3">
               <div className="space-y-1.5">
-                <Label>Thoi luong phut</Label>
+                <Label>Duration minutes</Label>
                 <Input type="number" min={1} value={templateForm.estimatedDuration} onChange={(e) => setTemplateForm({ ...templateForm, estimatedDuration: e.target.value })} className="h-9 text-[13px]" />
               </div>
               <div className="flex items-center gap-2 pt-6">
                 <Switch checked={templateForm.photoRequired} onCheckedChange={(value) => setTemplateForm({ ...templateForm, photoRequired: value })} />
-                <Label>Bat buoc anh</Label>
+                <Label>Required anh</Label>
               </div>
               {editingTemplate && (
                 <div className="flex items-center gap-2 pt-6">
                   <Switch checked={templateForm.isActive} onCheckedChange={(value) => setTemplateForm({ ...templateForm, isActive: value })} />
-                  <Label>Hoat dong</Label>
+                  <Label>Active</Label>
                 </div>
               )}
             </div>
             <div className="flex justify-end gap-2 pt-2">
-              <Button variant="outline" size="sm" onClick={() => setTemplateFormOpen(false)} disabled={submitting}>Huy</Button>
+              <Button variant="outline" size="sm" onClick={() => setTemplateFormOpen(false)} disabled={submitting}>Cancel</Button>
               <Button size="sm" onClick={handleTemplateSubmit} disabled={submitting} className="bg-[#0052cc] hover:bg-[#003d9b]">
                 {submitting && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
-                Luu
+                Save
               </Button>
             </div>
           </div>
@@ -586,26 +586,26 @@ export default function TaskTemplatesPage() {
       <Dialog open={groupFormOpen} onOpenChange={(value) => !value && setGroupFormOpen(false)}>
         <DialogContent className="sm:max-w-[720px]">
           <DialogHeader>
-            <DialogTitle>{editingGroup ? 'Chinh sua nhom cong viec' : 'Tao nhom cong viec'}</DialogTitle>
-            <DialogDescription>Chon cac mau cong viec de gom thanh mot bo phan cong.</DialogDescription>
+            <DialogTitle>{editingGroup ? 'Edit task group' : 'Create task group'}</DialogTitle>
+            <DialogDescription>Select task templates to combine into an assignment set.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-1.5">
-                <Label>Ten nhom *</Label>
+                <Label>Group name *</Label>
                 <Input value={groupForm.name} onChange={(e) => setGroupForm({ ...groupForm, name: e.target.value })} className="h-9 text-[13px]" />
               </div>
               <div className="space-y-1.5">
-                <Label>Ma nhom *</Label>
+                <Label>Group code *</Label>
                 <Input value={groupForm.code} onChange={(e) => setGroupForm({ ...groupForm, code: e.target.value.toUpperCase() })} className="h-9 text-[13px] uppercase" />
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label>Mo ta</Label>
+              <Label>Description</Label>
               <Textarea value={groupForm.description} onChange={(e) => setGroupForm({ ...groupForm, description: e.target.value })} className="min-h-[72px] text-[13px]" />
             </div>
             <div className="space-y-2">
-              <Label>Mau cong viec *</Label>
+              <Label>Task templates *</Label>
               <div className="max-h-[240px] space-y-2 overflow-y-auto rounded-md border p-3">
                 {templateOptions.loading ? (
                   <div className="flex h-20 items-center justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
@@ -618,21 +618,21 @@ export default function TaskTemplatesPage() {
                     </label>
                   ))
                 ) : (
-                  <p className="py-6 text-center text-[13px] text-muted-foreground">Chua co mau cong viec hoat dong</p>
+                  <p className="py-6 text-center text-[13px] text-muted-foreground">No active task templates yet</p>
                 )}
               </div>
             </div>
             {editingGroup && (
               <div className="flex items-center gap-2">
                 <Switch checked={groupForm.isActive} onCheckedChange={(value) => setGroupForm({ ...groupForm, isActive: value })} />
-                <Label>Hoat dong</Label>
+                <Label>Active</Label>
               </div>
             )}
             <div className="flex justify-end gap-2 pt-2">
-              <Button variant="outline" size="sm" onClick={() => setGroupFormOpen(false)} disabled={submitting}>Huy</Button>
+              <Button variant="outline" size="sm" onClick={() => setGroupFormOpen(false)} disabled={submitting}>Cancel</Button>
               <Button size="sm" onClick={handleGroupSubmit} disabled={submitting} className="bg-[#0052cc] hover:bg-[#003d9b]">
                 {submitting && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
-                Luu
+                Save
               </Button>
             </div>
           </div>
@@ -642,23 +642,23 @@ export default function TaskTemplatesPage() {
       <Dialog open={assignOpen} onOpenChange={(value) => !value && setAssignOpen(false)}>
         <DialogContent className="sm:max-w-[520px]">
           <DialogHeader>
-            <DialogTitle>Phan cong nhom</DialogTitle>
+            <DialogTitle>Assign nhom</DialogTitle>
             <DialogDescription>{assignGroupTarget?.name}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label>Nhan vien *</Label>
+              <Label>Employee *</Label>
               <Select value={assignForm.assigneeId} onValueChange={(value) => setAssignForm({ ...assignForm, assigneeId: value })}>
-                <SelectTrigger className="h-9 text-[13px]"><SelectValue placeholder="Chon nhan vien" /></SelectTrigger>
+                <SelectTrigger className="h-9 text-[13px]"><SelectValue placeholder="Select employee" /></SelectTrigger>
                 <SelectContent>
                   {employees.data.map((employee) => <SelectItem key={employee.id} value={employee.id}>{employee.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label>Chi nhanh *</Label>
+              <Label>Branch *</Label>
               <Select value={assignForm.branchId} onValueChange={(value) => setAssignForm({ ...assignForm, branchId: value })}>
-                <SelectTrigger className="h-9 text-[13px]"><SelectValue placeholder="Chon chi nhanh" /></SelectTrigger>
+                <SelectTrigger className="h-9 text-[13px]"><SelectValue placeholder="Select branch" /></SelectTrigger>
                 <SelectContent>
                   {branches.data.map((branch) => <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>)}
                 </SelectContent>
@@ -666,19 +666,19 @@ export default function TaskTemplatesPage() {
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-1.5">
-                <Label>Thoi gian *</Label>
+                <Label>Time *</Label>
                 <Input type="datetime-local" value={assignForm.scheduledAt} onChange={(e) => setAssignForm({ ...assignForm, scheduledAt: e.target.value })} className="h-9 text-[13px]" />
               </div>
               <div className="space-y-1.5">
-                <Label>Tien to tieu de</Label>
+                <Label>Title prefix</Label>
                 <Input value={assignForm.titlePrefix} onChange={(e) => setAssignForm({ ...assignForm, titlePrefix: e.target.value })} className="h-9 text-[13px]" />
               </div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
-              <Button variant="outline" size="sm" onClick={() => setAssignOpen(false)} disabled={submitting}>Huy</Button>
+              <Button variant="outline" size="sm" onClick={() => setAssignOpen(false)} disabled={submitting}>Cancel</Button>
               <Button size="sm" onClick={handleAssignGroup} disabled={submitting} className="bg-[#0052cc] hover:bg-[#003d9b]">
                 {submitting && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
-                Phan cong
+                Assign
               </Button>
             </div>
           </div>

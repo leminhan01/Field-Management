@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import apiClient from '../services/api';
 import { setTokens, clearTokens } from '../services/auth';
+import type { ApiResponse } from '@fieldapp/shared';
 
 interface User {
   id: string;
@@ -28,10 +29,11 @@ export const useAuthStore = create<AuthState>((set) => ({
   isLoading: true,
 
   login: async (email: string, password: string) => {
-    console.log('Calling login API for:', email);
-    const { data } = await apiClient.post('/auth/login', { email, password });
+    const { data } = await apiClient.post<ApiResponse<{ accessToken: string; refreshToken: string; user: User }>>(
+      '/auth/login',
+      { email, password },
+    );
     const { accessToken, refreshToken, user } = data.data;
-    console.log('Login API response:', data);
     await setTokens(accessToken, refreshToken);
     set({ user, isAuthenticated: true });
   },
@@ -48,7 +50,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   loadUser: async () => {
     try {
-      const { data } = await apiClient.get('/auth/me');
+      const { data } = await apiClient.get<ApiResponse<User>>('/auth/me');
       set({ user: data.data, isAuthenticated: true, isLoading: false });
     } catch {
       set({ user: null, isAuthenticated: false, isLoading: false });
