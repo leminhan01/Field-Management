@@ -1,11 +1,11 @@
-﻿import type { Metadata } from 'next';
+import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { Toaster } from 'sonner';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'FieldApp - Quan ly Task',
-  description: 'He thong quan ly tasks agency BB/BG',
+  title: 'FieldApp - Task Management',
+  description: 'BB/BG agency task management system',
 };
 
 export default function RootLayout({

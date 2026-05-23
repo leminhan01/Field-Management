@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
@@ -152,11 +152,11 @@ export default function SchedulingPage() {
       <PageToolbar
         title="Schedule assignments"
         description="Create tasks from templates or task groups for employees by outlet"
-        searchPlaceholder="Tim nhanh nhan vien..."
+        searchPlaceholder="Quick search employees..."
         searchValue={employeeSearch}
         onSearchChange={setEmployeeSearch}
         primaryAction={{
-          label: submitting ? 'Dang assignments' : 'Assign',
+          label: submitting ? 'Assigning' : 'Assign',
           onClick: handleSubmit,
         }}
         secondaryActions={
@@ -172,7 +172,7 @@ export default function SchedulingPage() {
               groups.refetch();
             }}
           >
-            <RefreshCw className="h-3.5 w-3.5" />Tai lai
+            <RefreshCw className="h-3.5 w-3.5" />Reload
           </Button>
         }
       />
@@ -184,49 +184,49 @@ export default function SchedulingPage() {
               <div className="space-y-1.5">
                 <Label>Branch *</Label>
                 <Select value={form.branchId} onValueChange={handleBranchChange}>
-                  <SelectTrigger className="h-9 text-[13px]"><SelectValue placeholder="Chon branch" /></SelectTrigger>
+                  <SelectTrigger className="h-9 text-[13px]"><SelectValue placeholder="Select branch" /></SelectTrigger>
                   <SelectContent>
                     {branches.data.map((branch) => <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label>Kieu lich *</Label>
+                <Label>Schedule type *</Label>
                 <Select value={form.scheduleMode} onValueChange={(value) => setForm({ ...form, scheduleMode: value as BulkAssignScheduleMode })}>
                   <SelectTrigger className="h-9 text-[13px]"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="SINGLE">Mot ngay</SelectItem>
-                    <SelectItem value="RANGE">Khoang ngay</SelectItem>
-                    <SelectItem value="WEEKLY">Lap theo thu</SelectItem>
+                    <SelectItem value="SINGLE">Single day</SelectItem>
+                    <SelectItem value="RANGE">Date range</SelectItem>
+                    <SelectItem value="WEEKLY">Repeat by weekday</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label>Tien to task</Label>
+                <Label>Task title prefix</Label>
                 <Input value={form.titlePrefix} onChange={(e) => setForm({ ...form, titlePrefix: e.target.value })} className="h-9 text-[13px]" placeholder="VD: Campaign Q2" />
               </div>
             </div>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-3">
               <div className="space-y-1.5">
-                <Label>Ngay bat dau *</Label>
+                <Label>Start date *</Label>
                 <Input type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} className="h-9 text-[13px]" />
               </div>
               {form.scheduleMode !== 'SINGLE' && (
                 <div className="space-y-1.5">
-                  <Label>Ngay ket thuc *</Label>
+                  <Label>End date *</Label>
                   <Input type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })} className="h-9 text-[13px]" />
                 </div>
               )}
               <div className="space-y-1.5">
-                <Label>Gio bat dau</Label>
+                <Label>Start time</Label>
                 <Input type="time" value={form.startTime} onChange={(e) => setForm({ ...form, startTime: e.target.value })} className="h-9 text-[13px]" />
               </div>
             </div>
 
             {form.scheduleMode === 'WEEKLY' && (
               <div className="mt-4 space-y-2">
-                <Label>Lap lai vao thu *</Label>
+                <Label>Repeat on weekdays *</Label>
                 <div className="flex flex-wrap gap-2">
                   {WEEKDAY_OPTIONS.map((weekday) => (
                     <Button
@@ -251,11 +251,11 @@ export default function SchedulingPage() {
               count={form.employeeIds.length}
               loading={employees.loading}
               error={employees.error}
-              emptyMessage={form.branchId ? 'Khong co nhan vien phu hop' : 'Chon branch de tai nhan vien'}
+              emptyMessage={form.branchId ? 'No matching employees' : 'Select a branch to load employees'}
               toolbar={
                 <div className="relative">
                   <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
-                  <Input value={employeeSearch} onChange={(e) => setEmployeeSearch(e.target.value)} placeholder="Tim nhan vien" className="h-9 pl-8 text-[13px]" />
+                  <Input value={employeeSearch} onChange={(e) => setEmployeeSearch(e.target.value)} placeholder="Search employees" className="h-9 pl-8 text-[13px]" />
                 </div>
               }
             >
@@ -273,11 +273,11 @@ export default function SchedulingPage() {
               count={form.outletIds.length}
               loading={outlets.loading}
               error={outlets.error}
-              emptyMessage={form.branchId ? 'No outlets found phu hop' : 'Chon branch de tai outlet'}
+              emptyMessage={form.branchId ? 'No matching outlets' : 'Select a branch to load outlets'}
               toolbar={
                 <div className="relative">
                   <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
-                  <Input value={outletSearch} onChange={(e) => setOutletSearch(e.target.value)} placeholder="Tim outlet" className="h-9 pl-8 text-[13px]" />
+                  <Input value={outletSearch} onChange={(e) => setOutletSearch(e.target.value)} placeholder="Search outlets" className="h-9 pl-8 text-[13px]" />
                 </div>
               }
             >
@@ -320,22 +320,22 @@ export default function SchedulingPage() {
         <Card className="h-fit border p-4 shadow-sm">
           <div className="flex items-center gap-2 border-b pb-3">
             <CalendarDays className="h-4 w-4 text-primary" />
-            <h2 className="text-[14px] font-semibold">Tom tat assignments</h2>
+            <h2 className="text-[14px] font-semibold">Assignment summary</h2>
           </div>
           <div className="mt-4 space-y-3 text-[13px]">
             <SummaryRow label="Employee" value={form.employeeIds.length} />
             <SummaryRow label="Outlet" value={form.outletIds.length} />
-            <SummaryRow label="Mau rieng" value={form.templateIds.length} />
-            <SummaryRow label="Nhom" value={form.taskGroupIds.length} />
-            <SummaryRow label="Ngay tao lich" value={dateCount} />
-            <SummaryRow label="Uoc tinh assignments" value={estimatedAssignments} strong />
+            <SummaryRow label="Individual templates" value={form.templateIds.length} />
+            <SummaryRow label="Groups" value={form.taskGroupIds.length} />
+            <SummaryRow label="Scheduled days" value={dateCount} />
+            <SummaryRow label="Estimated assignments" value={estimatedAssignments} strong />
           </div>
           <Button className="mt-5 h-9 w-full gap-2 bg-[#2563EB] text-[13px] hover:bg-[#1D4ED8]" disabled={submitting || !canSubmit} onClick={handleSubmit}>
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-            Assign ngay
+            Assign now
           </Button>
           <Button variant="outline" className="mt-2 h-9 w-full gap-2 text-[13px]" onClick={() => setForm(EMPTY_FORM)} disabled={submitting}>
-            <Users className="h-4 w-4" />Delete lua chon
+            <Users className="h-4 w-4" />Clear selection
           </Button>
         </Card>
       </div>
@@ -365,7 +365,7 @@ function SelectionPanel({
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
           <h2 className="text-[14px] font-semibold">{title}</h2>
-          <p className="text-[12px] text-muted-foreground">Da chon {count}</p>
+          <p className="text-[12px] text-muted-foreground">Selected {count}</p>
         </div>
         {toolbar}
       </div>

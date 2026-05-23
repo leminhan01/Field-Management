@@ -20,7 +20,7 @@ export function useOutlets(params: OutletQueryParams = {}) {
       setData(result.data);
       setMeta(result.meta);
     } catch (err) {
-      setError(extractOutletErrorMessage(err, 'Khong the tai danh sach outlet'));
+      setError(extractOutletErrorMessage(err, 'Unable to load outlets'));
     } finally {
       setLoading(false);
     }

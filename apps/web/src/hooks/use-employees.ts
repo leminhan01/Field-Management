@@ -20,7 +20,7 @@ export function useEmployees(params: EmployeeQueryParams = {}) {
       setData(result.data);
       setMeta(result.meta);
     } catch (err: unknown) {
-      setError(extractErrorMessage(err, 'Khong the tai danh sach nhan vien'));
+      setError(extractErrorMessage(err, 'Unable to load employees'));
     } finally {
       setLoading(false);
     }

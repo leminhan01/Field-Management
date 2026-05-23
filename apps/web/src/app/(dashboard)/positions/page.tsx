@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useMemo, useState } from 'react';
 import { Edit, Loader2, Plus, ShieldCheck, Trash2 } from 'lucide-react';
@@ -123,7 +123,7 @@ export default function PositionsPage() {
       setOpen(false);
       refetch();
     } catch (err) {
-      toast.error(extractErrorMessage(err, 'Save positions that bai'));
+      toast.error(extractErrorMessage(err, 'Failed to save position'));
     } finally {
       setSubmitting(false);
     }
@@ -133,11 +133,11 @@ export default function PositionsPage() {
     if (!deleteTarget) return;
     try {
       await deletePosition(deleteTarget.id);
-      toast.success('Delete positions thanh cong');
+      toast.success('Position deleted successfully');
       setDeleteTarget(null);
       refetch();
     } catch (err) {
-      toast.error(extractErrorMessage(err, 'Delete positions that bai'));
+      toast.error(extractErrorMessage(err, 'Failed to delete position'));
     }
   };
 
@@ -159,9 +159,9 @@ export default function PositionsPage() {
     },
     {
       key: 'permissions',
-      header: 'Quyen',
+      header: 'Permissions',
       render: (row) => (
-        <span className="text-muted-foreground">{row.permissions.length} quyen</span>
+        <span className="text-muted-foreground">{row.permissions.length} permissions</span>
       ),
     },
     {
@@ -211,7 +211,7 @@ export default function PositionsPage() {
           setSearch(value);
           setPage(1);
         }}
-        primaryAction={{ label: 'Add positions', onClick: openCreate }}
+        primaryAction={{ label: 'Add position', onClick: openCreate }}
       />
 
       {loading ? (
@@ -230,7 +230,7 @@ export default function PositionsPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[760px]">
           <DialogHeader>
-            <DialogTitle>{editing ? 'Update position' : 'Add positions'}</DialogTitle>
+            <DialogTitle>{editing ? 'Update position' : 'Add position'}</DialogTitle>
           </DialogHeader>
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -250,7 +250,7 @@ export default function PositionsPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label>Role he thong</Label>
+              <Label>System role</Label>
               <Select
                 value={form.role}
                 onValueChange={(value) => setForm({ ...form, role: value as Role })}
@@ -267,8 +267,8 @@ export default function PositionsPage() {
             </div>
             <div className="flex items-center justify-between rounded-md border px-3 py-2">
               <div>
-                <Label>Dang hoat dong</Label>
-                <div className="text-xs text-muted-foreground">Cho phep gan cho nhan vien</div>
+                <Label>Active</Label>
+                <div className="text-xs text-muted-foreground">Allow assigning to employees</div>
               </div>
               <Switch
                 checked={form.isActive}
@@ -322,7 +322,7 @@ export default function PositionsPage() {
       <Dialog open={!!deleteTarget} onOpenChange={(value) => !value && setDeleteTarget(null)}>
         <DialogContent className="sm:max-w-[420px]">
           <DialogHeader>
-            <DialogTitle>Confirm deletion positions</DialogTitle>
+            <DialogTitle>Confirm position deletion</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
             Position {deleteTarget?.name} will be soft-deleted if no employees are using it.

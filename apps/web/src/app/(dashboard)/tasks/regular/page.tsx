@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useMemo, useState } from 'react';
 import { CalendarClock, Filter, Loader2, MapPin, RefreshCw, Store, Trash2, User } from 'lucide-react';
@@ -95,7 +95,7 @@ export default function RegularTaskPage() {
   };
 
   const handleDelete = async (task: TaskDto) => {
-    if (!window.confirm(`Delete tasks "${task.title}"?`)) return;
+    if (!window.confirm(`Delete task "${task.title}"?`)) return;
 
     setDeletingId(task.id);
     try {
@@ -103,7 +103,7 @@ export default function RegularTaskPage() {
       toast.success('Task deleted');
       tasks.refetch();
     } catch (err) {
-      toast.error(extractTaskErrorMessage(err, 'Delete tasks that bai'));
+      toast.error(extractTaskErrorMessage(err, 'Failed to delete task'));
     } finally {
       setDeletingId(null);
     }
@@ -116,7 +116,7 @@ export default function RegularTaskPage() {
       render: (task) => (
         <div className="min-w-[240px]">
           <p className="font-semibold text-[#191b23]">{task.title}</p>
-          <p className="text-[12px] text-muted-foreground">{task.template?.name || task.description || 'Khong co templates'}</p>
+          <p className="text-[12px] text-muted-foreground">{task.template?.name || task.description || 'No template'}</p>
         </div>
       ),
     },
@@ -156,7 +156,7 @@ export default function RegularTaskPage() {
     },
     {
       key: 'schedule',
-      header: 'Lich',
+      header: 'Schedule',
       render: (task) => (
         <span className="flex items-center gap-1.5 whitespace-nowrap text-muted-foreground">
           <CalendarClock className="h-3.5 w-3.5" />{formatDateTime(task.scheduledDate || task.startTime)}
@@ -170,7 +170,7 @@ export default function RegularTaskPage() {
     },
     {
       key: 'count',
-      header: 'Bao cao',
+      header: 'Reports',
       render: (task) => <Badge variant="outline">{task._count.reports} report</Badge>,
     },
     {
@@ -199,7 +199,7 @@ export default function RegularTaskPage() {
       <PageToolbar
         title="Task list"
         description={`${tasks.meta.total} tasks`}
-        searchPlaceholder="Tim task, branch, outlet, nhan vien..."
+        searchPlaceholder="Search tasks, branches, outlets, employees..."
         searchValue={search}
         onSearchChange={(value) => {
           setSearch(value);
@@ -212,7 +212,7 @@ export default function RegularTaskPage() {
         secondaryActions={
           <>
             <Button variant="outline" size="sm" className="h-8 gap-1.5 text-[13px]" onClick={() => tasks.refetch()}>
-              <RefreshCw className="h-3.5 w-3.5" />Tai lai
+              <RefreshCw className="h-3.5 w-3.5" />Reload
             </Button>
             <Button
               variant="outline"
@@ -229,7 +229,7 @@ export default function RegularTaskPage() {
       {showFilter && (
         <div className="mb-4 grid gap-3 rounded-lg border bg-white p-3 lg:grid-cols-4">
           <Select value={typeFilter || 'all'} onValueChange={(value) => { setTypeFilter(value === 'all' ? '' : value); setPage(1); }}>
-            <SelectTrigger className="h-9 text-[13px]"><SelectValue placeholder="Type task" /></SelectTrigger>
+            <SelectTrigger className="h-9 text-[13px]"><SelectValue placeholder="Task type" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All types</SelectItem>
               {TASK_TYPES.map((type) => <SelectItem key={type} value={type}>{TASK_TYPE_LABELS[type] || type}</SelectItem>)}
@@ -252,7 +252,7 @@ export default function RegularTaskPage() {
           }}>
             <SelectTrigger className="h-9 text-[13px]"><SelectValue placeholder="Branch" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Tat ca branch</SelectItem>
+              <SelectItem value="all">All branches</SelectItem>
               {branches.data.map((branch) => <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>)}
             </SelectContent>
           </Select>
@@ -260,7 +260,7 @@ export default function RegularTaskPage() {
           <Select value={outletFilter || 'all'} onValueChange={(value) => { setOutletFilter(value === 'all' ? '' : value); setPage(1); }}>
             <SelectTrigger className="h-9 text-[13px]"><SelectValue placeholder="Outlet" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Tat ca outlet</SelectItem>
+              <SelectItem value="all">All outlets</SelectItem>
               {outlets.data.map((outlet) => <SelectItem key={outlet.id} value={outlet.id}>{outlet.name}</SelectItem>)}
             </SelectContent>
           </Select>
@@ -268,23 +268,23 @@ export default function RegularTaskPage() {
           <Select value={assigneeFilter || 'all'} onValueChange={(value) => { setAssigneeFilter(value === 'all' ? '' : value); setPage(1); }}>
             <SelectTrigger className="h-9 text-[13px]"><SelectValue placeholder="Employee" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Tat ca nhan vien</SelectItem>
+              <SelectItem value="all">All employees</SelectItem>
               {employees.data.map((employee) => <SelectItem key={employee.id} value={employee.id}>{employee.name}</SelectItem>)}
             </SelectContent>
           </Select>
 
           <div className="space-y-1.5">
-            <Label className="text-[12px]">Tu ngay</Label>
+            <Label className="text-[12px]">From date</Label>
             <Input type="date" value={dateFrom} onChange={(event) => { setDateFrom(event.target.value); setPage(1); }} className="h-9 text-[13px]" />
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-[12px]">Den ngay</Label>
+            <Label className="text-[12px]">To date</Label>
             <Input type="date" value={dateTo} onChange={(event) => { setDateTo(event.target.value); setPage(1); }} className="h-9 text-[13px]" />
           </div>
 
           <Button variant="outline" size="sm" className="h-9 self-end justify-self-start" onClick={resetFilters}>
-            Delete bo loc
+            Clear filters
           </Button>
         </div>
       )}

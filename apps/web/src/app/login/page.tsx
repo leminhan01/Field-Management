@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { Mail, Lock, Loader2, Eye, EyeOff, Briefcase } from 'lucide-react';
@@ -12,7 +12,7 @@ import { useAuth } from '@/hooks/use-auth';
 
 const features = [
   { icon: '📊', title: 'Dashboard overview', desc: 'Realtime statistics and performance charts' },
-  { icon: '📋', title: 'Quan ly Task', desc: 'Task, Template, Assign, Bao cao' },
+  { icon: '📋', title: 'Task Management', desc: 'Task, Template, Assign, Reports' },
   { icon: '👥', title: 'Staff Management', desc: 'Staff, roles, branches, devices' },
 ];
 
@@ -36,7 +36,7 @@ export default function LoginPage() {
       await login(email, password);
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: { message?: string } } } };
-      setError(error.response?.data?.error?.message || 'Dang nhap that bai');
+      setError(error.response?.data?.error?.message || 'Login failed');
     } finally {
       setLoading(false);
     }
@@ -76,7 +76,7 @@ export default function LoginPage() {
             <Briefcase className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-white text-2xl font-bold">Field Management</h1>
-          <p className="text-gray-400 text-sm mt-2">He thong quan ly tasks Agency</p>
+          <p className="text-gray-400 text-sm mt-2">Agency task management system</p>
         </motion.div>
 
         {/* Features */}
@@ -130,8 +130,8 @@ export default function LoginPage() {
             <h1 className="text-lg font-bold text-foreground">Field Management</h1>
           </div>
 
-          <h2 className="text-xl font-bold text-foreground mb-1">Dang nhap</h2>
-          <p className="text-sm text-muted-foreground mb-7">Nhap thong tin tai khoan de tiep tuc</p>
+          <h2 className="text-xl font-bold text-foreground mb-1">Sign in</h2>
+          <p className="text-sm text-muted-foreground mb-7">Enter your account information to continue</p>
 
           <AnimatePresence>
             {error && (
@@ -172,7 +172,7 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-[13px]">Mat khau</Label>
+              <Label htmlFor="password" className="text-[13px]">Password</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -223,7 +223,7 @@ export default function LoginPage() {
                     className="flex items-center gap-2"
                   >
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Dang dang nhap...
+                    Signing in...
                   </motion.div>
                 ) : (
                   <motion.span
@@ -232,7 +232,7 @@ export default function LoginPage() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                   >
-                    Dang nhap
+                    Sign in
                   </motion.span>
                 )}
               </AnimatePresence>

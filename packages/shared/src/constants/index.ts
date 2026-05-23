@@ -1,47 +1,47 @@
 export const ROLE_LABELS: Record<string, string> = {
   SUPER_ADMIN: 'Super Admin',
   ADMIN: 'Admin',
-  MANAGER: 'Quản lý',
-  TEAM_LEADER: 'Trưởng nhóm',
-  STAFF: 'Nhân viên',
+  MANAGER: 'Manager',
+  TEAM_LEADER: 'Team Leader',
+  STAFF: 'Staff',
 } as const;
 
 export const BRANCH_TYPE_LABELS: Record<string, string> = {
-  RESTAURANT: 'Trụ sở chính',
-  SUPERMARKET: 'Chi nhánh miền Bắc',
-  CONVENIENCE_STORE: 'Chi nhánh miền Trung',
-  PHARMACY: 'Chi nhánh miền Nam',
-  OTHER: 'Văn phòng đại diện',
+  RESTAURANT: 'Head Office',
+  SUPERMARKET: 'Northern Branch',
+  CONVENIENCE_STORE: 'Central Branch',
+  PHARMACY: 'Southern Branch',
+  OTHER: 'Representative Office',
 } as const;
 
 export const OUTLET_TYPE_LABELS: Record<string, string> = {
-  RESTAURANT: 'Nha hang',
-  SUPERMARKET: 'Sieu thi',
-  CONVENIENCE_STORE: 'Cua hang tien loi',
-  PHARMACY: 'Nha thuoc',
-  OTHER: 'Khac',
+  RESTAURANT: 'Restaurant',
+  SUPERMARKET: 'Supermarket',
+  CONVENIENCE_STORE: 'Convenience Store',
+  PHARMACY: 'Pharmacy',
+  OTHER: 'Other',
 } as const;
 
 export const TASK_STATUS_LABELS: Record<string, string> = {
-  DRAFT: 'Nháp',
-  ASSIGNED: 'Đã phân công',
-  IN_PROGRESS: 'Đang thực hiện',
-  COMPLETED: 'Hoàn thành',
-  APPROVED: 'Đã duyệt',
-  REJECTED: 'Từ chối',
+  DRAFT: 'Draft',
+  ASSIGNED: 'Assigned',
+  IN_PROGRESS: 'In Progress',
+  COMPLETED: 'Completed',
+  APPROVED: 'Approved',
+  REJECTED: 'Rejected',
 } as const;
 
 export const TASK_TYPE_LABELS: Record<string, string> = {
-  REGULAR: 'Công việc định kỳ',
-  DEVICE_CHECK: 'Kiểm tra thiết bị',
-  SURVEY: 'Khảo sát',
-  PROMOTION: 'Khuyến mãi',
+  REGULAR: 'Regular Task',
+  DEVICE_CHECK: 'Device Check',
+  SURVEY: 'Survey',
+  PROMOTION: 'Promotion',
 } as const;
 
 export const DEVICE_STATUS_LABELS: Record<string, string> = {
-  ACTIVE: 'Hoạt động',
-  MAINTENANCE: 'Bảo trì',
-  BROKEN: 'Hỏng',
+  ACTIVE: 'Active',
+  MAINTENANCE: 'Maintenance',
+  BROKEN: 'Broken',
 } as const;
 
 export const TASK_STATUS_COLORS: Record<string, string> = {
@@ -60,6 +60,6 @@ export const PAGINATION_DEFAULTS = {
 } as const;
 
 export const EMPLOYEE_STATUS_LABELS: Record<string, string> = {
-  active: 'Hoạt động',
-  inactive: 'Ngừng hoạt động',
+  active: 'Active',
+  inactive: 'Inactive',
 } as const;

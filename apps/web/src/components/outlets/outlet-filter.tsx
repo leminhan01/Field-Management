@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
@@ -47,10 +47,10 @@ export function OutletFilter({
         <Label className="text-[12px] text-muted-foreground">Type outlet</Label>
         <Select value={type || 'all'} onValueChange={(v) => onTypeChange(v === 'all' ? '' : v)}>
           <SelectTrigger className="w-[190px] h-8 text-[13px]">
-            <SelectValue placeholder="Tat ca" />
+            <SelectValue placeholder="All" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tat ca</SelectItem>
+            <SelectItem value="all">All</SelectItem>
             {Object.entries(OUTLET_TYPE_LABELS).map(([key, label]) => (
               <SelectItem key={key} value={key}>{label}</SelectItem>
             ))}
@@ -62,10 +62,10 @@ export function OutletFilter({
         <Label className="text-[12px] text-muted-foreground">Managing branch</Label>
         <Select value={branchId || 'all'} onValueChange={(v) => onBranchChange(v === 'all' ? '' : v)}>
           <SelectTrigger className="w-[220px] h-8 text-[13px]">
-            <SelectValue placeholder="Tat ca" />
+            <SelectValue placeholder="All" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tat ca</SelectItem>
+            <SelectItem value="all">All</SelectItem>
             {branches.map((branch) => (
               <SelectItem key={branch.id} value={branch.id}>
                 {branch.name}
@@ -79,10 +79,10 @@ export function OutletFilter({
         <Label className="text-[12px] text-muted-foreground">Status</Label>
         <Select value={isActive || 'all'} onValueChange={(v) => onStatusChange(v === 'all' ? '' : v)}>
           <SelectTrigger className="w-[170px] h-8 text-[13px]">
-            <SelectValue placeholder="Tat ca" />
+            <SelectValue placeholder="All" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tat ca</SelectItem>
+            <SelectItem value="all">All</SelectItem>
             <SelectItem value="true">Active</SelectItem>
             <SelectItem value="false">Inactive</SelectItem>
           </SelectContent>
@@ -91,7 +91,7 @@ export function OutletFilter({
 
       {hasFilters && (
         <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-[13px] text-muted-foreground" onClick={onClear}>
-          <X className="w-3.5 h-3.5" />Delete bo loc
+          <X className="w-3.5 h-3.5" />Clear filters
         </Button>
       )}
     </div>

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -29,17 +29,17 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 
 const formSchema = z.object({
-  name: z.string().trim().min(2, 'Ten outlet phai co it nhat 2 ky tu').max(120, 'Ten outlet qua dai'),
+  name: z.string().trim().min(2, 'Outlet name must be at least 2 characters').max(120, 'Outlet name is too long'),
   code: z
     .string()
     .trim()
-    .min(2, 'Ma outlet phai co it nhat 2 ky tu')
-    .max(30, 'Ma outlet qua dai')
-    .regex(/^[A-Z0-9_-]+$/i, 'Ma outlet chi gom chu, so, dau gach ngang hoac gach duoi'),
-  address: z.string().trim().max(255, 'Dia chi qua dai').optional().or(z.literal('')),
-  phone: z.string().trim().max(30, 'So dien thoai qua dai').optional().or(z.literal('')),
-  type: z.string().min(1, 'Type outlet la bat buoc'),
-  brand: z.string().trim().max(80, 'Brand qua dai').optional().or(z.literal('')),
+    .min(2, 'Outlet code must be at least 2 characters')
+    .max(30, 'Outlet code is too long')
+    .regex(/^[A-Z0-9_-]+$/i, 'Outlet code can only contain letters, numbers, hyphens, or underscores'),
+  address: z.string().trim().max(255, 'Address is too long').optional().or(z.literal('')),
+  phone: z.string().trim().max(30, 'Phone number is too long').optional().or(z.literal('')),
+  type: z.string().min(1, 'Outlet type is required'),
+  brand: z.string().trim().max(80, 'Brand is too long').optional().or(z.literal('')),
   branchId: z.string().min(1, 'Managing branch is required'),
   isActive: z.boolean().optional(),
 });
@@ -156,13 +156,13 @@ export function OutletForm({ open, mode, outlet, onClose, onSubmit }: OutletForm
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label>Ten outlet *</Label>
+              <Label>Outlet name *</Label>
               <Input {...register('name')} placeholder="Outlet A" className="h-9 text-[13px]" />
               {errors.name && <p className="text-[12px] text-red-500">{errors.name.message}</p>}
             </div>
 
             <div className="space-y-1.5">
-              <Label>Ma outlet *</Label>
+              <Label>Outlet code *</Label>
               <Input {...register('code')} placeholder="OUTLET-A" className="h-9 text-[13px] uppercase" />
               {errors.code && <p className="text-[12px] text-red-500">{errors.code.message}</p>}
             </div>
@@ -211,14 +211,14 @@ export function OutletForm({ open, mode, outlet, onClose, onSubmit }: OutletForm
             </div>
 
             <div className="space-y-1.5">
-              <Label>So dien thoai</Label>
+              <Label>Phone number</Label>
               <Input {...register('phone')} placeholder="028 1234 5678" className="h-9 text-[13px]" />
               {errors.phone && <p className="text-[12px] text-red-500">{errors.phone.message}</p>}
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <Label>Dia chi</Label>
+            <Label>Address</Label>
             <Textarea {...register('address')} placeholder="Nhap dia diem outlet" className="min-h-[76px] text-[13px]" />
             {errors.address && <p className="text-[12px] text-red-500">{errors.address.message}</p>}
           </div>

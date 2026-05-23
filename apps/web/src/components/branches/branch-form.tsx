@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -30,9 +30,9 @@ const formSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(1, 'Branch name là bắt buộc')
-    .min(2, 'Branch name phải có ít nhất 2 ký tự')
-    .max(120, 'Branch name không được vượt quá 120 ký tự'),
+    .min(1, 'Branch name is required')
+    .min(2, 'Branch name must be at least 2 characters')
+    .max(120, 'Branch name must not exceed 120 characters'),
   code: z
     .string()
     .trim()

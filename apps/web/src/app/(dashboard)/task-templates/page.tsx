@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useCallback, useMemo, useState } from 'react';
 import { ClipboardList, CopyPlus, Filter, FolderKanban, Loader2, Trash2 } from 'lucide-react';
@@ -200,7 +200,7 @@ export default function TaskTemplatesPage() {
       setTemplateFormOpen(false);
       refetchAll();
     } catch (err) {
-      toast.error(extractTaskManagementErrorMessage(err, 'Save task templates that bai'));
+      toast.error(extractTaskManagementErrorMessage(err, 'Failed to save task template'));
     } finally {
       setSubmitting(false);
     }
@@ -232,7 +232,7 @@ export default function TaskTemplatesPage() {
       setGroupFormOpen(false);
       refetchAll();
     } catch (err) {
-      toast.error(extractTaskManagementErrorMessage(err, 'Save task groups that bai'));
+      toast.error(extractTaskManagementErrorMessage(err, 'Failed to save task group'));
     } finally {
       setSubmitting(false);
     }
@@ -240,7 +240,7 @@ export default function TaskTemplatesPage() {
 
   const handleAssignGroup = async () => {
     if (!assignGroupTarget || !assignForm.assigneeId || !assignForm.branchId || !assignForm.scheduledAt) {
-      toast.error('Employee, chi nhanh va thoi gian assignments la bat buoc');
+      toast.error('Employee, branch, and assignment time are required');
       return;
     }
 
@@ -255,7 +255,7 @@ export default function TaskTemplatesPage() {
       setAssignGroupTarget(null);
       setAssignForm(EMPTY_ASSIGN_FORM);
     } catch (err) {
-      toast.error(extractTaskManagementErrorMessage(err, 'Assign nhom that bai'));
+      toast.error(extractTaskManagementErrorMessage(err, 'Failed to assign group'));
     } finally {
       setSubmitting(false);
     }
@@ -268,7 +268,7 @@ export default function TaskTemplatesPage() {
       toast.success('Task template deleted');
       refetchAll();
     } catch (err) {
-      toast.error(extractTaskManagementErrorMessage(err, 'Delete task templates that bai'));
+      toast.error(extractTaskManagementErrorMessage(err, 'Failed to delete task template'));
     }
   };
 
@@ -276,10 +276,10 @@ export default function TaskTemplatesPage() {
     if (!window.confirm(`Delete task groups "${group.name}"?`)) return;
     try {
       await deleteTaskGroup(group.id);
-      toast.success('Da xoa task groups');
+      toast.success('Task group deleted');
       refetchAll();
     } catch (err) {
-      toast.error(extractTaskManagementErrorMessage(err, 'Delete task groups that bai'));
+      toast.error(extractTaskManagementErrorMessage(err, 'Failed to delete task group'));
     }
   };
 
@@ -385,7 +385,7 @@ export default function TaskTemplatesPage() {
     },
     {
       key: 'created',
-      header: 'Ngay tao',
+      header: 'Created date',
       render: (group) => <span className="text-muted-foreground">{formatDate(group.createdAt)}</span>,
     },
     {
@@ -402,7 +402,7 @@ export default function TaskTemplatesPage() {
           <ActionMenu
             actions={[
               {
-                label: 'Assign nhom',
+                label: 'Assign group',
                 icon: <CopyPlus className="h-4 w-4" />,
                 onClick: () => {
                   setAssignGroupTarget(group);
@@ -432,7 +432,7 @@ export default function TaskTemplatesPage() {
           setGroupPage(1);
         }}
         primaryAction={{
-          label: activeTab === 'templates' ? 'Tao templates' : 'Create group',
+          label: activeTab === 'templates' ? 'Create template' : 'Create group',
           onClick: () => activeTab === 'templates' ? resetTemplateForm(null) : resetGroupForm(null),
         }}
         secondaryActions={
@@ -462,7 +462,7 @@ export default function TaskTemplatesPage() {
             {activeTab === 'templates' && (
               <Select value={typeFilter || 'all'} onValueChange={(value) => setTypeFilter(value === 'all' ? '' : value)}>
                 <SelectTrigger className="h-9 text-[13px]">
-                  <SelectValue placeholder="Type tasks" />
+                  <SelectValue placeholder="Task types" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All types</SelectItem>
@@ -486,7 +486,7 @@ export default function TaskTemplatesPage() {
               setTypeFilter('');
               setStatusFilter('');
             }}>
-              Delete bo loc
+              Clear filters
             </Button>
           </div>
         )}
@@ -530,11 +530,11 @@ export default function TaskTemplatesPage() {
           <div className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-1.5">
-                <Label>Ten templates *</Label>
+                <Label>Template name *</Label>
                 <Input value={templateForm.name} onChange={(e) => setTemplateForm({ ...templateForm, name: e.target.value })} className="h-9 text-[13px]" />
               </div>
               <div className="space-y-1.5">
-                <Label>Type tasks *</Label>
+                <Label>Task types *</Label>
                 <Select value={templateForm.type} onValueChange={(value) => setTemplateForm({ ...templateForm, type: value })}>
                   <SelectTrigger className="h-9 text-[13px]"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -642,7 +642,7 @@ export default function TaskTemplatesPage() {
       <Dialog open={assignOpen} onOpenChange={(value) => !value && setAssignOpen(false)}>
         <DialogContent className="sm:max-w-[520px]">
           <DialogHeader>
-            <DialogTitle>Assign nhom</DialogTitle>
+            <DialogTitle>Assign group</DialogTitle>
             <DialogDescription>{assignGroupTarget?.name}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">

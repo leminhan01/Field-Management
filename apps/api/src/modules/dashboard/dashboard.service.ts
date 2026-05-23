@@ -186,22 +186,22 @@ export class DashboardService {
     return [
       {
         key: 'pending-reports',
-        title: `${pendingReports} báo cáo chờ duyệt`,
-        description: 'Cần kiểm tra ảnh, ghi chú và kết quả thực hiện trước khi phê duyệt.',
+        title: `${pendingReports} pending reports`,
+        description: 'Review photos, notes, and completion results before approval.',
         count: pendingReports,
         severity: pendingReports > 0 ? 'warning' : 'success',
       },
       {
         key: 'device-issues',
-        title: `${issueDevices} thiết bị cần xử lý`,
-        description: 'Thiết bị trạng thái Maintenance hoặc Broken đang cần theo dõi.',
+        title: `${issueDevices} devices need attention`,
+        description: 'Devices in Maintenance or Broken status need follow-up.',
         count: issueDevices,
         severity: issueDevices > 0 ? 'danger' : 'success',
       },
       {
         key: 'unassigned-tasks',
-        title: `${unassignedTasks} công việc chưa gán nhân sự`,
-        description: 'Các công việc chưa có assignment cần gán Team Leader hoặc Staff phụ trách.',
+        title: `${unassignedTasks} tasks without assignees`,
+        description: 'Tasks without assignments need a Team Leader or Staff owner.',
         count: unassignedTasks,
         severity: unassignedTasks > 0 ? 'warning' : 'success',
       },
@@ -216,12 +216,12 @@ export class DashboardService {
     surveys: number;
   }): DashboardModuleDto[] {
     return [
-      { key: 'employees', label: 'Nhân viên', href: '/employees', count: `${counts.employees} hồ sơ` },
-      { key: 'branches', label: 'Chi nhánh', href: '/branches', count: `${counts.branches} chi nhánh` },
-      { key: 'outlets', label: 'Cửa hàng', href: '/outlets', count: `${counts.outlets} điểm bán` },
-      { key: 'devices', label: 'Thiết bị', href: '/devices', count: `${counts.devices} tài sản` },
-      { key: 'surveys', label: 'Khảo sát', href: '/surveys', count: `${counts.surveys} form` },
-      { key: 'settings', label: 'Cài đặt', href: '/settings', count: 'Region, role, trạng thái' },
+      { key: 'employees', label: 'Employees', href: '/employees', count: `${counts.employees} profiles` },
+      { key: 'branches', label: 'Branches', href: '/branches', count: `${counts.branches} branches` },
+      { key: 'outlets', label: 'Outlets', href: '/outlets', count: `${counts.outlets} outlets` },
+      { key: 'devices', label: 'Devices', href: '/devices', count: `${counts.devices} assets` },
+      { key: 'surveys', label: 'Surveys', href: '/surveys', count: `${counts.surveys} forms` },
+      { key: 'settings', label: 'Settings', href: '/settings', count: 'Regions, roles, statuses' },
     ];
   }
 }

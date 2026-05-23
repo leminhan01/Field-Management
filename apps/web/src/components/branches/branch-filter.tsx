@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { X } from 'lucide-react';
 import { BRANCH_TYPE_LABELS } from '@fieldapp/shared';

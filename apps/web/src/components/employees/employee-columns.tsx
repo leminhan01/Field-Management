@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { Mail, Phone } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';

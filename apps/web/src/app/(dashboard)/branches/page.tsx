@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useCallback, useMemo, useState } from 'react';
 import { Building2, Filter, Loader2, MapPin, Trash2 } from 'lucide-react';
@@ -185,13 +185,13 @@ export default function BranchesPage() {
   return (
     <PageWrapper>
       <PageToolbar
-        title="Manager branches"
+        title="Branch management"
         description={`${meta.total} branches`}
         searchPlaceholder="Search branches..."
         searchValue={search}
         onSearchChange={handleSearchChange}
         primaryAction={{
-          label: 'Add branches',
+          label: 'Add branch',
           onClick: () => {
             setEditingBranch(null);
             setShowForm(true);

@@ -23,12 +23,12 @@ interface Report {
 }
 
 const mockReports: Report[] = [
-  { id: 1, taskName: 'Kiem tra trung bay BB', assignee: 'Nguyen Van An', branch: 'Lotte Mart Q7', submittedAt: '14/05/2026 10:30', photos: 4, status: 'Approved', notes: 'Trung bay dat chuan' },
-  { id: 2, taskName: 'Sampling san pham moi', assignee: 'Tran Thi Bich', branch: 'Coopmart Tan Dinh', submittedAt: '14/05/2026 12:15', photos: 6, status: 'Pending', notes: 'Cho phe duyet' },
-  { id: 3, taskName: 'Kiem tra camera', assignee: 'Le Minh Chau', branch: 'AEON Binh Tan', submittedAt: '13/05/2026 18:00', photos: 2, status: 'Approved', notes: 'Camera binh thuong' },
-  { id: 4, taskName: 'Bao cao BG thang 5', assignee: 'Pham Thi Dung', branch: 'WinMart Q1', submittedAt: '12/05/2026 16:45', photos: 3, status: 'Rejected', notes: 'Thieu hinh anh' },
-  { id: 5, taskName: 'Setup standee', assignee: 'Hoang Van Em', branch: 'GO! Big C', submittedAt: '11/05/2026 11:20', photos: 5, status: 'Approved', notes: 'Hoan thanh dung han' },
-  { id: 6, taskName: 'Kiem tra trung bay BB', assignee: 'Vo Thi Phuong', branch: 'Outlet A', submittedAt: '10/05/2026 09:30', photos: 3, status: 'Pending', notes: 'Bao cao cho duyet' },
+  { id: 1, taskName: 'BB display inspection', assignee: 'Nguyen Van An', branch: 'Lotte Mart Q7', submittedAt: '14/05/2026 10:30', photos: 4, status: 'Approved', notes: 'Display meets standards' },
+  { id: 2, taskName: 'New product sampling', assignee: 'Tran Thi Bich', branch: 'Coopmart Tan Dinh', submittedAt: '14/05/2026 12:15', photos: 6, status: 'Pending', notes: 'Pending approval' },
+  { id: 3, taskName: 'Camera inspection', assignee: 'Le Minh Chau', branch: 'AEON Binh Tan', submittedAt: '13/05/2026 18:00', photos: 2, status: 'Approved', notes: 'Camera is working normally' },
+  { id: 4, taskName: 'May BG report', assignee: 'Pham Thi Dung', branch: 'WinMart Q1', submittedAt: '12/05/2026 16:45', photos: 3, status: 'Rejected', notes: 'Missing photos' },
+  { id: 5, taskName: 'Setup standee', assignee: 'Hoang Van Em', branch: 'GO! Big C', submittedAt: '11/05/2026 11:20', photos: 5, status: 'Approved', notes: 'Completed on time' },
+  { id: 6, taskName: 'BB display inspection', assignee: 'Vo Thi Phuong', branch: 'Outlet A', submittedAt: '10/05/2026 09:30', photos: 3, status: 'Pending', notes: 'Reports cho duyet' },
 ];
 
 const PAGE_SIZE = 8;

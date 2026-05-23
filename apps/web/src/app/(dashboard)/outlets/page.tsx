@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useCallback, useMemo, useState } from 'react';
 import { Building2, Filter, Loader2, MapPin, Phone, Trash2 } from 'lucide-react';
