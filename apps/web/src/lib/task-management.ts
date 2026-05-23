@@ -1,6 +1,8 @@
 import apiClient from './api-client';
 import type {
   AssignTaskGroupInput,
+  BulkAssignTaskInput,
+  BulkAssignTaskResult,
   CreateTaskGroupInput,
   CreateTaskTemplateInput,
   PaginatedResponse,
@@ -91,6 +93,14 @@ export async function deleteTaskGroup(id: string) {
 export async function assignTaskGroup(id: string, input: AssignTaskGroupInput) {
   const { data } = await apiClient.post<{ success: boolean; data: { groupId: string; assignedTasks: unknown[] } }>(
     `/task-groups/${id}/assign`,
+    input,
+  );
+  return data.data;
+}
+
+export async function bulkAssignTasks(input: BulkAssignTaskInput) {
+  const { data } = await apiClient.post<{ success: boolean; data: BulkAssignTaskResult }>(
+    '/task-assignments/bulk',
     input,
   );
   return data.data;

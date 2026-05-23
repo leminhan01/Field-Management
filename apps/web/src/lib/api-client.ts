@@ -39,7 +39,9 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest);
       } catch {
         clearTokens();
-        window.location.href = '/login';
+        if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
         return Promise.reject(error);
       }
     }

@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "owner": "nhanminhle123",
+    "name": "mobile",
+    "slug": "mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "usesCleartextTraffic": true,
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "apiUrl": "http://192.168.1.8:3001/api/v1",
+      "checkinRadius": 200,
+      "maxPhotosPerReport": 10,
+      "photoMaxSize": 5242880,
+      "photoQuality": 0.8,
+      "syncInterval": 300,
+      "eas": {
+        "projectId": "2ea39bbd-74b2-4ca5-9167-29536f5f8cd9"
+      }
+    }
+  }
+}

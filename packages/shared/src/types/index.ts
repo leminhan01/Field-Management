@@ -401,6 +401,101 @@ export interface AssignTaskGroupInput {
   titlePrefix?: string;
 }
 
+export type BulkAssignScheduleMode = 'SINGLE' | 'RANGE' | 'WEEKLY';
+export type BulkAssignWeekday = 'MON' | 'TUE' | 'WED' | 'THU' | 'FRI' | 'SAT' | 'SUN';
+
+export interface BulkAssignTaskInput {
+  branchId: string;
+  employeeIds: string[];
+  outletIds: string[];
+  templateIds?: string[];
+  taskGroupIds?: string[];
+  scheduleMode: BulkAssignScheduleMode;
+  startDate: string;
+  endDate?: string;
+  weekdays?: BulkAssignWeekday[];
+  startTime?: string;
+  titlePrefix?: string;
+}
+
+export interface BulkAssignTaskResult {
+  taskCount: number;
+  assignmentCount: number;
+  dateCount: number;
+  outletCount: number;
+  employeeCount: number;
+  templateCount: number;
+  tasks: Array<{
+    id: string;
+    title: string;
+    templateId: string | null;
+    outletId: string | null;
+    scheduledDate: string | null;
+    assignments: Array<{
+      id: string;
+      assigneeId: string;
+      outletId: string | null;
+      scheduledAt: string;
+    }>;
+  }>;
+}
+
+export interface TaskAssignmentDto {
+  id: string;
+  assigneeId: string;
+  assignee: { id: string; name: string; email: string; role: string };
+  branchId: string;
+  outletId: string | null;
+  outlet: { id: string; name: string; code: string } | null;
+  status: string;
+  scheduledAt: string;
+  startedAt: string | null;
+  completedAt: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TaskDto {
+  id: string;
+  title: string;
+  description: string | null;
+  type: string;
+  status: string;
+  templateId: string | null;
+  template: { id: string; name: string; photoRequired: boolean; estimatedDuration: number | null } | null;
+  branchId: string;
+  branch: { id: string; name: string; code: string };
+  outletId: string | null;
+  outlet: { id: string; name: string; code: string } | null;
+  deviceId: string | null;
+  device: { id: string; name: string; type: string; serial: string | null } | null;
+  scheduledDate: string | null;
+  startTime: string | null;
+  endTime: string | null;
+  createdById: string;
+  createdBy: { id: string; name: string; email: string };
+  assignments: TaskAssignmentDto[];
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  _count: {
+    assignments: number;
+    reports: number;
+  };
+}
+
+export interface TaskQueryParams extends PaginationQuery {
+  search?: string;
+  type?: string;
+  status?: string;
+  branchId?: string;
+  outletId?: string;
+  assigneeId?: string;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
 // ==================== Dashboard ====================
 
 export interface DashboardSummaryDto {
@@ -469,6 +564,159 @@ export interface DashboardOverviewDto {
   recentTasks: DashboardRecentTaskDto[];
   alerts: DashboardAlertDto[];
   modules: DashboardModuleDto[];
+}
+
+// ==================== Mobile / Field Staff ====================
+
+export interface MyTasksQueryParams extends PaginationQuery {
+  status?: string;
+  type?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  search?: string;
+}
+
+export interface MyTaskAssignmentDto {
+  id: string;
+  taskId: string;
+  task: {
+    id: string;
+    title: string;
+    description: string | null;
+    type: string;
+    status: string;
+    templateId: string | null;
+    template: {
+      id: string;
+      name: string;
+      checklist: string[];
+      photoRequired: boolean;
+      estimatedDuration: number | null;
+    } | null;
+    branchId: string;
+    branch: { id: string; name: string; code: string };
+    outletId: string | null;
+    outlet: {
+      id: string;
+      name: string;
+      code: string;
+      address: string | null;
+      latitude: number | null;
+      longitude: number | null;
+    } | null;
+    scheduledDate: string | null;
+    startTime: string | null;
+    endTime: string | null;
+  };
+  status: string;
+  scheduledAt: string;
+  startedAt: string | null;
+  completedAt: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CheckInDto {
+  id: string;
+  userId: string;
+  outletId: string;
+  outlet: { id: string; name: string; address: string | null };
+  assignmentId: string | null;
+  assignment?: {
+    id: string;
+    task: { id: string; title: string } | null;
+  } | null;
+  latitude: number;
+  longitude: number;
+  photoUrl: string | null;
+  distance: number | null;
+  createdAt: string;
+}
+
+export interface ReportDto {
+  id: string;
+  taskId: string;
+  assignmentId: string;
+  submittedById: string;
+  checklistData: Record<string, unknown>;
+  photos: string[];
+  notes: string | null;
+  rating: number | null;
+  reviewedById: string | null;
+  reviewedAt: string | null;
+  reviewNotes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface NearbyOutletDto {
+  id: string;
+  name: string;
+  code: string;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  type: string;
+  brand: string | null;
+  branch: { id: string; name: string; code: string };
+  distance: number;
+}
+
+export interface SyncResponseDto {
+  tasks: Array<{
+    id: string;
+    title: string;
+    description: string | null;
+    type: string;
+    status: string;
+    templateId: string | null;
+    template: {
+      id: string;
+      name: string;
+      checklist: string[];
+      photoRequired: boolean;
+      estimatedDuration: number | null;
+    } | null;
+    branchId: string;
+    outletId: string | null;
+    scheduledDate: string | null;
+    startTime: string | null;
+    endTime: string | null;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+  assignments: Array<{
+    id: string;
+    taskId: string;
+    status: string;
+    scheduledAt: string;
+    startedAt: string | null;
+    completedAt: string | null;
+    notes: string | null;
+    outletId: string | null;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+  templates: Array<{
+    id: string;
+    name: string;
+    description: string | null;
+    type: string;
+    checklist: string[];
+    photoRequired: boolean;
+    estimatedDuration: number | null;
+  }>;
+  outlets: Array<{
+    id: string;
+    name: string;
+    code: string;
+    address: string | null;
+    latitude: number | null;
+    longitude: number | null;
+    branchId: string;
+  }>;
+  serverTimestamp: string;
 }
 
 // ==================== Utility Functions ====================

@@ -108,6 +108,8 @@ model User {
   reviewedReports    Report[]        @relation("ReportReviewer")
   createdSurveys     Survey[]
   surveyResponses    SurveyResponse[]
+  checkIns           CheckIn[]
+  deviceTokens       DeviceToken[]
 
   @@map("users")
 }
@@ -181,10 +183,16 @@ model Outlet {
   brand     String?
   branchId  String
   branch    Branch    @relation(fields: [branchId], references: [id])
+  latitude  Float?
+  longitude Float?
   isActive  Boolean   @default(true)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
+
+  tasks           Task[]
+  taskAssignments TaskAssignment[]
+  checkIns        CheckIn[]
 
   @@index([branchId])
   @@map("outlets")
@@ -253,6 +261,8 @@ model Task {
   template      TaskTemplate? @relation(fields: [templateId], references: [id])
   branchId      String
   branch        Branch       @relation(fields: [branchId], references: [id])
+  outletId      String?
+  outlet        Outlet?      @relation(fields: [outletId], references: [id])
   deviceId      String?
   device        Device?      @relation(fields: [deviceId], references: [id])
   scheduledDate DateTime?
@@ -268,6 +278,8 @@ model Task {
   assignments TaskAssignment[]
   reports     Report[]
 
+  @@index([branchId])
+  @@index([outletId])
   @@map("tasks")
 }
 
@@ -279,6 +291,8 @@ model TaskAssignment {
   assignee     User             @relation(fields: [assigneeId], references: [id])
   branchId     String
   branch       Branch           @relation(fields: [branchId], references: [id])
+  outletId     String?
+  outlet       Outlet?          @relation(fields: [outletId], references: [id])
   status       AssignmentStatus @default(PENDING)
   scheduledAt  DateTime
   startedAt    DateTime?
@@ -288,8 +302,13 @@ model TaskAssignment {
   updatedAt    DateTime         @updatedAt
 
   // Relations
-  reports Report[]
+  reports  Report[]
+  checkIns CheckIn[]
 
+  @@index([assigneeId])
+  @@index([branchId])
+  @@index([outletId])
+  @@index([scheduledAt])
   @@map("task_assignments")
 }
 
@@ -364,4 +383,37 @@ model SurveyResponse {
 
   @@unique([surveyId, userId, branchId])
   @@map("survey_responses")
+}
+
+model CheckIn {
+  id           String          @id @default(uuid())
+  userId       String
+  user         User            @relation(fields: [userId], references: [id])
+  outletId     String
+  outlet       Outlet          @relation(fields: [outletId], references: [id])
+  assignmentId String?
+  assignment   TaskAssignment? @relation(fields: [assignmentId], references: [id])
+  latitude     Float
+  longitude    Float
+  photoUrl     String?
+  distance     Float?
+  createdAt    DateTime        @default(now())
+
+  @@index([userId])
+  @@index([outletId])
+  @@index([createdAt])
+  @@map("check_ins")
+}
+
+model DeviceToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  token     String
+  platform  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, token])
+  @@map("device_tokens")
 }

@@ -24,7 +24,7 @@ export class BranchesController {
   constructor(private branchesService: BranchesService) {}
 
   @Get()
-  @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.MANAGER)
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.MANAGER, Role.TEAM_LEADER)
   findAll(@Query() query: QueryBranchDto, @Req() req: Request) {
     if (Object.keys(req.query).length === 0) {
       return this.branchesService.findOptions();
@@ -34,7 +34,7 @@ export class BranchesController {
   }
 
   @Get(':id')
-  @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.MANAGER)
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.MANAGER, Role.TEAM_LEADER)
   findOne(@Param('id') id: string) {
     return this.branchesService.findOne(id);
   }

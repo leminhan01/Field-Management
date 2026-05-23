@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 const publicPaths = ['/login'];
+const ignoredPaths = ['/_next', '/api', '/favicon.ico', '/.well-known'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -12,7 +13,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Allow static files and API routes
-  if (pathname.startsWith('/_next') || pathname.startsWith('/api')) {
+  if (ignoredPaths.some((path) => pathname.startsWith(path)) || pathname.includes('.')) {
     return NextResponse.next();
   }
 

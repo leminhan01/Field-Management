@@ -1,136 +1,394 @@
 'use client';
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Calendar, Plus, Filter } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
+import { CalendarDays, CheckCircle2, Loader2, RefreshCw, Search, Users } from 'lucide-react';
+import { toast } from 'sonner';
+import type { BulkAssignScheduleMode, BulkAssignWeekday } from '@fieldapp/shared';
+import { TASK_TYPE_LABELS } from '@fieldapp/shared';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { PageToolbar } from '@/components/shared/page-toolbar';
 import { PageWrapper } from '@/components/shared/page-wrapper';
+import { TypeBadge } from '@/components/shared/status-badge';
+import { useBranches } from '@/hooks/use-branches';
+import { useEmployees } from '@/hooks/use-employees';
+import { useOutlets } from '@/hooks/use-outlets';
+import { useTaskGroups, useTaskTemplates } from '@/hooks/use-task-management';
+import { bulkAssignTasks, extractTaskManagementErrorMessage } from '@/lib/task-management';
 
-const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const WEEKDAY_OPTIONS: Array<{ value: BulkAssignWeekday; label: string }> = [
+  { value: 'MON', label: 'T2' },
+  { value: 'TUE', label: 'T3' },
+  { value: 'WED', label: 'T4' },
+  { value: 'THU', label: 'T5' },
+  { value: 'FRI', label: 'T6' },
+  { value: 'SAT', label: 'T7' },
+  { value: 'SUN', label: 'CN' },
+];
 
-const scheduleData: Record<string, { branch: string; task: string; assignee: string; time: string; type: string }[]> = {
-  '2026-05-11': [
-    { branch: 'Lotte Mart Q7', task: 'Kiem tra trung bay', assignee: 'Nguyen Van An', time: '08:00 - 10:00', type: 'BB' },
-    { branch: 'Outlet B', task: 'Check Device', assignee: 'Dang Minh Quang', time: '09:00 - 17:00', type: 'Device' },
-  ],
-  '2026-05-12': [
-    { branch: 'Coopmart Tan Dinh', task: 'Sampling san pham', assignee: 'Tran Thi Bich', time: '09:00 - 12:00', type: 'BG' },
-  ],
-  '2026-05-13': [
-    { branch: 'AEON Binh Tan', task: 'Kiem tra camera', assignee: 'Le Minh Chau', time: '08:00 - 18:00', type: 'Device' },
-    { branch: 'WinMart Q1', task: 'Bao cao BG', assignee: 'Pham Thi Dung', time: '14:00 - 16:00', type: 'BG' },
-    { branch: 'Outlet A', task: 'Cham soc KH VIP', assignee: 'Vo Thi Phuong', time: '10:00 - 12:00', type: 'BB' },
-  ],
-  '2026-05-14': [
-    { branch: 'GO! Big C', task: 'Setup standee', assignee: 'Hoang Van Em', time: '08:00 - 11:00', type: 'Promotion' },
-    { branch: 'Lotte Mart Q7', task: 'Kiem tra POS', assignee: 'Nguyen Van An', time: '13:00 - 15:00', type: 'BB' },
-  ],
-  '2026-05-15': [
-    { branch: 'Outlet B', task: 'Bao tri thiet bi', assignee: 'Dang Minh Quang', time: '09:00 - 12:00', type: 'Device' },
-  ],
+const EMPTY_FORM = {
+  branchId: '',
+  employeeIds: [] as string[],
+  outletIds: [] as string[],
+  templateIds: [] as string[],
+  taskGroupIds: [] as string[],
+  scheduleMode: 'SINGLE' as BulkAssignScheduleMode,
+  startDate: new Date().toISOString().slice(0, 10),
+  endDate: '',
+  weekdays: [] as BulkAssignWeekday[],
+  startTime: '08:00',
+  titlePrefix: '',
 };
 
-const typeColors: Record<string, string> = {
-  BB: 'bg-orange-100 text-orange-700 border-orange-200',
-  BG: 'bg-teal-100 text-teal-700 border-teal-200',
-  Device: 'bg-purple-100 text-purple-700 border-purple-200',
-  Promotion: 'bg-pink-100 text-pink-700 border-pink-200',
-};
-
-function getWeekDates(): Date[] {
-  const today = new Date(2026, 4, 14);
-  const monday = new Date(today);
-  monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i);
-    return d;
-  });
+function toggleValue(values: string[], value: string) {
+  return values.includes(value) ? values.filter((item) => item !== value) : [...values, value];
 }
 
-const taskVariants = {
-  hidden: { opacity: 0, scale: 0.9 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.2 } },
-};
+function toggleWeekday(values: BulkAssignWeekday[], value: BulkAssignWeekday) {
+  return values.includes(value) ? values.filter((item) => item !== value) : [...values, value];
+}
+
+function getDateCount(startDate: string, endDate: string, mode: BulkAssignScheduleMode, weekdays: BulkAssignWeekday[]) {
+  if (!startDate) return 0;
+  if (mode === 'SINGLE') return 1;
+
+  const start = new Date(`${startDate}T00:00:00`);
+  const end = new Date(`${(endDate || startDate)}T00:00:00`);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end < start) return 0;
+
+  const weekdayIndex: Record<BulkAssignWeekday, number> = { SUN: 0, MON: 1, TUE: 2, WED: 3, THU: 4, FRI: 5, SAT: 6 };
+  const allowed = mode === 'WEEKLY' ? new Set(weekdays.map((weekday) => weekdayIndex[weekday])) : null;
+  let count = 0;
+
+  for (const cursor = new Date(start); cursor <= end; cursor.setDate(cursor.getDate() + 1)) {
+    if (!allowed || allowed.has(cursor.getDay())) count += 1;
+  }
+
+  return count;
+}
 
 export default function SchedulingPage() {
-  const weekDates = getWeekDates();
-  const [selectedDate, setSelectedDate] = useState('2026-05-14');
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [employeeSearch, setEmployeeSearch] = useState('');
+  const [outletSearch, setOutletSearch] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const formatDate = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const branches = useBranches({ page: 1, limit: 100, isActive: 'true' });
+  const employees = useEmployees({ page: 1, limit: 100, branchId: form.branchId || undefined, isActive: 'true', search: employeeSearch || undefined });
+  const outlets = useOutlets({ page: 1, limit: 100, branchId: form.branchId || undefined, isActive: 'true', search: outletSearch || undefined });
+  const templates = useTaskTemplates({ page: 1, limit: 100, isActive: 'true' });
+  const groups = useTaskGroups({ page: 1, limit: 100, isActive: 'true' });
+
+  const selectedWorkItemCount = form.templateIds.length + form.taskGroupIds.length;
+  const dateCount = getDateCount(form.startDate, form.endDate, form.scheduleMode, form.weekdays);
+  const estimatedAssignments = dateCount * form.employeeIds.length * form.outletIds.length * Math.max(selectedWorkItemCount, 1);
+
+  const canSubmit = useMemo(() => (
+    Boolean(form.branchId)
+    && form.employeeIds.length > 0
+    && form.outletIds.length > 0
+    && selectedWorkItemCount > 0
+    && Boolean(form.startDate)
+    && (form.scheduleMode === 'SINGLE' || Boolean(form.endDate))
+    && (form.scheduleMode !== 'WEEKLY' || form.weekdays.length > 0)
+  ), [form, selectedWorkItemCount]);
+
+  const handleBranchChange = (branchId: string) => {
+    setForm((current) => ({
+      ...current,
+      branchId,
+      employeeIds: [],
+      outletIds: [],
+    }));
+    setEmployeeSearch('');
+    setOutletSearch('');
+  };
+
+  const handleSubmit = async () => {
+    if (!canSubmit) {
+      toast.error('Vui long chon day du branch, nhan vien, outlet, mau/nhom cong viec va lich');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const result = await bulkAssignTasks({
+        branchId: form.branchId,
+        employeeIds: form.employeeIds,
+        outletIds: form.outletIds,
+        templateIds: form.templateIds.length ? form.templateIds : undefined,
+        taskGroupIds: form.taskGroupIds.length ? form.taskGroupIds : undefined,
+        scheduleMode: form.scheduleMode,
+        startDate: form.startDate,
+        endDate: form.scheduleMode === 'SINGLE' ? undefined : form.endDate,
+        weekdays: form.scheduleMode === 'WEEKLY' ? form.weekdays : undefined,
+        startTime: form.startTime || undefined,
+        titlePrefix: form.titlePrefix.trim() || undefined,
+      });
+
+      toast.success(`Da tao ${result.taskCount} task va ${result.assignmentCount} phan cong`);
+      setForm({ ...EMPTY_FORM, startDate: form.startDate, startTime: form.startTime });
+    } catch (err) {
+      toast.error(extractTaskManagementErrorMessage(err, 'Phan cong that bai'));
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <PageWrapper>
-      <Card className="border shadow-sm overflow-hidden">
-        {/* Toolbar */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
-          <div className="flex items-center gap-2">
-            <Button size="sm" className="h-8 gap-1.5 text-[13px]"><Plus className="w-3.5 h-3.5" />Assign Task</Button>
-            <Button variant="outline" size="sm" className="h-8 gap-1.5 text-[13px]"><Filter className="w-3.5 h-3.5" />Filter</Button>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" className="h-8 w-8"><ChevronLeft className="w-4 h-4" /></Button>
-            <span className="text-[14px] font-semibold flex items-center gap-1.5">
-              <Calendar className="w-4 h-4 text-primary" />
-              Week of {weekDates[0].toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })} - {weekDates[6].toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-            </span>
-            <Button variant="outline" size="icon" className="h-8 w-8"><ChevronRight className="w-4 h-4" /></Button>
-          </div>
-        </div>
+      <PageToolbar
+        title="Phan cong lich"
+        description="Tao task tu mau cong viec hoac nhom cong viec cho nhan vien theo outlet"
+        searchPlaceholder="Tim nhanh nhan vien..."
+        searchValue={employeeSearch}
+        onSearchChange={setEmployeeSearch}
+        primaryAction={{
+          label: submitting ? 'Dang phan cong' : 'Phan cong',
+          onClick: handleSubmit,
+        }}
+        secondaryActions={
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1.5 text-[13px]"
+            onClick={() => {
+              branches.refetch();
+              employees.refetch();
+              outlets.refetch();
+              templates.refetch();
+              groups.refetch();
+            }}
+          >
+            <RefreshCw className="h-3.5 w-3.5" />Tai lai
+          </Button>
+        }
+      />
 
-        {/* Week View */}
-        <div className="grid grid-cols-7 divide-x divide-border/30">
-          {weekDates.map((date) => {
-            const dateStr = formatDate(date);
-            const tasks = scheduleData[dateStr] || [];
-            const isToday = dateStr === '2026-05-14';
-            const isSelected = dateStr === selectedDate;
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="space-y-4">
+          <Card className="border p-4 shadow-sm">
+            <div className="grid gap-4 lg:grid-cols-3">
+              <div className="space-y-1.5">
+                <Label>Branch *</Label>
+                <Select value={form.branchId} onValueChange={handleBranchChange}>
+                  <SelectTrigger className="h-9 text-[13px]"><SelectValue placeholder="Chon branch" /></SelectTrigger>
+                  <SelectContent>
+                    {branches.data.map((branch) => <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label>Kieu lich *</Label>
+                <Select value={form.scheduleMode} onValueChange={(value) => setForm({ ...form, scheduleMode: value as BulkAssignScheduleMode })}>
+                  <SelectTrigger className="h-9 text-[13px]"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="SINGLE">Mot ngay</SelectItem>
+                    <SelectItem value="RANGE">Khoang ngay</SelectItem>
+                    <SelectItem value="WEEKLY">Lap theo thu</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label>Tien to task</Label>
+                <Input value={form.titlePrefix} onChange={(e) => setForm({ ...form, titlePrefix: e.target.value })} className="h-9 text-[13px]" placeholder="VD: Campaign Q2" />
+              </div>
+            </div>
 
-            return (
-              <div
-                key={dateStr}
-                onClick={() => setSelectedDate(dateStr)}
-                className={`min-h-[300px] p-2 cursor-pointer transition-colors ${isSelected ? 'bg-primary/[0.03]' : 'hover:bg-muted/30'}`}
-              >
-                {/* Date Header */}
-                <div className={`text-center pb-2 mb-2 border-b-2 ${isToday ? 'border-primary' : 'border-transparent'}`}>
-                  <div className="text-[11px] text-muted-foreground font-medium uppercase">
-                    {daysOfWeek[date.getDay() === 0 ? 6 : date.getDay() - 1]}
-                  </div>
-                  <div className={`text-[18px] font-bold ${isToday ? 'text-primary' : ''}`}>
-                    {date.getDate()}
-                  </div>
-                </div>
-
-                {/* Tasks */}
+            <div className="mt-4 grid gap-4 lg:grid-cols-3">
+              <div className="space-y-1.5">
+                <Label>Ngay bat dau *</Label>
+                <Input type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} className="h-9 text-[13px]" />
+              </div>
+              {form.scheduleMode !== 'SINGLE' && (
                 <div className="space-y-1.5">
-                  {tasks.map((task, i) => (
-                    <motion.div
-                      key={i}
-                      variants={taskVariants}
-                      initial="hidden"
-                      animate="visible"
-                      transition={{ delay: i * 0.05 }}
-                      whileHover={{ scale: 1.02, transition: { duration: 0.1 } }}
-                      className="p-1.5 rounded-md border border-border/50 bg-card shadow-xs hover:shadow-sm transition-shadow cursor-pointer"
+                  <Label>Ngay ket thuc *</Label>
+                  <Input type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })} className="h-9 text-[13px]" />
+                </div>
+              )}
+              <div className="space-y-1.5">
+                <Label>Gio bat dau</Label>
+                <Input type="time" value={form.startTime} onChange={(e) => setForm({ ...form, startTime: e.target.value })} className="h-9 text-[13px]" />
+              </div>
+            </div>
+
+            {form.scheduleMode === 'WEEKLY' && (
+              <div className="mt-4 space-y-2">
+                <Label>Lap lai vao thu *</Label>
+                <div className="flex flex-wrap gap-2">
+                  {WEEKDAY_OPTIONS.map((weekday) => (
+                    <Button
+                      key={weekday.value}
+                      type="button"
+                      variant={form.weekdays.includes(weekday.value) ? 'default' : 'outline'}
+                      size="sm"
+                      className="h-8 min-w-12 text-[13px]"
+                      onClick={() => setForm({ ...form, weekdays: toggleWeekday(form.weekdays, weekday.value) })}
                     >
-                      <div className="flex items-center justify-between mb-0.5">
-                        <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold border ${typeColors[task.type] || 'bg-gray-100 text-gray-700 border-gray-200'}`}>
-                          {task.type}
-                        </span>
-                      </div>
-                      <p className="text-[11px] font-medium leading-tight mb-0.5">{task.task}</p>
-                      <p className="text-[10px] text-muted-foreground">{task.branch}</p>
-                      <p className="text-[10px] text-muted-foreground">{task.time}</p>
-                    </motion.div>
+                      {weekday.label}
+                    </Button>
                   ))}
                 </div>
               </div>
-            );
-          })}
+            )}
+          </Card>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <SelectionPanel
+              title="Nhan vien"
+              count={form.employeeIds.length}
+              loading={employees.loading}
+              error={employees.error}
+              emptyMessage={form.branchId ? 'Khong co nhan vien phu hop' : 'Chon branch de tai nhan vien'}
+              toolbar={
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                  <Input value={employeeSearch} onChange={(e) => setEmployeeSearch(e.target.value)} placeholder="Tim nhan vien" className="h-9 pl-8 text-[13px]" />
+                </div>
+              }
+            >
+              {employees.data.map((employee) => (
+                <label key={employee.id} className="flex cursor-pointer items-center gap-3 rounded-md px-2 py-2 hover:bg-muted">
+                  <Checkbox checked={form.employeeIds.includes(employee.id)} onCheckedChange={() => setForm({ ...form, employeeIds: toggleValue(form.employeeIds, employee.id) })} />
+                  <span className="flex-1 text-[13px] font-medium">{employee.name}</span>
+                  <Badge variant="outline">{employee.branch?.code || 'No branch'}</Badge>
+                </label>
+              ))}
+            </SelectionPanel>
+
+            <SelectionPanel
+              title="Outlet"
+              count={form.outletIds.length}
+              loading={outlets.loading}
+              error={outlets.error}
+              emptyMessage={form.branchId ? 'Khong co outlet phu hop' : 'Chon branch de tai outlet'}
+              toolbar={
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                  <Input value={outletSearch} onChange={(e) => setOutletSearch(e.target.value)} placeholder="Tim outlet" className="h-9 pl-8 text-[13px]" />
+                </div>
+              }
+            >
+              {outlets.data.map((outlet) => (
+                <label key={outlet.id} className="flex cursor-pointer items-center gap-3 rounded-md px-2 py-2 hover:bg-muted">
+                  <Checkbox checked={form.outletIds.includes(outlet.id)} onCheckedChange={() => setForm({ ...form, outletIds: toggleValue(form.outletIds, outlet.id) })} />
+                  <span className="flex-1 text-[13px] font-medium">{outlet.name}</span>
+                  <Badge variant="outline">{outlet.code}</Badge>
+                </label>
+              ))}
+            </SelectionPanel>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <SelectionPanel title="Mau cong viec" count={form.templateIds.length} loading={templates.loading} emptyMessage="Chua co mau cong viec hoat dong">
+              {templates.data.map((template) => (
+                <label key={template.id} className="flex cursor-pointer items-center gap-3 rounded-md px-2 py-2 hover:bg-muted">
+                  <Checkbox checked={form.templateIds.includes(template.id)} onCheckedChange={() => setForm({ ...form, templateIds: toggleValue(form.templateIds, template.id) })} />
+                  <span className="flex-1 text-[13px] font-medium">{template.name}</span>
+                  <TypeBadge type={TASK_TYPE_LABELS[template.type] || template.type} />
+                </label>
+              ))}
+            </SelectionPanel>
+
+            <SelectionPanel title="Nhom cong viec" count={form.taskGroupIds.length} loading={groups.loading} emptyMessage="Chua co nhom cong viec hoat dong">
+              {groups.data.map((group) => (
+                <label key={group.id} className="flex cursor-pointer items-start gap-3 rounded-md px-2 py-2 hover:bg-muted">
+                  <Checkbox className="mt-0.5" checked={form.taskGroupIds.includes(group.id)} onCheckedChange={() => setForm({ ...form, taskGroupIds: toggleValue(form.taskGroupIds, group.id) })} />
+                  <span className="flex-1">
+                    <span className="block text-[13px] font-medium">{group.name}</span>
+                    <span className="block text-[12px] text-muted-foreground">{group.templates.length} mau cong viec</span>
+                  </span>
+                  <Badge variant="outline">{group.code}</Badge>
+                </label>
+              ))}
+            </SelectionPanel>
+          </div>
         </div>
-      </Card>
+
+        <Card className="h-fit border p-4 shadow-sm">
+          <div className="flex items-center gap-2 border-b pb-3">
+            <CalendarDays className="h-4 w-4 text-primary" />
+            <h2 className="text-[14px] font-semibold">Tom tat phan cong</h2>
+          </div>
+          <div className="mt-4 space-y-3 text-[13px]">
+            <SummaryRow label="Nhan vien" value={form.employeeIds.length} />
+            <SummaryRow label="Outlet" value={form.outletIds.length} />
+            <SummaryRow label="Mau rieng" value={form.templateIds.length} />
+            <SummaryRow label="Nhom" value={form.taskGroupIds.length} />
+            <SummaryRow label="Ngay tao lich" value={dateCount} />
+            <SummaryRow label="Uoc tinh phan cong" value={estimatedAssignments} strong />
+          </div>
+          <Button className="mt-5 h-9 w-full gap-2 bg-[#2563EB] text-[13px] hover:bg-[#1D4ED8]" disabled={submitting || !canSubmit} onClick={handleSubmit}>
+            {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+            Phan cong ngay
+          </Button>
+          <Button variant="outline" className="mt-2 h-9 w-full gap-2 text-[13px]" onClick={() => setForm(EMPTY_FORM)} disabled={submitting}>
+            <Users className="h-4 w-4" />Xoa lua chon
+          </Button>
+        </Card>
+      </div>
     </PageWrapper>
+  );
+}
+
+function SelectionPanel({
+  title,
+  count,
+  loading,
+  error,
+  emptyMessage,
+  toolbar,
+  children,
+}: {
+  title: string;
+  count: number;
+  loading: boolean;
+  error?: string | null;
+  emptyMessage: string;
+  toolbar?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <Card className="border p-4 shadow-sm">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <div>
+          <h2 className="text-[14px] font-semibold">{title}</h2>
+          <p className="text-[12px] text-muted-foreground">Da chon {count}</p>
+        </div>
+        {toolbar}
+      </div>
+      <div className="max-h-[320px] space-y-1 overflow-y-auto rounded-md border p-2">
+        {loading ? (
+          <div className="flex h-28 items-center justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+        ) : error ? (
+          <p className="whitespace-pre-line py-8 text-center text-[13px] text-red-600">{error}</p>
+        ) : children && (Array.isArray(children) ? children.length > 0 : true) ? (
+          children
+        ) : (
+          <p className="py-8 text-center text-[13px] text-muted-foreground">{emptyMessage}</p>
+        )}
+      </div>
+    </Card>
+  );
+}
+
+function SummaryRow({ label, value, strong = false }: { label: string; value: number; strong?: boolean }) {
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-muted-foreground">{label}</span>
+      <span className={strong ? 'text-[16px] font-bold text-primary' : 'font-semibold'}>{value}</span>
+    </div>
   );
 }

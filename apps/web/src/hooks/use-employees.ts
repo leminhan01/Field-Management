@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { getEmployees } from '@/lib/employees';
+import { extractErrorMessage, getEmployees } from '@/lib/employees';
 import type { EmployeeDto, EmployeeQueryParams } from '@fieldapp/shared';
 
 export function useEmployees(params: EmployeeQueryParams = {}) {
@@ -14,12 +14,13 @@ export function useEmployees(params: EmployeeQueryParams = {}) {
   const fetchData = useCallback(async (p: EmployeeQueryParams) => {
     setLoading(true);
     setError(null);
+
     try {
       const result = await getEmployees(p);
       setData(result.data);
       setMeta(result.meta);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Không thể tải danh sách nhân viên');
+      setError(extractErrorMessage(err, 'Khong the tai danh sach nhan vien'));
     } finally {
       setLoading(false);
     }

@@ -4,12 +4,17 @@
 
 Hệ thống quản lý công việc dành cho đơn vị agency chuyên về dịch vụ BB (Below-the-line), BG (Brand Growth), tiếp thị và quảng bá sản phẩm. Hệ thống hỗ trợ quản lý nhân viên, phân công công việc theo cửa hàng/chi nhánh, quản lý thiết bị, và theo dõi báo cáo thực hiện.
 
+Hệ thống gồm 3 ứng dụng:
+- **Web App (Admin)**: Dành cho quản lý/admin quản trị hệ thống (Next.js)
+- **Mobile App (Field Staff)**: Dành cho nhân viên tiếp thị/field staff thực hiện công việc tại cửa hàng (React Native + Expo)
+- **API Backend**: NestJS backend phục vụ cả Web App và Mobile App
+
 ## Kiến trúc hệ thống
 
 ```
 FieldApp/
 ├── apps/
-│   ├── web/                    # Next.js frontend (App Router)
+│   ├── web/                    # Next.js frontend (App Router) - Admin
 │   │   ├── src/
 │   │   │   ├── app/            # Pages & layouts (App Router)
 │   │   │   ├── components/     # React components
@@ -22,9 +27,34 @@ FieldApp/
 │   │   ├── tailwind.config.ts
 │   │   └── package.json
 │   │
-│   └── api/                    # NestJS backend
+│   ├── mobile/                 # React Native + Expo - Field Staff App
+│   │   ├── src/
+│   │   │   ├── screens/        # Màn hình (screens) theo feature
+│   │   │   ├── components/     # Reusable UI components
+│   │   │   ├── navigation/     # React Navigation config
+│   │   │   ├── hooks/          # Custom hooks (useTasks, useLocation, useCamera)
+│   │   │   ├── services/       # API client, storage, push notifications
+│   │   │   ├── stores/         # State management (Zustand)
+│   │   │   ├── utils/          # Utilities (offline, photo, location)
+│   │   │   ├── constants/      # Theme, colors, spacing
+│   │   │   └── types/          # Mobile-specific TypeScript types
+│   │   ├── assets/             # Images, fonts, icons
+│   │   ├── app.json            # Expo config
+│   │   ├── app.config.ts       # Expo dynamic config
+│   │   ├── metro.config.js
+│   │   ├── tsconfig.json
+│   │   └── package.json
+│   │
+│   └── api/                    # NestJS backend (serve cả Web & Mobile)
 │       ├── src/
 │       │   ├── modules/        # Feature modules
+│       │   │   ├── auth/       # Auth (login, refresh, change password)
+│       │   │   ├── employees/  # Employee management
+│       │   │   ├── branches/   # Branch/Store management
+│       │   │   ├── tasks/      # Task CRUD, assignment
+│       │   │   ├── task-assignments/  # Task assignment & tracking
+│       │   │   ├── reports/    # Task reports (photos, notes, submit)
+│       │   │   └── ...         # devices, surveys, regions, etc.
 │       │   ├── common/         # Shared guards, interceptors, decorators
 │       │   ├── config/         # Configuration (DB, JWT, etc.)
 │       │   ├── database/       # Migrations, seeds
@@ -33,7 +63,7 @@ FieldApp/
 │       └── package.json
 │
 ├── packages/                   # Shared packages (monorepo)
-│   └── shared/                 # Shared types, constants, utils
+│   └── shared/                 # Shared types, constants, utils (dùng chung Web & Mobile)
 │       ├── src/
 │       │   ├── types/          # Shared TypeScript interfaces
 │       │   ├── constants/      # Enums, status codes, roles
@@ -44,7 +74,8 @@ FieldApp/
 │   ├── docker-compose.yml
 │   ├── docker-compose.dev.yml
 │   ├── Dockerfile.web
-│   └── Dockerfile.api
+│   ├── Dockerfile.api
+│   └── Dockerfile.mobile       # EAS build (optional)
 │
 ├── docs/                       # Documentation
 ├── CLAUDE.md
@@ -57,17 +88,24 @@ FieldApp/
 
 | Layer | Công nghệ | Phiên bản |
 |-------|-----------|-----------|
-| Frontend | Next.js (App Router) | 15.x |
+| Frontend (Admin Web) | Next.js (App Router) | 15.x |
+| Frontend (Mobile App) | React Native + Expo | RN 0.76.x / Expo SDK 52.x |
 | Backend | NestJS | 10.x |
 | Database | PostgreSQL | 16.x |
 | Language | TypeScript | 5.x |
 | ORM | Prisma | 5.x |
 | State Management | Zustand | 4.x |
-| UI Library | Tailwind CSS 3 | - |
+| UI Library (Web) | Tailwind CSS 3 | - |
+| UI Library (Mobile) | React Native Paper / custom components | 5.x |
+| Navigation (Mobile) | React Navigation | 7.x |
 | Monorepo | Turborepo + pnpm workspace | - |
 | Container | Docker + Docker Compose | - |
 | Auth | JWT (access + refresh token) | - |
-| Validation | class-validator (backend) + Zod (frontend) | - |
+| Validation | class-validator (backend) + Zod (frontend/mobile) | - |
+| Camera (Mobile) | expo-camera | ~16.x |
+| Location (Mobile) | expo-location | ~17.x |
+| Push Notifications | expo-notifications | - |
+| Offline Storage (Mobile) | AsyncStorage + WatermelonDB / SQLite | - |
 
 ## Thiết kế giao diện (UI/UX)
 
@@ -113,6 +151,86 @@ FieldApp/
 - Logo + tên hệ thống (trái)
 - Breadcrumb đường dẫn (giữa)
 - Avatar tròn + tên user + role (phải)
+
+### Mobile App UI/UX (Field Staff)
+
+#### Nguyên tắc thiết kế Mobile
+- **Mobile-first**: giao diện tối ưu cho thao tác 1 tay, nút bấm kích thước tối thiểu 44x44pt
+- **Offline-first**: hiển thị dữ liệu cache khi không có mạng, đồng bộ khi có kết nối trở lại
+- **Performance**: ưu tiên tải nhanh, lazy load ảnh, giảm animation không cần thiết
+- **Accessibility**: hỗ trợ font size lớn, contrast cao
+
+#### Navigation Structure (Bottom Tab + Stack)
+```
+Bottom Tabs (5 tabs chính):
+├── Home          # Trang chủ - tổng quan công việc hôm nay
+├── Tasks         # Danh sách công việc được phân công
+├── Check-in      # Check-in tại cửa hàng + GPS
+├── Notifications # Thông báo & tin nhắn
+└── Profile       # Thông tin cá nhân & cài đặt
+```
+
+#### Màn hình chính (Screens)
+
+**1. Login Screen**
+- Form đăng nhập: email/phone + password
+- Hỗ trợ biometric (Face ID / fingerprint) sau lần đăng nhập đầu
+- Logo + tên app
+
+**2. Home Screen (Dashboard)**
+- Card thống kê nhanh: số task hôm nay, đã hoàn thành, đang chờ, quá hạn
+- Danh sách task gần nhất (upcoming / overdue)
+- Quick action: Check-in nhanh, xem bản đồ cửa hàng
+
+**3. Task List Screen**
+- Tab filter: Tất cả | Hôm nay | Sắp tới | Hoàn thành
+- Card task: tiêu đề, cửa hàng, thời gian, trạng thái (badge màu)
+- Pull-to-refresh
+- Search & filter theo trạng thái, loại công việc
+
+**4. Task Detail Screen**
+- Thông tin công việc: tiêu đề, mô tả, loại, template
+- Thông tin cửa hàng: tên, địa chỉ, khoảng cách, nút mở Google Maps
+- Checklist công việc (tick từng item)
+- Chụp ảnh minh chứng (camera button, gallery picker)
+- Viết báo cáo/ghi chú (text input)
+- Nút Submit báo cáo
+
+**5. Check-in Screen**
+- Xác nhận vị trí GPS hiện tại
+- Hiển thị khoảng cách đến cửa hàng
+- Nút Check-in (chỉ hoạt động khi trong bán kính cho phép, vd 200m)
+- Chụp ảnh check-in (bắt buộc)
+- Xem lịch sử check-in
+
+**6. Report Submission Screen**
+- Form báo cáo: checklist items, text notes
+- Upload ảnh minh chứng (chụp mới hoặc chọn từ gallery, tối đa 10 ảnh)
+- Preview ảnh trước khi submit
+- Nút Submit (offline: lưu local, tự đồng bộ khi có mạng)
+- Trạng thái submit: Draft → Submitted → Synced
+
+**7. Profile Screen**
+- Thông tin cá nhân: avatar, tên, email, phone, role
+- Cài đặt: ngôn ngữ, thông báo, theme
+- Đổi mật khẩu
+- Đăng xuất
+
+#### Mobile Color Palette
+- Giống web palette, thêm:
+- **Tab Bar Background**: `#FFFFFF` với border top `#E5E7EB`
+- **Tab Active**: `#2563EB` (primary blue)
+- **Tab Inactive**: `#9CA3AF` (gray-400)
+- **Card Shadow**: `rgba(0,0,0,0.08)` elevation 2
+- **Status Bar**: light-content trên primary, dark-content trên background trắng
+
+#### Mobile Components
+- **TaskCard**: card hiển thị task gọn gàng, swipe để quick action
+- **ChecklistItem**: checkbox + label + optional photo
+- **PhotoCapture**: camera view + nút chụp + preview grid
+- **LocationBanner**: hiển thị GPS status + khoảng cách đến cửa hàng
+- **SyncIndicator**: icon đồng bộ (syncing / synced / offline)
+- **StatusChip**: badge trạng thái task (màu theo trạng thái)
 
 ## Các module chức năng
 
@@ -166,6 +284,63 @@ FieldApp/
 - Quản lý loại hình cửa hàng
 - Quản lý loại công việc, trạng thái
 - Cấu hình hệ thống: ngôn ngữ, timezone, notification
+
+### 10. Mobile App - Field Staff (Nhân viên tiếp thị)
+
+#### Mục đích
+Ứng dụng mobile dành cho nhân viên tiếp thị (field staff / PG / promoter) làm việc tại cửa hàng/địa điểm thực tế. Nhân viên sử dụng app để:
+- Xem công việc được phân công mỗi ngày
+- Check-in tại cửa hàng bằng GPS
+- Thực hiện checklist công việc
+- Chụp ảnh minh chứng (trưng bày, sampling, thiết bị...)
+- Viết báo cáo và submit kết quả
+- Làm việc offline ở khu vực không có mạng
+
+#### Kiến trúc Offline-First
+- **AsyncStorage**: lưu token, user preferences, settings
+- **SQLite / WatermelonDB**: lưu cache tasks, branches, templates locally
+- **Queue-based sync**: thao tác offline (check-in, submit report) đưa vào queue, tự đồng bộ khi có mạng
+- **Conflict resolution**: server-wins cho task updates, client-wins cho report drafts
+- **Delta sync**: chỉ đồng bộ thay đổi kể từ lần sync cuối (timestamp-based)
+
+#### Luồng hoạt động chính (User Flow)
+```
+Login → Home (xem task hôm nay)
+  → Chọn Task → Xem chi tiết + thông tin cửa hàng
+    → Đi đến cửa hàng → Check-in GPS (xác nhận vị trí)
+      → Thực hiện checklist → Chụp ảnh minh chứng
+        → Viết ghi chú/báo cáo → Submit
+          → (Offline: lưu local → tự sync khi có mạng)
+```
+
+#### Tích hợp thiết bị (Device Capabilities)
+- **Camera**: chụp ảnh minh chứng qua `expo-camera`, hỗ trợ flash, front/rear camera
+- **GPS/Location**: tracking vị trí qua `expo-location`, tính khoảng cách đến cửa hàng
+- **Push Notifications**: nhận thông báo task mới, nhắc nhở, qua `expo-notifications`
+- **Biometric**: đăng nhập nhanh bằng Face ID / fingerprint qua `expo-local-authentication`
+- **Gallery**: chọn ảnh từ thư viện qua `expo-image-picker`
+- **Deep Linking**: mở app từ link task trực tiếp
+
+#### API Endpoints bổ sung cho Mobile
+```
+GET    /api/v1/me/tasks              # Danh sách task của user hiện tại
+GET    /api/v1/me/tasks/:id          # Chi tiết task (bao gồm checklist, template)
+POST   /api/v1/me/check-in           # Check-in tại cửa hàng (GPS coords + photo)
+GET    /api/v1/me/check-ins          # Lịch sử check-in
+POST   /api/v1/me/reports            # Submit báo cáo (checklist + photos + notes)
+POST   /api/v1/me/reports/:id/photos # Upload ảnh minh chứng (multipart)
+GET    /api/v1/me/branches/nearby    # Cửa hàng gần đây (lat, lng, radius)
+GET    /api/v1/me/sync               # Delta sync (last_sync_timestamp)
+POST   /api/v1/me/device-token       # Đăng ký push notification token
+```
+
+#### Xử lý Upload Ảnh Mobile
+- Nén ảnh trước khi upload: tối đa 1920px chiều dài, quality 80%
+- Upload song song nhiều ảnh, hiển thị progress từng ảnh
+- Retry tự động khi upload thất bại (exponential backoff)
+- Ảnh offline lưu local, upload khi có kết nối mạng
+- Format: JPEG, tối đa 5MB/ảnh sau khi nén
+
 
 ## Database Schema (Các entity chính)
 
@@ -237,14 +412,83 @@ Region          - Khu vực (name, code, parent_id)
 - Pagination: dùng cursor-based cho danh sách lớn, offset cho quản trị
 - Soft delete: thêm `deleted_at` column, dùng Prisma middleware
 
+### Mobile Conventions (React Native + Expo)
+
+#### Cấu trúc Screens
+```
+src/screens/
+├── auth/                  # Login, ForgotPassword
+│   ├── LoginScreen.tsx
+│   └── ForgotPasswordScreen.tsx
+├── home/                  # Dashboard, Task overview
+│   └── HomeScreen.tsx
+├── tasks/                 # Task list, detail, report
+│   ├── TaskListScreen.tsx
+│   ├── TaskDetailScreen.tsx
+│   └── ReportSubmitScreen.tsx
+├── checkin/               # Check-in flow
+│   ├── CheckInScreen.tsx
+│   └── CheckInHistoryScreen.tsx
+├── notifications/         # Notifications list
+│   └── NotificationsScreen.tsx
+└── profile/               # Profile & settings
+    ├── ProfileScreen.tsx
+    └── SettingsScreen.tsx
+```
+
+#### Naming Conventions (Mobile)
+- **Screens**: PascalCase với suffix `Screen` (`TaskListScreen.tsx`, `CheckInScreen.tsx`)
+- **Components**: PascalCase (`TaskCard.tsx`, `PhotoCapture.tsx`)
+- **Hooks**: camelCase prefix `use` (`useTasks`, `useLocation`, `useCamera`, `useSync`)
+- **Services**: camelCase suffix `Service` (`apiService`, `storageService`, `syncService`)
+- **Stores**: camelCase suffix `Store` (`authStore`, `taskStore`, `syncStore`)
+
+#### State Management (Mobile)
+- **Zustand** cho state global: auth, tasks cache, sync status
+- **React Query / TanStack Query** cho API data: fetching, caching, background refresh
+- **AsyncStorage** cho persistent data: tokens, user preferences
+- **SQLite / WatermelonDB** cho offline data: tasks, branches, reports queue
+
+#### Navigation
+- React Navigation v7 với typed routes
+- Bottom Tab Navigator cho 5 tabs chính
+- Stack Navigator cho flow trong từng tab
+- Deep linking config cho mở app từ notification/link
+
+#### Code Style (Mobile)
+- Functional components với arrow functions
+- TypeScript strict mode, không dùng `any`
+- Styles: StyleSheet.create (không dùng inline styles)
+- Reuse `@fieldapp/shared` cho types, constants, utils chung với web
+- Error boundaries cho mỗi screen
+- React.memo cho components render thường xuyên (list items)
+
 ## Lệnh thường dùng
 
 ```bash
 # Development
 pnpm install                      # Cài đặt dependencies (root)
 pnpm dev                          # Chạy tất cả services (turborepo)
-pnpm dev:web                      # Chỉ chạy frontend
-pnpm dev:api                      # Chỉ chạy backend
+pnpm dev:web                      # Chỉ chạy frontend web (Next.js)
+pnpm dev:api                      # Chỉ chạy backend (NestJS)
+pnpm dev:mobile                   # Chỉ chạy mobile app (Expo)
+
+# Mobile (Expo)
+cd apps/mobile
+npx expo start                    # Khởi động Expo dev server
+npx expo start --android          # Chạy trên Android emulator/device
+npx expo start --ios              # Chạy trên iOS simulator/device
+npx expo start --clear            # Clear cache và restart
+npx expo install <package>        # Install Expo-compatible package
+
+# Mobile Build (EAS - Expo Application Services)
+eas build --platform android      # Build Android APK/AAB
+eas build --platform ios          # Build iOS IPA
+eas build --platform all          # Build cả 2 nền tảng
+eas build --profile development   # Build development client
+eas submit --platform android     # Submit lên Google Play
+eas submit --platform ios         # Submit lên App Store
+eas update                        # Push OTA update (không cần rebuild)
 
 # Docker
 docker compose -f docker/docker-compose.dev.yml up -d   # Khởi tạo DB + services
@@ -263,8 +507,9 @@ pnpm lint:fix                     # Lint và tự sửa
 
 # Testing
 pnpm test                         # Chạy tests
-pnpm test:web                     # Test frontend
+pnpm test:web                     # Test frontend web
 pnpm test:api                     # Test backend
+pnpm test:mobile                  # Test mobile app (Jest + React Native Testing Library)
 ```
 
 ## Biến môi trường (.env)
@@ -279,19 +524,46 @@ JWT_ACCESS_EXPIRY=15m
 JWT_REFRESH_SECRET=your-refresh-secret
 JWT_REFRESH_EXPIRY=7d
 
-# App
+# App (Web)
 NEXT_PUBLIC_API_URL=http://localhost:3001/api/v1
 PORT=3001
 
 # Upload
 UPLOAD_DIR=./uploads
 MAX_FILE_SIZE=10485760
+
+# Mobile App
+EXPO_PUBLIC_API_URL=http://localhost:3001/api/v1    # API base URL cho mobile
+EXPO_PUBLIC_APP_NAME=FieldApp Staff
+EXPO_PUBLIC_DEFAULT_LANGUAGE=vi
+EXPO_PUBLIC_CHECKIN_RADIUS=200                       # Bán kính check-in (meters)
+EXPO_PUBLIC_MAX_PHOTOS_PER_REPORT=10
+EXPO_PUBLIC_PHOTO_MAX_SIZE=5242880                   # 5MB sau nén
+EXPO_PUBLIC_PHOTO_QUALITY=0.8                        # JPEG quality (0-1)
+EXPO_PUBLIC_SYNC_INTERVAL=300                        # Đồng bộ mỗi 5 phút (seconds)
+EXPO_PUBLIC_OFFLINE_QUEUE_LIMIT=100
+
+# Push Notifications (Expo)
+EXPO_PUSH_NOTIFICATION_KEY=your-expo-push-key
+
+# EAS Build
+EAS_PROJECT_ID=your-eas-project-id
 ```
 
 ## Ghi chú quan trọng
 
 - Hệ thống hỗ trợ đa ngôn ngữ (Vietnamese mặc định, English)
 - Mọi API endpoint đều yêu cầu authentication trừ `/auth/login`, `/auth/refresh`
-- Upload ảnh cho báo cáo công việc: tối đa 10MB, accept jpg/png/webp
+- Upload ảnh cho báo cáo công việc: tối đa 10MB (web), 5MB sau nén (mobile), accept jpg/png/webp
 - Timezone mặc định: Asia/Ho_Chi_Minh (UTC+7)
 - Ngày tháng hiển thị theo format DD/MM/YYYY, thời gian HH:mm:ss
+
+### Mobile App Notes
+- Mobile app dùng chung backend API với Web app, tất cả qua `/api/v1/`
+- Mobile app reuse `@fieldapp/shared` package cho types, constants, utils
+- Field staff chỉ xem và thực hiện task được phân công cho mình (role: Staff, Team Leader)
+- Check-in GPS yêu cầu nhân viên trong bán kính cửa hàng (mặc định 200m)
+- Offline mode: tất cả thao tác được lưu local, tự đồng bộ khi có mạng
+- Push notification cho: task mới được phân công, nhắc nhở task sắp đến hạn, task bị reject
+- Biometric login (Face ID / fingerprint) optional, tự động bật sau lần đăng nhập đầu
+- Hỗ trợ cả iOS 14+ và Android 8+ (API level 26+)

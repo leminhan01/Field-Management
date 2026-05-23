@@ -11,6 +11,9 @@ import { PositionsModule } from './modules/positions/positions.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { TaskTemplatesModule } from './modules/task-templates/task-templates.module';
 import { TaskGroupsModule } from './modules/task-groups/task-groups.module';
+import { TaskAssignmentsModule } from './modules/task-assignments/task-assignments.module';
+import { TasksModule } from './modules/tasks/tasks.module';
+import { MeModule } from './modules/me/me.module';
 
 @Module({
   imports: [
@@ -29,6 +32,9 @@ import { TaskGroupsModule } from './modules/task-groups/task-groups.module';
     DashboardModule,
     TaskTemplatesModule,
     TaskGroupsModule,
+    TaskAssignmentsModule,
+    TasksModule,
+    MeModule,
   ],
   controllers: [],
   providers: [],

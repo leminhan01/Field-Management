@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { getOutlets } from '@/lib/outlets';
+import { extractOutletErrorMessage, getOutlets } from '@/lib/outlets';
 import type { OutletDto, OutletQueryParams } from '@fieldapp/shared';
 
 export function useOutlets(params: OutletQueryParams = {}) {
@@ -20,7 +20,7 @@ export function useOutlets(params: OutletQueryParams = {}) {
       setData(result.data);
       setMeta(result.meta);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Khong the tai danh sach outlet');
+      setError(extractOutletErrorMessage(err, 'Khong the tai danh sach outlet'));
     } finally {
       setLoading(false);
     }

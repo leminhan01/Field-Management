@@ -32,7 +32,7 @@ export class EmployeesController {
   ) {}
 
   @Get()
-  @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.MANAGER)
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.MANAGER, Role.TEAM_LEADER)
   findAll(
     @Query() query: QueryEmployeeDto,
     @CurrentUser() user: { id: string; role: string; branchId?: string | null },
@@ -54,7 +54,7 @@ export class EmployeesController {
   }
 
   @Get(':id')
-  @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.MANAGER)
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.MANAGER, Role.TEAM_LEADER)
   findOne(
     @Param('id') id: string,
     @CurrentUser() user: { id: string; role: string; branchId?: string | null },
