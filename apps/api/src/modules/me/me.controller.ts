@@ -14,6 +14,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { MeService } from './me.service';
+import { SurveysService } from '../surveys/surveys.service';
 import { UploadService } from '../upload/upload.service';
 import {
   QueryMyTasksDto,
@@ -23,6 +24,7 @@ import {
   NearbyOutletsDto,
   DeviceTokenDto,
   SyncQueryDto,
+  SubmitSurveyResponseDto,
 } from './dto';
 
 @Controller('me')
@@ -31,6 +33,7 @@ export class MeController {
   constructor(
     private meService: MeService,
     private uploadService: UploadService,
+    private surveysService: SurveysService,
   ) {}
 
   @Get('tasks')
@@ -121,5 +124,31 @@ export class MeController {
     @Query() query: SyncQueryDto,
   ) {
     return this.meService.getSyncData(userId, query);
+  }
+
+  // ==================== Surveys ====================
+
+  @Get('surveys')
+  getMySurveys() {
+    return this.surveysService.getActiveSurveys();
+  }
+
+  @Get('surveys/:id')
+  getMySurveyDetail(@Param('id') surveyId: string) {
+    return this.surveysService.findOne(surveyId);
+  }
+
+  @Post('surveys/:id/responses')
+  submitSurveyResponse(
+    @CurrentUser('id') userId: string,
+    @Param('id') surveyId: string,
+    @Body() dto: SubmitSurveyResponseDto,
+  ) {
+    return this.surveysService.submitResponse(
+      surveyId,
+      userId,
+      dto.branchId,
+      dto.answers,
+    );
   }
 }

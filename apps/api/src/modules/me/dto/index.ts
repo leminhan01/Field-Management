@@ -5,3 +5,4 @@ export * from './check-in.dto';
 export * from './nearby-outlets.dto';
 export * from './device-token.dto';
 export * from './sync-query.dto';
+export * from './submit-survey-response.dto';

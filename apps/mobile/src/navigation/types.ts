@@ -8,6 +8,9 @@ export type TaskStackParamList = {
   TaskList: undefined;
   TaskDetail: { taskId: string };
   ReportSubmit: { taskId: string; assignmentId: string };
+  SurveyList: undefined;
+  SurveyDetail: { surveyId: string };
+  SurveyConfirmation: undefined;
 };
 
 export type CheckInStackParamList = {

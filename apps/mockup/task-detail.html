@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 
-<html lang="vi"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Chi tiết công việc</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Chi tiết công việc</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
@@ -100,114 +106,130 @@
             }
         }
     </script>
-<style>
+    <style>
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
+
         .material-symbols-outlined.fill {
             font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
     </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
-  </head>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
 <body class="bg-background text-on-background font-body-md antialiased min-h-screen flex flex-col">
-<!-- Top App Bar -->
-<header class="bg-surface text-primary font-title-lg fixed top-0 left-0 w-full border-b border-outline-variant shadow-sm flex items-center justify-between px-4 h-14 w-full z-50">
-<button aria-label="Go back" class="w-touch-target h-touch-target flex items-center justify-center text-on-surface-variant hover:bg-surface-variant/50 active:scale-95 transition-transform duration-150 rounded-full">
-<span class="material-symbols-outlined text-[24px]">arrow_back</span>
-</button>
-<h1 class="font-headline-md font-bold text-primary truncate flex-1 text-center">Chi tiết công việc</h1>
-<div class="w-touch-target"></div> <!-- Spacer for centering -->
-</header>
-<!-- Main Content Canvas -->
-<main class="flex-1 mt-14 mb-[72px] flex flex-col md:max-w-2xl md:mx-auto w-full">
-<!-- Map Section -->
-<div class="h-64 bg-surface-container w-full relative">
-<img alt="Bản đồ" class="w-full h-full object-cover" data-location="Hanoi" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCD6BXLoP5QeavpdfhznUOWmx5AmMgSS-QgnuyDQHFbnycgHzYb_iu2he_hl524DlHjWkUqlIfemdnbS6Z_z3Lrk5eLVrrLXKkKTp_MtGO1dgfXK3OYxJ944wr1cL8DnVkhC_cC5tReV_wVfCiRQqqXHn1qABRVdYeBDin6opVjd5ff6m-bJZad1DYwyVk7IBQlG8XXF0UGPnfi5SND3li6Xewh5iHZ8p0bA3Y3RyI8LQb9NtOYYoPn6-Y9Ll4tF1hZ4LvbK9DkxonT"/>
-<div class="absolute inset-0 bg-gradient-to-t from-surface/80 to-transparent"></div>
-<!-- Store Chip Overlay -->
-<div class="absolute bottom-md left-md right-md bg-surface p-md rounded-xl shadow-lg border border-outline-variant flex items-center gap-md">
-<div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shrink-0">
-<span class="material-symbols-outlined fill">storefront</span>
-</div>
-<div class="flex-1">
-<h2 class="font-title-lg text-on-surface line-clamp-1">Cửa hàng Tạp hóa Lan Hương</h2>
-<p class="font-body-md text-on-surface-variant line-clamp-1 flex items-center gap-1 mt-1">
-<span class="material-symbols-outlined text-[16px]">location_on</span>
+    <!-- Top App Bar -->
+    <header
+        class="bg-surface text-primary font-title-lg fixed top-0 left-0 w-full border-b border-outline-variant shadow-sm flex items-center justify-between px-4 h-14 w-full z-50">
+        <button aria-label="Go back"
+            class="w-touch-target h-touch-target flex items-center justify-center text-on-surface-variant hover:bg-surface-variant/50 active:scale-95 transition-transform duration-150 rounded-full">
+            <span class="material-symbols-outlined text-[24px]">arrow_back</span>
+        </button>
+        <h1 class="font-headline-md font-bold text-primary truncate flex-1 text-center">Chi tiết công việc</h1>
+        <div class="w-touch-target"></div> <!-- Spacer for centering -->
+    </header>
+    <!-- Main Content Canvas -->
+    <main class="flex-1 mt-14 mb-[72px] flex flex-col md:max-w-2xl md:mx-auto w-full">
+        <!-- Map Section -->
+        <div class="h-64 bg-surface-container w-full relative">
+            <img alt="Bản đồ" class="w-full h-full object-cover" data-location="Hanoi"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCD6BXLoP5QeavpdfhznUOWmx5AmMgSS-QgnuyDQHFbnycgHzYb_iu2he_hl524DlHjWkUqlIfemdnbS6Z_z3Lrk5eLVrrLXKkKTp_MtGO1dgfXK3OYxJ944wr1cL8DnVkhC_cC5tReV_wVfCiRQqqXHn1qABRVdYeBDin6opVjd5ff6m-bJZad1DYwyVk7IBQlG8XXF0UGPnfi5SND3li6Xewh5iHZ8p0bA3Y3RyI8LQb9NtOYYoPn6-Y9Ll4tF1hZ4LvbK9DkxonT" />
+            <div class="absolute inset-0 bg-gradient-to-t from-surface/80 to-transparent"></div>
+            <!-- Store Chip Overlay -->
+            <div
+                class="absolute bottom-md left-md right-md bg-surface p-md rounded-xl shadow-lg border border-outline-variant flex items-center gap-md">
+                <div
+                    class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined fill">storefront</span>
+                </div>
+                <div class="flex-1">
+                    <h2 class="font-title-lg text-on-surface line-clamp-1">Cửa hàng Tạp hóa Lan Hương</h2>
+                    <p class="font-body-md text-on-surface-variant line-clamp-1 flex items-center gap-1 mt-1">
+                        <span class="material-symbols-outlined text-[16px]">location_on</span>
                         123 Nguyễn Trãi, Thanh Xuân, HN
                     </p>
-</div>
-</div>
-</div>
-<!-- Details Section -->
-<div class="p-container-padding flex flex-col gap-lg">
-<!-- Contact Card -->
-<div class="bg-surface rounded-xl border border-outline-variant p-md shadow-sm">
-<h3 class="font-label-lg text-primary uppercase mb-md tracking-wider">Thông tin liên hệ</h3>
-<div class="flex items-center justify-between border-b border-surface-variant pb-md mb-md">
-<div class="flex items-center gap-md">
-<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center">
-<span class="material-symbols-outlined text-on-surface-variant">person</span>
-</div>
-<div>
-<p class="font-body-md text-on-surface-variant">Người đại diện</p>
-<p class="font-title-lg text-on-surface">Chị Lan</p>
-</div>
-</div>
-</div>
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-md">
-<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center">
-<span class="material-symbols-outlined text-on-surface-variant">phone</span>
-</div>
-<div>
-<p class="font-body-md text-on-surface-variant">Số điện thoại</p>
-<p class="font-title-lg text-on-surface">0912 345 678</p>
-</div>
-</div>
-<a class="h-touch-target w-touch-target rounded-full bg-primary-container text-on-primary-container flex items-center justify-center active:scale-95 transition-transform duration-150" href="tel:0912345678">
-<span class="material-symbols-outlined fill">call</span>
-</a>
-</div>
-</div>
-<!-- Task Notes Card -->
-<div class="bg-surface rounded-xl border border-outline-variant p-md shadow-sm">
-<h3 class="font-label-lg text-primary uppercase mb-md tracking-wider flex items-center justify-between">
+                </div>
+            </div>
+        </div>
+        <!-- Details Section -->
+        <div class="p-container-padding flex flex-col gap-lg">
+            <!-- Contact Card -->
+            <div class="bg-surface rounded-xl border border-outline-variant p-md shadow-sm">
+                <h3 class="font-label-lg text-primary uppercase mb-md tracking-wider">Thông tin liên hệ</h3>
+                <div class="flex items-center justify-between border-b border-surface-variant pb-md mb-md">
+                    <div class="flex items-center gap-md">
+                        <div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center">
+                            <span class="material-symbols-outlined text-on-surface-variant">person</span>
+                        </div>
+                        <div>
+                            <p class="font-body-md text-on-surface-variant">Người đại diện</p>
+                            <p class="font-title-lg text-on-surface">Chị Lan</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-md">
+                        <div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center">
+                            <span class="material-symbols-outlined text-on-surface-variant">phone</span>
+                        </div>
+                        <div>
+                            <p class="font-body-md text-on-surface-variant">Số điện thoại</p>
+                            <p class="font-title-lg text-on-surface">0912 345 678</p>
+                        </div>
+                    </div>
+                    <a class="h-touch-target w-touch-target rounded-full bg-primary-container text-on-primary-container flex items-center justify-center active:scale-95 transition-transform duration-150"
+                        href="tel:0912345678">
+                        <span class="material-symbols-outlined fill">call</span>
+                    </a>
+                </div>
+            </div>
+            <!-- Task Notes Card -->
+            <div class="bg-surface rounded-xl border border-outline-variant p-md shadow-sm">
+                <h3 class="font-label-lg text-primary uppercase mb-md tracking-wider flex items-center justify-between">
                     Yêu cầu công việc
-                    <span class="bg-secondary/10 text-secondary font-label-lg px-2 py-1 rounded-DEFAULT">Ưu tiên cao</span>
-</h3>
-<ul class="flex flex-col gap-sm">
-<li class="flex gap-sm items-start">
-<span class="material-symbols-outlined text-primary text-[20px] shrink-0 mt-[2px]">check_circle</span>
-<span class="font-body-lg text-on-surface">Kiểm tra trưng bày kệ hàng sản phẩm mới.</span>
-</li>
-<li class="flex gap-sm items-start">
-<span class="material-symbols-outlined text-primary text-[20px] shrink-0 mt-[2px]">check_circle</span>
-<span class="font-body-lg text-on-surface">Chụp ảnh 3 góc độ quầy kệ.</span>
-</li>
-<li class="flex gap-sm items-start">
-<span class="material-symbols-outlined text-primary text-[20px] shrink-0 mt-[2px]">check_circle</span>
-<span class="font-body-lg text-on-surface">Ghi nhận số lượng hàng tồn kho.</span>
-</li>
-</ul>
-<div class="mt-md p-sm bg-surface-container rounded-lg border border-outline-variant/50">
-<p class="font-body-md text-on-surface-variant italic">
-<span class="font-semibold not-italic text-on-surface">Ghi chú thêm:</span>
+                    <span class="bg-secondary/10 text-secondary font-label-lg px-2 py-1 rounded-DEFAULT">Ưu tiên
+                        cao</span>
+                </h3>
+                <ul class="flex flex-col gap-sm">
+                    <li class="flex gap-sm items-start">
+                        <span
+                            class="material-symbols-outlined text-primary text-[20px] shrink-0 mt-[2px]">check_circle</span>
+                        <span class="font-body-lg text-on-surface">Kiểm tra trưng bày kệ hàng sản phẩm mới.</span>
+                    </li>
+                    <li class="flex gap-sm items-start">
+                        <span
+                            class="material-symbols-outlined text-primary text-[20px] shrink-0 mt-[2px]">check_circle</span>
+                        <span class="font-body-lg text-on-surface">Chụp ảnh 3 góc độ quầy kệ.</span>
+                    </li>
+                    <li class="flex gap-sm items-start">
+                        <span
+                            class="material-symbols-outlined text-primary text-[20px] shrink-0 mt-[2px]">check_circle</span>
+                        <span class="font-body-lg text-on-surface">Ghi nhận số lượng hàng tồn kho.</span>
+                    </li>
+                </ul>
+                <div class="mt-md p-sm bg-surface-container rounded-lg border border-outline-variant/50">
+                    <p class="font-body-md text-on-surface-variant italic">
+                        <span class="font-semibold not-italic text-on-surface">Ghi chú thêm:</span>
                         Cửa hàng thường đông khách vào buổi trưa, nên ưu tiên kiểm tra trước 11h sáng.
                     </p>
-</div>
-</div>
-</div>
-</main>
-<!-- Bottom Action Area -->
-<div class="fixed bottom-0 left-0 w-full bg-surface border-t border-outline-variant p-container-padding pb-[env(safe-area-inset-bottom,16px)] z-50 md:max-w-2xl md:mx-auto md:left-1/2 md:-translate-x-1/2">
-<button class="w-full h-touch-target bg-primary text-on-primary font-button rounded-xl flex items-center justify-center gap-sm active:scale-[0.98] transition-transform duration-150 shadow-md">
-<span class="material-symbols-outlined">play_arrow</span>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- Bottom Action Area -->
+    <div
+        class="fixed bottom-0 left-0 w-full bg-surface border-t border-outline-variant p-container-padding pb-[env(safe-area-inset-bottom,16px)] z-50 md:max-w-2xl md:mx-auto md:left-1/2 md:-translate-x-1/2">
+        <button
+            class="w-full h-touch-target bg-primary text-on-primary font-button rounded-xl flex items-center justify-center gap-sm active:scale-[0.98] transition-transform duration-150 shadow-md">
+            <span class="material-symbols-outlined">play_arrow</span>
             Bắt đầu thực hiện
         </button>
-</div>
-</body></html>
+    </div>
+</body>
+
+</html>

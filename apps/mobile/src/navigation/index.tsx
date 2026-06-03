@@ -24,6 +24,9 @@ import NotificationsScreen from '../screens/notifications/NotificationsScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 import ChangePasswordScreen from '../screens/profile/ChangePasswordScreen';
 import SettingsScreen from '../screens/profile/SettingsScreen';
+import SurveyListScreen from '../screens/surveys/SurveyListScreen';
+import SurveyDetailScreen from '../screens/surveys/SurveyDetailScreen';
+import SurveyConfirmationScreen from '../screens/surveys/SurveyConfirmationScreen';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -45,6 +48,9 @@ function TaskStackNavigator() {
       <TaskStack.Screen name="TaskList" component={HomeScreen} />
       <TaskStack.Screen name="TaskDetail" component={TaskDetailScreen} />
       <TaskStack.Screen name="ReportSubmit" component={ReportSubmitScreen} />
+      <TaskStack.Screen name="SurveyList" component={SurveyListScreen} />
+      <TaskStack.Screen name="SurveyDetail" component={SurveyDetailScreen} />
+      <TaskStack.Screen name="SurveyConfirmation" component={SurveyConfirmationScreen} />
     </TaskStack.Navigator>
   );
 }

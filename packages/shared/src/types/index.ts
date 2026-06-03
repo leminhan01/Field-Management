@@ -720,6 +720,110 @@ export interface SyncResponseDto {
   serverTimestamp: string;
 }
 
+// ==================== Survey ====================
+
+export enum QuestionType {
+  SHORT_TEXT = 'SHORT_TEXT',
+  LONG_TEXT = 'LONG_TEXT',
+  CHECKBOX = 'CHECKBOX',
+  MULTIPLE_CHOICE = 'MULTIPLE_CHOICE',
+}
+
+export interface BaseSurveyQuestion {
+  id: string;
+  type: QuestionType;
+  label: string;
+  required: boolean;
+  order: number;
+}
+
+export interface ShortTextQuestion extends BaseSurveyQuestion {
+  type: QuestionType.SHORT_TEXT;
+  placeholder?: string;
+}
+
+export interface LongTextQuestion extends BaseSurveyQuestion {
+  type: QuestionType.LONG_TEXT;
+  placeholder?: string;
+}
+
+export interface CheckboxQuestion extends BaseSurveyQuestion {
+  type: QuestionType.CHECKBOX;
+  options: string[];
+}
+
+export interface MultipleChoiceQuestion extends BaseSurveyQuestion {
+  type: QuestionType.MULTIPLE_CHOICE;
+  options: string[];
+}
+
+export type SurveyQuestion =
+  | ShortTextQuestion
+  | LongTextQuestion
+  | CheckboxQuestion
+  | MultipleChoiceQuestion;
+
+export type SurveyAnswers = Record<string, string | string[]>;
+
+export interface SurveyDto {
+  id: string;
+  title: string;
+  description: string | null;
+  questions: SurveyQuestion[];
+  status: SurveyStatus;
+  createdById: string;
+  createdBy: { id: string; name: string; email: string };
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  _count?: { responses: number };
+}
+
+export interface SurveyQueryParams extends PaginationQuery {
+  search?: string;
+  status?: SurveyStatus;
+}
+
+export interface CreateSurveyInput {
+  title: string;
+  description?: string;
+  questions: SurveyQuestion[];
+}
+
+export interface UpdateSurveyInput {
+  title?: string;
+  description?: string;
+  questions?: SurveyQuestion[];
+  status?: SurveyStatus;
+}
+
+export interface SurveyResponseDto {
+  id: string;
+  surveyId: string;
+  userId: string;
+  user: { id: string; name: string; email: string };
+  branchId: string;
+  branch: { id: string; name: string; code: string };
+  answers: SurveyAnswers;
+  submittedAt: string;
+}
+
+export interface SubmitSurveyResponseInput {
+  branchId: string;
+  answers: SurveyAnswers;
+}
+
+export interface SurveyStatsDto {
+  totalResponses: number;
+  questionStats: Array<{
+    questionId: string;
+    questionLabel: string;
+    questionType: QuestionType;
+    responseCount: number;
+    optionCounts?: Record<string, number>;
+  }>;
+}
+
 // ==================== Utility Functions ====================
 
 export function getPaginationParams(query: PaginationQuery) {

@@ -1,119 +1,242 @@
 'use client';
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { BarChart3, ClipboardList, Users, Calendar, Filter } from 'lucide-react';
+import { useState, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { Filter, Loader2, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import { PageWrapper } from '@/components/shared/page-wrapper';
 import { PageToolbar } from '@/components/shared/page-toolbar';
-import { StatusBadge } from '@/components/shared/status-badge';
-import { ActionMenu, type ActionItem } from '@/components/shared/action-menu';
-
-interface Survey {
-  id: number;
-  title: string;
-  questions: number;
-  responses: number;
-  targetBranches: number;
-  status: string;
-  createdBy: string;
-  createdAt: string;
-  endDate: string;
-}
-
-const mockSurveys: Survey[] = [
-  { id: 1, title: 'Customer satisfaction survey at store', questions: 12, responses: 45, targetBranches: 8, status: 'Active', createdBy: 'Admin', createdAt: '01/05/2026', endDate: '31/05/2026' },
-  { id: 2, title: 'BB product display evaluation', questions: 8, responses: 32, targetBranches: 12, status: 'Active', createdBy: 'Manager', createdAt: '05/05/2026', endDate: '20/05/2026' },
-  { id: 3, title: 'Sampling effectiveness survey', questions: 6, responses: 18, targetBranches: 5, status: 'Draft', createdBy: 'Admin', createdAt: '10/05/2026', endDate: '-' },
-  { id: 4, title: 'Point-of-sale device feedback', questions: 10, responses: 56, targetBranches: 15, status: 'Completed', createdBy: 'Admin', createdAt: '01/04/2026', endDate: '30/04/2026' },
-  { id: 5, title: 'Staff task execution evaluation', questions: 15, responses: 0, targetBranches: 10, status: 'Pending', createdBy: 'Manager', createdAt: '20/05/2026', endDate: '30/05/2026' },
-];
-
-const containerVariants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.06 } },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 8 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.2 } },
-};
+import { DataTable } from '@/components/shared/data-table';
+import { Pagination } from '@/components/shared/pagination';
+import { getSurveyColumns } from '@/components/surveys/survey-columns';
+import { SurveyFilter } from '@/components/surveys/survey-filter';
+import { SurveyForm } from '@/components/surveys/survey-form';
+import { SurveyDetailDialog } from '@/components/surveys/survey-detail-dialog';
+import { useSurveys } from '@/hooks/use-surveys';
+import { useSurveyMutations } from '@/hooks/use-survey-mutations';
+import { extractErrorMessage } from '@/lib/surveys';
+import type { SurveyDto, SurveyQueryParams } from '@fieldapp/shared';
 
 export default function SurveysPage() {
+  const router = useRouter();
+
+  // Filter & pagination state
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState('');
+  const [showFilter, setShowFilter] = useState(false);
 
-  const filtered = mockSurveys.filter((s) => {
-    const q = search.toLowerCase();
-    return s.title.toLowerCase().includes(q) || s.status.toLowerCase().includes(q);
-  });
+  // Dialog state
+  const [showForm, setShowForm] = useState(false);
+  const [editingSurvey, setEditingSurvey] = useState<SurveyDto | null>(null);
+  const [viewingSurvey, setViewingSurvey] = useState<SurveyDto | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<SurveyDto | null>(null);
+  const [statusTarget, setStatusTarget] = useState<SurveyDto | null>(null);
+  const [newStatus, setNewStatus] = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const [changingStatus, setChangingStatus] = useState(false);
 
-  const actions: ActionItem[] = [
-    { label: 'Edit', onClick: () => {} },
-    { label: 'View Detail', onClick: () => {} },
-    { label: 'Delete', onClick: () => {}, variant: 'destructive' },
-  ];
+  // Build query params
+  const params: SurveyQueryParams = useMemo(() => ({
+    page,
+    limit: 10,
+    search: search || undefined,
+    status: (statusFilter || undefined) as any,
+  }), [page, search, statusFilter]);
+
+  const { data, meta, loading, refetch } = useSurveys(params);
+  const { create, update, remove, changeStatus } = useSurveyMutations();
+
+  const columns = useMemo(() => getSurveyColumns({
+    onEdit: (s) => { setEditingSurvey(s); setShowForm(true); },
+    onView: (s) => router.push(`/surveys/${s.id}`),
+    onDelete: (s) => setDeleteTarget(s),
+    onStatusChange: (s, status) => { setStatusTarget(s); setNewStatus(status); },
+  }), [router]);
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearch(value);
+    setPage(1);
+  }, []);
+
+  const handleClearFilters = useCallback(() => {
+    setStatusFilter('');
+    setPage(1);
+  }, []);
+
+  const handleFormSubmit = useCallback(async (formData: any) => {
+    try {
+      if (editingSurvey) {
+        await update(editingSurvey.id, formData);
+        toast.success('Survey updated successfully');
+      } else {
+        await create(formData);
+        toast.success('Survey created successfully');
+      }
+      refetch();
+    } catch (err) {
+      const msg = extractErrorMessage(err, editingSurvey ? 'Failed to update survey' : 'Failed to create survey');
+      toast.error(msg);
+      throw err;
+    }
+  }, [editingSurvey, create, update, refetch]);
+
+  const handleDelete = useCallback(async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await remove(deleteTarget.id);
+      toast.success(`Deleted survey "${deleteTarget.title}"`);
+      refetch();
+      setDeleteTarget(null);
+    } catch (err) {
+      const msg = extractErrorMessage(err, 'Failed to delete survey');
+      toast.error(msg);
+    } finally {
+      setDeleting(false);
+    }
+  }, [deleteTarget, remove, refetch]);
+
+  const handleStatusChange = useCallback(async () => {
+    if (!statusTarget || !newStatus) return;
+    setChangingStatus(true);
+    try {
+      await changeStatus(statusTarget.id, newStatus);
+      toast.success(`Survey status changed to ${newStatus}`);
+      refetch();
+      setStatusTarget(null);
+      setNewStatus('');
+    } catch (err) {
+      const msg = extractErrorMessage(err, 'Failed to change survey status');
+      toast.error(msg);
+    } finally {
+      setChangingStatus(false);
+    }
+  }, [statusTarget, newStatus, changeStatus, refetch]);
 
   return (
     <PageWrapper>
       <PageToolbar
+        title="Survey management"
+        description={`${meta.total} surveys`}
         searchPlaceholder="Search surveys..."
         searchValue={search}
-        onSearchChange={setSearch}
-        primaryAction={{ label: 'Create Survey', onClick: () => {} }}
+        onSearchChange={handleSearchChange}
+        primaryAction={{
+          label: 'Create Survey',
+          onClick: () => { setEditingSurvey(null); setShowForm(true); },
+        }}
         secondaryActions={
-          <Button variant="outline" size="sm" className="h-8 gap-1.5 text-[13px]"><Filter className="w-3.5 h-3.5" />Filter</Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className={`h-8 gap-1.5 text-[13px] ${showFilter ? 'bg-[#0052cc]/10 text-[#0052cc] border-[#0052cc]' : ''}`}
+            onClick={() => setShowFilter(!showFilter)}
+          >
+            <Filter className="w-3.5 h-3.5" />Filters
+          </Button>
         }
       />
-      <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-3">
-        {filtered.map((survey) => {
-          const ratePercent = Math.round((survey.responses / (survey.targetBranches * 5)) * 100);
-          return (
-            <motion.div key={survey.id} variants={itemVariants}>
-              <Card className="border hover:shadow-md hover:border-primary/30 transition-all">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h4 className="text-[14px] font-semibold">{survey.title}</h4>
-                        <StatusBadge status={survey.status} />
-                      </div>
-                      <div className="flex items-center gap-5 text-[12px] text-muted-foreground">
-                        <span className="flex items-center gap-1"><ClipboardList className="w-3.5 h-3.5" />{survey.questions} questions</span>
-                        <span className="flex items-center gap-1"><BarChart3 className="w-3.5 h-3.5" />{survey.responses} responses</span>
-                        <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" />{survey.targetBranches} branches</span>
-                        <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />{survey.createdAt} - {survey.endDate}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      {survey.responses > 0 && (
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-primary"><BarChart3 className="w-4 h-4" /></Button>
-                      )}
-                      <ActionMenu actions={actions} />
-                    </div>
-                  </div>
-                  {survey.responses > 0 && (
-                    <div className="mt-3 pt-3 border-t border-border/50">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[11px] text-muted-foreground">Response rate:</span>
-                        <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                          <motion.div
-                            className="h-full bg-primary rounded-full"
-                            initial={{ width: 0 }}
-                            animate={{ width: `${Math.min(100, ratePercent)}%` }}
-                            transition={{ duration: 0.6, ease: 'easeOut' }}
-                          />
-                        </div>
-                        <span className="text-[11px] font-semibold text-muted-foreground">{ratePercent}%</span>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </motion.div>
-          );
-        })}
-      </motion.div>
+
+      {showFilter && (
+        <SurveyFilter
+          status={statusFilter}
+          onStatusChange={(v) => { setStatusFilter(v); setPage(1); }}
+          onClear={handleClearFilters}
+        />
+      )}
+
+      {loading && !data.length ? (
+        <div className="flex items-center justify-center h-48">
+          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : (
+        <>
+          <DataTable
+            columns={columns}
+            data={data as any[]}
+            getRowId={(row) => (row as SurveyDto).id}
+          />
+          <div className="mt-4">
+            <Pagination
+              page={page}
+              totalPages={meta.totalPages}
+              onPageChange={setPage}
+            />
+          </div>
+        </>
+      )}
+
+      {/* Create/Edit Dialog */}
+      <SurveyForm
+        open={showForm}
+        mode={editingSurvey ? 'edit' : 'create'}
+        survey={editingSurvey}
+        onClose={() => { setShowForm(false); setEditingSurvey(null); }}
+        onSubmit={handleFormSubmit}
+      />
+
+      {/* View Detail Dialog */}
+      <SurveyDetailDialog
+        open={!!viewingSurvey}
+        survey={viewingSurvey}
+        onClose={() => setViewingSurvey(null)}
+      />
+
+      {/* Delete Confirm Dialog */}
+      <Dialog open={!!deleteTarget} onOpenChange={(v) => !v && setDeleteTarget(null)}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Confirm deletion</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete survey <strong>{deleteTarget?.title}</strong>?
+              This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" size="sm" onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" size="sm" onClick={handleDelete} disabled={deleting}>
+              {deleting && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
+              <Trash2 className="w-4 h-4 mr-1" />
+              Delete
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Status Change Confirm Dialog */}
+      <Dialog open={!!statusTarget} onOpenChange={(v) => !v && setStatusTarget(null)}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Change survey status</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to change <strong>{statusTarget?.title}</strong> status to{' '}
+              <strong>{newStatus}</strong>?
+              {newStatus === 'ACTIVE' && ' The survey will be available for field staff to fill out.'}
+              {newStatus === 'CLOSED' && ' The survey will no longer accept responses.'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" size="sm" onClick={() => setStatusTarget(null)}>
+              Cancel
+            </Button>
+            <Button size="sm" onClick={handleStatusChange} disabled={changingStatus} className="bg-[#0052cc] hover:bg-[#003d9b]">
+              {changingStatus && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
+              Confirm
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </PageWrapper>
   );
 }

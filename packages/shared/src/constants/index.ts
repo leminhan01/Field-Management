@@ -53,6 +53,25 @@ export const TASK_STATUS_COLORS: Record<string, string> = {
   REJECTED: '#EF4444',
 } as const;
 
+export const SURVEY_STATUS_LABELS: Record<string, string> = {
+  DRAFT: 'Draft',
+  ACTIVE: 'Active',
+  CLOSED: 'Closed',
+} as const;
+
+export const SURVEY_STATUS_COLORS: Record<string, string> = {
+  DRAFT: '#9CA3AF',
+  ACTIVE: '#10B981',
+  CLOSED: '#6B7280',
+} as const;
+
+export const QUESTION_TYPE_LABELS: Record<string, string> = {
+  SHORT_TEXT: 'Short Text',
+  LONG_TEXT: 'Long Text',
+  CHECKBOX: 'Checkbox',
+  MULTIPLE_CHOICE: 'Multiple Choice',
+} as const;
+
 export const PAGINATION_DEFAULTS = {
   PAGE: 1,
   LIMIT: 10,

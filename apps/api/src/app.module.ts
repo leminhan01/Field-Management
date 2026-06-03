@@ -14,6 +14,7 @@ import { TaskGroupsModule } from './modules/task-groups/task-groups.module';
 import { TaskAssignmentsModule } from './modules/task-assignments/task-assignments.module';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { MeModule } from './modules/me/me.module';
+import { SurveysModule } from './modules/surveys/surveys.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { MeModule } from './modules/me/me.module';
     TaskAssignmentsModule,
     TasksModule,
     MeModule,
+    SurveysModule,
   ],
   controllers: [],
   providers: [],

@@ -78,6 +78,21 @@ const HomeScreen = () => {
       >
         <SummaryDashboard completed={completedCount} total={totalCount} />
 
+        <TouchableOpacity
+          style={styles.surveyCard}
+          onPress={() => navigation.navigate('SurveyList')}
+          activeOpacity={0.7}
+        >
+          <View style={styles.surveyCardLeft}>
+            <MaterialCommunityIcons name="clipboard-text-outline" size={24} color={COLORS.primary} />
+            <View style={styles.surveyCardText}>
+              <Text style={styles.surveyCardTitle}>Khảo sát</Text>
+              <Text style={styles.surveyCardSub}>Xem các khảo sát đang mở</Text>
+            </View>
+          </View>
+          <MaterialCommunityIcons name="chevron-right" size={24} color={COLORS.onSurfaceVariant} />
+        </TouchableOpacity>
+
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Nhiệm vụ hôm nay</Text>
           <TouchableOpacity style={styles.filterButton} activeOpacity={0.72}>
@@ -184,5 +199,36 @@ const styles = StyleSheet.create({
   retryText: {
     color: COLORS.onPrimary,
     fontWeight: '600',
+  },
+  surveyCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: COLORS.surface,
+    borderRadius: 12,
+    padding: SPACING.md,
+    marginBottom: SPACING.md,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  surveyCardLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  surveyCardText: {
+    gap: 2,
+  },
+  surveyCardTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: COLORS.onSurface,
+  },
+  surveyCardSub: {
+    fontSize: 12,
+    color: COLORS.onSurfaceVariant,
   },
 });
