@@ -651,6 +651,29 @@ export interface ReportDto {
   updatedAt: string;
 }
 
+export interface TaskReportDto {
+  id: string;
+  taskId: string;
+  assignmentId: string;
+  submittedById: string;
+  submittedBy: { id: string; name: string; email: string };
+  checklistData: Record<string, unknown>;
+  photos: string[];
+  notes: string | null;
+  rating: number | null;
+  reviewedById: string | null;
+  reviewedBy: { id: string; name: string; email: string } | null;
+  reviewedAt: string | null;
+  reviewNotes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TaskDetailDto extends Omit<TaskDto, '_count'> {
+  reports: TaskReportDto[];
+  _count: { assignments: number; reports: number };
+}
+
 export interface NearbyOutletDto {
   id: string;
   name: string;

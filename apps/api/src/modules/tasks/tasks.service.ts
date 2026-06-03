@@ -47,6 +47,30 @@ const TASK_SELECT = {
   _count: { select: { assignments: true, reports: true } },
 } satisfies Prisma.TaskSelect;
 
+const TASK_DETAIL_SELECT = {
+  ...TASK_SELECT,
+  reports: {
+    orderBy: { createdAt: 'desc' as const },
+    select: {
+      id: true,
+      taskId: true,
+      assignmentId: true,
+      submittedById: true,
+      submittedBy: { select: { id: true, name: true, email: true } },
+      checklistData: true,
+      photos: true,
+      notes: true,
+      rating: true,
+      reviewedById: true,
+      reviewedBy: { select: { id: true, name: true, email: true } },
+      reviewedAt: true,
+      reviewNotes: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  },
+} satisfies Prisma.TaskSelect;
+
 @Injectable()
 export class TasksService {
   constructor(private prisma: PrismaService) {}
@@ -101,7 +125,7 @@ export class TasksService {
   async findOne(id: string) {
     const task = await this.prisma.task.findFirst({
       where: { id, deletedAt: null },
-      select: TASK_SELECT,
+      select: TASK_DETAIL_SELECT,
     });
 
     if (!task) {

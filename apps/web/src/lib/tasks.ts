@@ -1,5 +1,5 @@
 import apiClient from './api-client';
-import type { PaginatedResponse, TaskDto, TaskQueryParams } from '@fieldapp/shared';
+import type { PaginatedResponse, TaskDetailDto, TaskDto, TaskQueryParams } from '@fieldapp/shared';
 
 function normalizeErrorMessage(message: unknown): string | null {
   if (typeof message === 'string' && message.trim()) return message;
@@ -38,5 +38,10 @@ export async function getTasks(params?: TaskQueryParams) {
 
 export async function deleteTask(id: string) {
   const { data } = await apiClient.delete<{ success: boolean; data: { message: string } }>(`/tasks/${id}`);
+  return data.data;
+}
+
+export async function getTask(id: string) {
+  const { data } = await apiClient.get<{ success: boolean; data: TaskDetailDto }>(`/tasks/${id}`);
   return data.data;
 }

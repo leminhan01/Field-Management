@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { CalendarClock, Filter, Loader2, MapPin, RefreshCw, Store, Trash2, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { TASK_STATUS_LABELS, TASK_TYPE_LABELS } from '@fieldapp/shared';
@@ -52,6 +53,7 @@ function formatStatus(status: string) {
 }
 
 export default function RegularTaskPage() {
+  const router = useRouter();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [showFilter, setShowFilter] = useState(false);
@@ -308,6 +310,7 @@ export default function RegularTaskPage() {
             selectedIds={selectedIds}
             onSelectChange={setSelectedIds}
             getRowId={(row) => row.id}
+            onRowClick={(row) => router.push(`/tasks/regular/${row.id}`)}
             emptyMessage="No tasks yet"
           />
           <div className="mt-4">
