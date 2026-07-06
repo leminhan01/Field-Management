@@ -82,6 +82,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Ensure deploy dir exists on VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          port: ${{ secrets.VPS_PORT }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: mkdir -p /opt/projects/fieldapp
+
       - name: Copy compose file to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -90,7 +99,7 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           key: ${{ secrets.VPS_SSH_KEY }}
           source: "docker/docker-compose.prod.yml"
-          target: "fieldapp"
+          target: "/opt/projects/fieldapp"
           strip_components: 1
 
       - name: SSH deploy
@@ -106,7 +115,7 @@ jobs:
           envs: GHCR_PAT,OWNER
           script: |
             set -e
-            cd ~/fieldapp
+            cd /opt/projects/fieldapp
             echo "$GHCR_PAT" | docker login ghcr.io -u "$OWNER" --password-stdin
             docker compose -f docker-compose.prod.yml pull
             docker compose -f docker-compose.prod.yml up -d --remove-orphans
