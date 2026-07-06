@@ -1,7 +1,7 @@
 import {
   IsArray,
   IsBoolean,
-  IsEnum,
+  IsIn,
   IsInt,
   IsNotEmpty,
   IsOptional,
@@ -13,6 +13,8 @@ import {
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { TaskType } from '@prisma/client';
+
+const TASK_TYPES = ['REGULAR', 'SURVEY', 'PROMOTION'] as const;
 
 export class CreateTaskTemplateDto {
   @ApiProperty()
@@ -28,8 +30,8 @@ export class CreateTaskTemplateDto {
   @MaxLength(500, { message: 'Mo ta khong duoc vuot qua 500 ky tu' })
   description?: string;
 
-  @ApiProperty({ enum: TaskType })
-  @IsEnum(TaskType, { message: 'Loai cong viec khong hop le' })
+  @ApiProperty({ enum: TASK_TYPES })
+  @IsIn(TASK_TYPES, { message: 'Loai cong viec khong hop le' })
   type!: TaskType;
 
   @ApiProperty({ type: [String] })

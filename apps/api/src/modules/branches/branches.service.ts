@@ -23,7 +23,7 @@ const BRANCH_SELECT = {
   createdAt: true,
   updatedAt: true,
   deletedAt: true,
-  _count: { select: { employees: true, devices: true, tasks: true } },
+  _count: { select: { employees: true, tasks: true } },
 } satisfies Prisma.BranchSelect;
 
 @Injectable()
@@ -146,15 +146,15 @@ export class BranchesService {
   async remove(id: string) {
     const branch = await this.prisma.branch.findFirst({
       where: { id, deletedAt: null },
-      include: { _count: { select: { employees: true, tasks: true, devices: true } } },
+      include: { _count: { select: { employees: true, tasks: true } } },
     });
 
     if (!branch) {
       throw new NotFoundException('Không tìm thấy chi nhánh');
     }
 
-    if (branch._count.employees > 0 || branch._count.tasks > 0 || branch._count.devices > 0) {
-      throw new BadRequestException('Không thể xóa chi nhánh đang có nhân viên, công việc hoặc thiết bị liên quan');
+    if (branch._count.employees > 0 || branch._count.tasks > 0) {
+      throw new BadRequestException('Không thể xóa chi nhánh đang có nhân viên hoặc công việc liên quan');
     }
 
     await this.prisma.branch.update({

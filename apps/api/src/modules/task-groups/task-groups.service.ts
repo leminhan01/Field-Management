@@ -57,7 +57,7 @@ interface TaskGroupRecord {
       id: string;
       name: string;
       description?: string | null;
-      type: 'REGULAR' | 'DEVICE_CHECK' | 'SURVEY' | 'PROMOTION';
+      type: 'REGULAR' | 'SURVEY' | 'PROMOTION';
       estimatedDuration?: number | null;
       isActive: boolean;
     };
@@ -68,6 +68,8 @@ interface Delegates {
   taskGroup: TaskGroupDelegate;
   taskGroupTemplate: TaskGroupTemplateDelegate;
 }
+
+const ALLOWED_TASK_TYPES = ['REGULAR', 'SURVEY', 'PROMOTION'] as const;
 
 @Injectable()
 export class TaskGroupsService {
@@ -220,7 +222,9 @@ export class TaskGroupsService {
       throw new NotFoundException('Khong tim thay nhom cong viec');
     }
 
-    const activeTemplates = group.templates?.map((item) => item.template).filter((template) => template.isActive) || [];
+    const activeTemplates = group.templates
+      ?.map((item) => item.template)
+      .filter((template) => template.isActive && ALLOWED_TASK_TYPES.includes(template.type)) || [];
     if (!activeTemplates.length) {
       throw new BadRequestException('Nhom cong viec chua co mau cong viec hoat dong');
     }

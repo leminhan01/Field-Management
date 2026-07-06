@@ -46,6 +46,11 @@ export async function getOutlets(params?: OutletQueryParams) {
   return data.data as PaginatedResponse<OutletDto>;
 }
 
+export async function getOutlet(id: string) {
+  const { data } = await apiClient.get<{ success: boolean; data: OutletDto }>(`/outlets/${id}`);
+  return data.data;
+}
+
 export async function createOutlet(input: CreateOutletInput) {
   const { data } = await apiClient.post<{ success: boolean; data: OutletDto }>('/outlets', input);
   return data.data;

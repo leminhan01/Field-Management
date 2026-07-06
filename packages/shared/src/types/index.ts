@@ -26,7 +26,6 @@ export enum OutletType {
 
 export enum TaskType {
   REGULAR = 'REGULAR',
-  DEVICE_CHECK = 'DEVICE_CHECK',
   SURVEY = 'SURVEY',
   PROMOTION = 'PROMOTION',
 }
@@ -46,21 +45,6 @@ export enum AssignmentStatus {
   COMPLETED = 'COMPLETED',
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED',
-}
-
-export enum DeviceType {
-  CAMERA = 'CAMERA',
-  DISPLAY_SCREEN = 'DISPLAY_SCREEN',
-  STANDEE = 'STANDEE',
-  SHELF = 'SHELF',
-  FRIDGE = 'FRIDGE',
-  OTHER = 'OTHER',
-}
-
-export enum DeviceStatus {
-  ACTIVE = 'ACTIVE',
-  MAINTENANCE = 'MAINTENANCE',
-  BROKEN = 'BROKEN',
 }
 
 export enum SurveyStatus {
@@ -209,7 +193,6 @@ export interface BranchDto {
   deletedAt: string | null;
   _count: {
     employees: number;
-    devices: number;
     tasks: number;
   };
 }
@@ -468,8 +451,6 @@ export interface TaskDto {
   branch: { id: string; name: string; code: string };
   outletId: string | null;
   outlet: { id: string; name: string; code: string } | null;
-  deviceId: string | null;
-  device: { id: string; name: string; type: string; serial: string | null } | null;
   scheduledDate: string | null;
   startTime: string | null;
   endTime: string | null;
@@ -515,11 +496,6 @@ export interface DashboardSummaryDto {
   tasks: {
     total: number;
     thisWeek: number;
-  };
-  devices: {
-    total: number;
-    active: number;
-    issue: number;
   };
   surveys: {
     total: number;
@@ -667,6 +643,37 @@ export interface TaskReportDto {
   reviewNotes: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export type ReportReviewStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export interface AdminReportDto extends TaskReportDto {
+  task: {
+    id: string;
+    title: string;
+    type: string;
+    status: string;
+    branch: { id: string; name: string; code: string };
+    outlet: { id: string; name: string; code: string } | null;
+  };
+  assignment: {
+    id: string;
+    status: string;
+    scheduledAt: string;
+    outlet: { id: string; name: string; code: string } | null;
+  };
+}
+
+export interface ReportQueryParams extends PaginationQuery {
+  search?: string;
+  status?: ReportReviewStatus;
+  branchId?: string;
+  assigneeId?: string;
+}
+
+export interface ReviewReportInput {
+  status: Exclude<ReportReviewStatus, 'PENDING'>;
+  reviewNotes?: string;
 }
 
 export interface TaskDetailDto extends Omit<TaskDto, '_count'> {

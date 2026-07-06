@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AssignmentStatus, DeviceStatus, Prisma, TaskStatus } from '@prisma/client';
+import { AssignmentStatus, Prisma, TaskStatus } from '@prisma/client';
 import { PrismaService } from '../../common/prisma.service';
 import type {
   DashboardAlertDto,
@@ -44,9 +44,6 @@ export class DashboardService {
       tasksThisWeek,
       taskStatusGroups,
       recentTasks,
-      totalDevices,
-      activeDevices,
-      issueDevices,
       totalSurveys,
       activeSurveys,
       pendingReports,
@@ -79,14 +76,6 @@ export class DashboardService {
         orderBy: [{ scheduledDate: 'desc' }, { createdAt: 'desc' }],
         take: 5,
       }),
-      this.prisma.device.count({ where: { deletedAt: null } }),
-      this.prisma.device.count({ where: { deletedAt: null, status: DeviceStatus.ACTIVE } }),
-      this.prisma.device.count({
-        where: {
-          deletedAt: null,
-          status: { in: [DeviceStatus.MAINTENANCE, DeviceStatus.BROKEN] },
-        },
-      }),
       this.prisma.survey.count(),
       this.prisma.survey.count({ where: { status: 'ACTIVE' } }),
       this.prisma.report.count({ where: { reviewedAt: null } }),
@@ -118,11 +107,6 @@ export class DashboardService {
           total: totalTasks,
           thisWeek: tasksThisWeek,
         },
-        devices: {
-          total: totalDevices,
-          active: activeDevices,
-          issue: issueDevices,
-        },
         surveys: {
           total: totalSurveys,
           active: activeSurveys,
@@ -130,12 +114,11 @@ export class DashboardService {
       },
       taskStatuses: this.buildTaskStatuses(taskStatusGroups, totalTasks),
       recentTasks: recentTasks.map(this.mapRecentTask),
-      alerts: this.buildAlerts(pendingReports, issueDevices, unassignedTasks),
+      alerts: this.buildAlerts(pendingReports, unassignedTasks),
       modules: this.buildModules({
         employees: totalEmployees,
         branches: totalBranches,
         outlets: totalOutlets,
-        devices: totalDevices,
         surveys: totalSurveys,
       }),
     };
@@ -180,7 +163,6 @@ export class DashboardService {
 
   private buildAlerts(
     pendingReports: number,
-    issueDevices: number,
     unassignedTasks: number,
   ): DashboardAlertDto[] {
     return [
@@ -190,13 +172,6 @@ export class DashboardService {
         description: 'Review photos, notes, and completion results before approval.',
         count: pendingReports,
         severity: pendingReports > 0 ? 'warning' : 'success',
-      },
-      {
-        key: 'device-issues',
-        title: `${issueDevices} devices need attention`,
-        description: 'Devices in Maintenance or Broken status need follow-up.',
-        count: issueDevices,
-        severity: issueDevices > 0 ? 'danger' : 'success',
       },
       {
         key: 'unassigned-tasks',
@@ -212,14 +187,12 @@ export class DashboardService {
     employees: number;
     branches: number;
     outlets: number;
-    devices: number;
     surveys: number;
   }): DashboardModuleDto[] {
     return [
       { key: 'employees', label: 'Employees', href: '/employees', count: `${counts.employees} profiles` },
       { key: 'branches', label: 'Branches', href: '/branches', count: `${counts.branches} branches` },
       { key: 'outlets', label: 'Outlets', href: '/outlets', count: `${counts.outlets} outlets` },
-      { key: 'devices', label: 'Devices', href: '/devices', count: `${counts.devices} assets` },
       { key: 'surveys', label: 'Surveys', href: '/surveys', count: `${counts.surveys} forms` },
       { key: 'settings', label: 'Settings', href: '/settings', count: 'Regions, roles, statuses' },
     ];

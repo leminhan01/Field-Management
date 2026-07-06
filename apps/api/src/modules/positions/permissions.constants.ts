@@ -20,8 +20,6 @@ export const APP_PERMISSIONS = [
   { key: 'reports.approve', label: 'Duyet bao cao', group: 'Bao cao' },
   { key: 'surveys.read', label: 'Xem khao sat', group: 'Khao sat' },
   { key: 'surveys.manage', label: 'Quan ly khao sat', group: 'Khao sat' },
-  { key: 'devices.read', label: 'Xem thiet bi', group: 'Thiet bi' },
-  { key: 'devices.manage', label: 'Quan ly thiet bi', group: 'Thiet bi' },
   { key: 'positions.read', label: 'Xem chuc vu', group: 'Phan quyen' },
   { key: 'positions.manage', label: 'Quan ly chuc vu va phan quyen', group: 'Phan quyen' },
 ] as const;

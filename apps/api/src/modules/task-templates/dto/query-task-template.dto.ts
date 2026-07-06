@@ -1,7 +1,9 @@
-import { IsEnum, IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { TaskType } from '@prisma/client';
+
+const TASK_TYPES = ['REGULAR', 'SURVEY', 'PROMOTION'] as const;
 
 export class QueryTaskTemplateDto {
   @ApiPropertyOptional({ default: 1 })
@@ -24,9 +26,9 @@ export class QueryTaskTemplateDto {
   @IsString()
   search?: string;
 
-  @ApiPropertyOptional({ enum: TaskType })
+  @ApiPropertyOptional({ enum: TASK_TYPES })
   @IsOptional()
-  @IsEnum(TaskType)
+  @IsIn(TASK_TYPES)
   type?: TaskType;
 
   @ApiPropertyOptional()

@@ -13,7 +13,7 @@ import { useAuth } from '@/hooks/use-auth';
 const features = [
   { icon: '📊', title: 'Dashboard overview', desc: 'Realtime statistics and performance charts' },
   { icon: '📋', title: 'Task Management', desc: 'Task, Template, Assign, Reports' },
-  { icon: '👥', title: 'Staff Management', desc: 'Staff, roles, branches, devices' },
+  { icon: '👥', title: 'Staff Management', desc: 'Staff, roles, branches' },
 ];
 
 export default function LoginPage() {

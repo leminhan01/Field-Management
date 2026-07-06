@@ -16,8 +16,6 @@ const TASK_SELECT = {
   branch: { select: { id: true, name: true, code: true } },
   outletId: true,
   outlet: { select: { id: true, name: true, code: true } },
-  deviceId: true,
-  device: { select: { id: true, name: true, type: true, serial: true } },
   scheduledDate: true,
   startTime: true,
   endTime: true,

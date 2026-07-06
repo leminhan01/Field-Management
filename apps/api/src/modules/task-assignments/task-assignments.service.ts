@@ -6,7 +6,7 @@ interface TemplateRecord {
   id: string;
   name: string;
   description: string | null;
-  type: 'REGULAR' | 'DEVICE_CHECK' | 'SURVEY' | 'PROMOTION';
+  type: 'REGULAR' | 'SURVEY' | 'PROMOTION';
   estimatedDuration: number | null;
 }
 
@@ -40,6 +40,8 @@ const WEEKDAY_INDEX: Record<Weekday, number> = {
   FRI: 5,
   SAT: 6,
 };
+
+const ALLOWED_TASK_TYPES = ['REGULAR', 'SURVEY', 'PROMOTION'] as const;
 
 @Injectable()
 export class TaskAssignmentsService {
@@ -132,7 +134,12 @@ export class TaskAssignmentsService {
   private async resolveTemplates(templateIds: string[], taskGroupIds: string[]) {
     const directTemplates = templateIds.length
       ? await this.prisma.taskTemplate.findMany({
-          where: { id: { in: templateIds }, deletedAt: null, isActive: true },
+          where: {
+            id: { in: templateIds },
+            deletedAt: null,
+            isActive: true,
+            type: { in: [...ALLOWED_TASK_TYPES] },
+          },
           select: {
             id: true,
             name: true,
@@ -179,12 +186,14 @@ export class TaskAssignmentsService {
     const byId = new Map<string, TemplateRecord>();
 
     for (const template of directTemplates) {
-      byId.set(template.id, template);
+      if (ALLOWED_TASK_TYPES.includes(template.type as TemplateRecord['type'])) {
+        byId.set(template.id, template as TemplateRecord);
+      }
     }
 
     for (const group of groups as GroupRecord[]) {
       for (const item of group.templates) {
-        if (item.template.isActive) {
+        if (item.template.isActive && ALLOWED_TASK_TYPES.includes(item.template.type)) {
           const { isActive: _isActive, ...template } = item.template;
           byId.set(template.id, template);
         }

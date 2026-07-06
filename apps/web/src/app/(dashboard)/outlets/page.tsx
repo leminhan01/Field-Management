@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Building2, Filter, Loader2, MapPin, Phone, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { OUTLET_TYPE_LABELS } from '@fieldapp/shared';
@@ -28,6 +29,7 @@ import { extractOutletErrorMessage } from '@/lib/outlets';
 type OutletRow = OutletDto & Record<string, unknown>;
 
 export default function OutletsPage() {
+  const router = useRouter();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [typeFilter, setTypeFilter] = useState('');
@@ -246,6 +248,7 @@ export default function OutletsPage() {
             selectedIds={selectedIds}
             onSelectChange={setSelectedIds}
             getRowId={(row) => row.id}
+            onRowClick={(row) => router.push(`/outlets/${row.id}`)}
             emptyMessage="No outlets found"
           />
           <div className="mt-4">

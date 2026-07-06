@@ -8,14 +8,12 @@ import {
   BarChart3,
   Building2,
   CalendarRange,
-  Camera,
   CheckCircle2,
   ClipboardCheck,
   ClipboardList,
   Clock,
   FileText,
   Loader2,
-  MonitorSpeaker,
   Plus,
   RefreshCw,
   Settings,
@@ -68,20 +66,12 @@ const quickActions: QuickAction[] = [
     icon: FileText,
     className: 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100',
   },
-  {
-    label: 'Device inspection',
-    description: 'Camera, POS, display, standee',
-    href: '/tasks/device-tasks',
-    icon: Camera,
-    className: 'bg-violet-50 text-violet-700 hover:bg-violet-100',
-  },
 ];
 
 const moduleIconMap: Record<string, LucideIcon> = {
   employees: Users,
   branches: Building2,
   outlets: Store,
-  devices: MonitorSpeaker,
   surveys: BarChart3,
   settings: Settings,
 };
@@ -106,7 +96,6 @@ const statusLabelMap: Record<string, string> = {
 
 const typeLabelMap: Record<string, string> = {
   REGULAR: 'Regular',
-  DEVICE_CHECK: 'Device',
   SURVEY: 'Survey',
   PROMOTION: 'Promotion',
 };
@@ -171,14 +160,6 @@ function buildSummaryCards(data: ReturnType<typeof useDashboardOverview>['data']
       iconClass: 'text-amber-600',
       iconBg: 'bg-amber-50',
     },
-    {
-      title: 'Tracked devices',
-      value: String(data?.summary.devices.total || 0),
-      detail: `${data?.summary.devices.active || 0} active, ${data?.summary.devices.issue || 0} need attention`,
-      icon: MonitorSpeaker,
-      iconClass: 'text-violet-600',
-      iconBg: 'bg-violet-50',
-    },
   ];
 }
 
@@ -199,7 +180,7 @@ export default function DashboardPage() {
             Dashboard
           </h1>
           <p className="text-[14px] text-[#434654] mt-1">
-            FieldApp operations overview across staff, outlets, tasks, devices, and reports.
+            FieldApp operations overview across staff, outlets, tasks, surveys, and reports.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -228,7 +209,7 @@ export default function DashboardPage() {
       )}
 
       <motion.div variants={containerVariants} initial="hidden" animate="show">
-        <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+        <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
           {summaryCards.map((card) => (
             <div
               key={card.title}

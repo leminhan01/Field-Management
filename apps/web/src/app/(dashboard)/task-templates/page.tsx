@@ -54,7 +54,7 @@ import {
   updateTaskTemplate,
 } from '@/lib/task-management';
 
-const TASK_TYPES = ['REGULAR', 'DEVICE_CHECK', 'SURVEY', 'PROMOTION'];
+const TASK_TYPES = ['REGULAR', 'SURVEY', 'PROMOTION'];
 const EMPTY_TEMPLATE_FORM = {
   name: '',
   description: '',

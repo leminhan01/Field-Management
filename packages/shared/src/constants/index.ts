@@ -33,15 +33,8 @@ export const TASK_STATUS_LABELS: Record<string, string> = {
 
 export const TASK_TYPE_LABELS: Record<string, string> = {
   REGULAR: 'Regular Task',
-  DEVICE_CHECK: 'Device Check',
   SURVEY: 'Survey',
   PROMOTION: 'Promotion',
-} as const;
-
-export const DEVICE_STATUS_LABELS: Record<string, string> = {
-  ACTIVE: 'Active',
-  MAINTENANCE: 'Maintenance',
-  BROKEN: 'Broken',
 } as const;
 
 export const TASK_STATUS_COLORS: Record<string, string> = {

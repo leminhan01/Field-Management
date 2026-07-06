@@ -3,6 +3,8 @@ import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { TaskStatus, TaskType } from '@prisma/client';
 
+const TASK_TYPES = ['REGULAR', 'SURVEY', 'PROMOTION'] as const;
+
 export class QueryTaskDto {
   @ApiPropertyOptional({ default: 1 })
   @IsOptional()
@@ -24,9 +26,9 @@ export class QueryTaskDto {
   @IsString()
   search?: string;
 
-  @ApiPropertyOptional({ enum: TaskType })
+  @ApiPropertyOptional({ enum: TASK_TYPES })
   @IsOptional()
-  @IsEnum(TaskType, { message: 'Loai cong viec khong hop le' })
+  @IsIn(TASK_TYPES, { message: 'Loai cong viec khong hop le' })
   type?: TaskType;
 
   @ApiPropertyOptional({ enum: TaskStatus })

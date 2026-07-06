@@ -29,7 +29,7 @@ import { useOutlets } from '@/hooks/use-outlets';
 import { useTasks } from '@/hooks/use-tasks';
 import { deleteTask, extractTaskErrorMessage } from '@/lib/tasks';
 
-const TASK_TYPES = ['REGULAR', 'DEVICE_CHECK', 'SURVEY', 'PROMOTION'];
+const TASK_TYPES = ['REGULAR', 'SURVEY', 'PROMOTION'];
 const TASK_STATUSES = ['DRAFT', 'ASSIGNED', 'IN_PROGRESS', 'COMPLETED', 'APPROVED', 'REJECTED'];
 
 type TaskRow = TaskDto & Record<string, unknown>;

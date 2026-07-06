@@ -12,7 +12,6 @@ import {
   CalendarRange,
   Settings,
   Store,
-  MonitorSpeaker,
   ShieldCheck,
   ChevronDown,
   Briefcase,
@@ -80,7 +79,6 @@ const managementMenu: MenuItem[] = [
     children: [
       { key: 'regular-task', label: 'Regular Task', href: '/tasks/regular' },
       { key: 'scheduling', label: 'Scheduling', href: '/tasks/scheduling' },
-      { key: 'device-task', label: 'Device Task', href: '/tasks/device-tasks' },
       { key: 'report', label: 'Report', href: '/tasks/reports' },
     ],
   },
@@ -90,15 +88,6 @@ const othersMenu: MenuItem[] = [
   { key: 'branch', label: 'Branch', icon: Store, href: '/branches' },
   { key: 'outlet', label: 'Outlet', icon: Store, href: '/outlets' },
   { key: 'positions', label: 'Positions', icon: ShieldCheck, href: '/positions' },
-  {
-    key: 'devices',
-    label: 'Devices',
-    icon: MonitorSpeaker,
-    children: [
-      { key: 'camera', label: 'Camera', href: '/devices/camera' },
-      { key: 'pos', label: 'POS', href: '/devices/pos' },
-    ],
-  },
 ];
 
 export default function Sidebar() {
