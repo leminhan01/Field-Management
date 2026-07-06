@@ -1,0 +1,42 @@
+# Production compose cho FieldApp (Web + API).
+# Image lay tu GHCR. Topology VPS:
+#   - NPM o network `proxy`  -> Web va API deu join `proxy` de NPM route theo ten container
+#   - postgres o network `internal` -> API them join `internal` de goi DB
+#
+# Cach dung (tren VPS, thu muc ~/fieldapp):
+#   - Dat file .env cung cap voi file nay
+#   - ( tuy chon ) PROXY_NETWORK / DB_NETWORK trong .env neu ten network khac mac dinh
+#   - docker compose -f docker-compose.prod.yml pull && up -d
+services:
+  api:
+    image: ghcr.io/leminhan01/fieldapp-api:latest
+    container_name: fieldapp-api
+    env_file: .env
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+    networks:
+      - proxy      # NPM: fieldapp-api.lmnhan.io.vn -> http://fieldapp-api:3001
+      - internal   # goi postgres:5432
+    restart: unless-stopped
+
+  web:
+    image: ghcr.io/leminhan01/fieldapp-web:latest
+    container_name: fieldapp-web
+    env_file: .env
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    depends_on:
+      - api
+    networks:
+      - proxy      # NPM: fieldapp.lmnhan.io.vn -> http://fieldapp-web:3000
+    restart: unless-stopped
+
+networks:
+  proxy:
+    name: ${PROXY_NETWORK:-proxy}
+    external: true
+  internal:
+    name: ${DB_NETWORK:-internal}
+    external: true

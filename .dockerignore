@@ -1,0 +1,17 @@
+# Build context chi gom source can thiet -> build nhanh, khong leak .env
+**/node_modules
+**/.next
+**/.turbo
+**/dist
+**/coverage
+.git
+.github
+.vscode
+.idea
+.husky
+**/.env
+**/.env.*
+**/*.log
+docs
+apps/mobile
+*.md

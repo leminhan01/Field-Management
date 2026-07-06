@@ -23,7 +23,7 @@ export function useSurvey(id: string | null) {
       setError(null);
 
       try {
-        const result = await getSurvey(id);
+        const result = await getSurvey(id!);
         if (!cancelled) setData(result);
       } catch (err: unknown) {
         if (!cancelled) setError(extractErrorMessage(err, 'Unable to load survey'));

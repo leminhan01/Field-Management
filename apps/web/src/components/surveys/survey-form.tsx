@@ -24,8 +24,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { extractErrorMessage } from '@/lib/surveys';
-import { QUESTION_TYPE_LABELS } from '@fieldapp/shared';
-import type { SurveyDto, SurveyQuestion, QuestionType } from '@fieldapp/shared';
+import { QUESTION_TYPE_LABELS, QuestionType } from '@fieldapp/shared';
+import type { SurveyDto, SurveyQuestion } from '@fieldapp/shared';
 
 // ==================== Zod Schema ====================
 
@@ -70,7 +70,7 @@ function generateId() {
 function createDefaultQuestion(index: number): SurveyQuestion {
   return {
     id: generateId(),
-    type: 'SHORT_TEXT' as QuestionType,
+    type: QuestionType.SHORT_TEXT,
     label: '',
     required: false,
     order: index,
@@ -316,7 +316,7 @@ export function SurveyForm({ open, mode, survey, onClose, onSubmit }: SurveyForm
 
             <Button
               type="button"
-              variant="dashed"
+              variant="outline"
               size="sm"
               className="w-full h-9 border-dashed border-2 text-[13px] text-muted-foreground hover:text-primary hover:border-primary"
               onClick={addQuestion}

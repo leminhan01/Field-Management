@@ -1,31 +1,51 @@
+# syntax=docker/dockerfile:1
+# Multi-stage build cho @fieldapp/web (Next.js 15 standalone)
+# --- base ---
 FROM node:22-alpine AS base
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@10.27.0 --activate
 WORKDIR /app
+# Hoisted linker: next/react la thu muc that (khong phai symlink vao .pnpm)
+# -> Next standalone tracing copy file that vao bundle, tranh loi "Cannot find module 'next'"
+ENV NPM_CONFIG_NODE_LINKER=hoisted \
+    NEXT_TELEMETRY_DISABLED=1
 
+# --- deps (cache theo lockfile/package.json) ---
 FROM base AS deps
 COPY pnpm-workspace.yaml pnpm-lock.yaml package.json turbo.json ./
 COPY apps/web/package.json ./apps/web/package.json
 COPY packages/shared/package.json ./packages/shared/package.json
 RUN pnpm install --frozen-lockfile
 
+# --- builder ---
 FROM base AS builder
+# Build-time env: Next.js inline NEXT_PUBLIC_* vao client bundle
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
+    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=$NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
-COPY --from=deps /app/packages/shared/node_modules ./packages/shared/node_modules
 COPY apps/web ./apps/web
 COPY packages/shared ./packages/shared
 COPY turbo.json pnpm-workspace.yaml package.json ./
-ENV NEXT_TELEMETRY_DISABLED=1
+# Hoisted linker chi link @fieldapp/shared trong apps/web/node_modules -> tao symlink tai root
+RUN mkdir -p node_modules/@fieldapp && ln -sf /app/packages/shared node_modules/@fieldapp/shared
 RUN pnpm build:web
 
-FROM base AS runner
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
+# --- runner (chi can node de chay standalone server) ---
+FROM node:22-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=3000 \
+    HOSTNAME=0.0.0.0
 RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
-COPY --from=builder /app/apps/web/public ./public
+# Monorepo standalone (outputFileTracingRoot=root): node_modules o /app, server.js o apps/web/
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
+WORKDIR /app/apps/web
 USER nextjs
 EXPOSE 3000
-ENV PORT=3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD wget -q -O /dev/null http://127.0.0.1:3000/login || exit 1
 CMD ["node", "server.js"]
