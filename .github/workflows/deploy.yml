@@ -82,40 +82,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Ensure deploy dir exists on VPS
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          port: ${{ secrets.VPS_PORT }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: mkdir -p /opt/projects/fieldapp
+      - name: Encode compose file to base64
+        id: compose
+        run: echo "b64=$(base64 -w0 docker/docker-compose.prod.yml)" >> "$GITHUB_OUTPUT"
 
-      - name: Copy compose file to VPS
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          port: ${{ secrets.VPS_PORT }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          source: "docker/docker-compose.prod.yml"
-          target: "/opt/projects/fieldapp"
-          strip_components: 1
-
-      - name: SSH deploy
+      - name: Deploy over SSH (single session)
         uses: appleboy/ssh-action@v1.2.0
         env:
           GHCR_PAT: ${{ secrets.GHCR_PAT }}
           OWNER: ${{ github.repository_owner }}
+          COMPOSE_B64: ${{ steps.compose.outputs.b64 }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           port: ${{ secrets.VPS_PORT }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          envs: GHCR_PAT,OWNER
+          envs: GHCR_PAT,OWNER,COMPOSE_B64
+          command_timeout: 20m
           script: |
             set -e
+            mkdir -p /opt/projects/fieldapp
             cd /opt/projects/fieldapp
+            printf '%s' "$COMPOSE_B64" | base64 -d > docker-compose.prod.yml
             echo "$GHCR_PAT" | docker login ghcr.io -u "$OWNER" --password-stdin
             docker compose -f docker-compose.prod.yml pull
             docker compose -f docker-compose.prod.yml up -d --remove-orphans
