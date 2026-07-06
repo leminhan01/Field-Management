@@ -1,0 +1,2 @@
+# Placeholder so git tracks this empty directory and Docker (BuildKit) copies it.
+# Add static assets (favicon, images, robots.txt, etc.) alongside this file.
