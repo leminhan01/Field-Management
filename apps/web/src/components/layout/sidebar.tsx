@@ -50,7 +50,7 @@ const managementMenu: MenuItem[] = [
     icon: Users,
     children: [
       { key: 'staff-list', label: 'Staff List', href: '/employees' },
-      { key: 'attendance', label: 'Attendance', href: '/employees/attendance' },
+      // { key: 'attendance', label: 'Attendance', href: '/employees/attendance' },
     ],
   },
   {
@@ -58,9 +58,9 @@ const managementMenu: MenuItem[] = [
     label: 'Task',
     icon: ClipboardList,
     children: [
-      { key: 'all-tasks', label: 'All Tasks', href: '/tasks' },
-      { key: 'task-templates', label: 'Templates & Groups', href: '/task-templates' },
-      { key: 'my-tasks', label: 'My Tasks', href: '/tasks/my' },
+      // { key: 'all-tasks', label: 'All Tasks', href: '/tasks' },
+      { key: 'task-templates', label: 'Templates & Task Group', href: '/task-templates' },
+      // { key: 'my-tasks', label: 'My Tasks', href: '/tasks/my' },
     ],
   },
   {
